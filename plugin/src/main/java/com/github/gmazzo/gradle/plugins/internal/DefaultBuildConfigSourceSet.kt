@@ -1,12 +1,16 @@
 package com.github.gmazzo.gradle.plugins.internal
 
 import com.github.gmazzo.gradle.plugins.BuildConfigSourceSet
-import org.gradle.api.Named
 
-internal class DefaultBuildConfigSourceSet(
+internal open class DefaultBuildConfigSourceSet(
     private val name: String
-) : BuildConfigSourceSet, Named {
+) : BuildConfigSourceSet {
+
+    private val fields = mutableListOf<BuildConfigSourceSet.Field>()
 
     override fun getName() = name
+
+    override fun buildConfigField(field: BuildConfigSourceSet.Field) =
+        field.also { fields.add(it) }
 
 }
