@@ -6,13 +6,16 @@ import com.github.gmazzo.gradle.plugins.BuildConfigSourceSet
 import org.gradle.api.internal.FactoryNamedDomainObjectContainer
 import org.gradle.internal.reflect.Instantiator
 
-internal open class DefaultBuildConfigExtension(instantiator: Instantiator) :
+internal open class DefaultBuildConfigExtension(
+    instantiator: Instantiator,
+    internal val sharedSourceSet: DefaultBuildConfigSourceSet
+) :
     FactoryNamedDomainObjectContainer<BuildConfigSourceSet>(
         BuildConfigSourceSet::class.java,
         instantiator
     ),
     BuildConfigExtension,
-    BuildConfigSourceSet by DefaultBuildConfigSourceSet("default") {
+    BuildConfigSourceSet by sharedSourceSet {
 
     var language = BuildConfigLanguage.JAVA
 

@@ -9,9 +9,4 @@ buildConfig {
     buildConfigField("String", "APP_SECRET", "\"Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu\"")
     buildConfigField("long", "BUILD_TIME", "${System.currentTimeMillis()}")
     buildConfigField("boolean", "FEATURE_ENABLED", "${true}")
-
-    // delegated field example
-    buildConfigField("int", "MAGIC_CODE") {
-        "0x" + Random().nextInt(1000).toString(16)
-    }
 }
