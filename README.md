@@ -10,7 +10,7 @@ On your `build.gradle.kts` add:
 ```kotlin
 plugins {
     id("org.jetbrains.kotlin.jvm") version "1.3.11"
-    id("com.github.gmazzo.buildconfig") version "<local>"
+    id("com.github.gmazzo.buildconfig") version "0.1"
 }
 
 buildConfig {
@@ -39,7 +39,7 @@ On your `build.gradle` add:
 ```groovy
 plugins {
     id 'java'
-    id 'com.github.gmazzo.buildconfig' version '<local>'
+    id 'com.github.gmazzo.buildconfig' version '0.1'
 }
 
 buildConfig {
