@@ -1,7 +1,7 @@
 # gradle-buildconfig-plugin
 A plugin for generating BuildConstants for any kind of Gradle projects: Java, Kotlin, Groovy, etc. Designed for KTS scripts.
-Check [https://plugins.gradle.org/plugin/com.github.gmazzo.buildconfig](https://plugins.gradle.org/plugin/com.github.gmazzo.buildconfig)
 
+[![Plugins Site](https://img.shields.io/maven-metadata/v/https/plugins.gradle.org/m2/com/github/gmazzo/gradle-buildconfig-plugin/maven-metadata.xml.svg?label=gradle-plugins)](https://plugins.gradle.org/plugin/com.github.gmazzo.buildconfig)
 [![Build Status](https://travis-ci.com/gmazzo/gradle-buildconfig-plugin.svg?branch=master)](https://travis-ci.com/gmazzo/gradle-buildconfig-plugin)
 [![codecov](https://codecov.io/gh/gmazzo/gradle-buildconfig-plugin/branch/master/graph/badge.svg)](https://codecov.io/gh/gmazzo/gradle-buildconfig-plugin)
 
