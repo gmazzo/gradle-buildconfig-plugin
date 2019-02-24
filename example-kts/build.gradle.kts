@@ -8,5 +8,9 @@ buildConfig {
     buildConfigField("String", "APP_SECRET", "\"Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu\"")
     buildConfigField("long", "BUILD_TIME", "${System.currentTimeMillis()}L")
     buildConfigField("boolean", "FEATURE_ENABLED", "${true}")
-    buildConfigField("int[]", "MAGIC_NUMBERS", "arrayOf(1, 2, 3, 4)")
+    buildConfigField("IntArray", "MAGIC_NUMBERS", "intArrayOf(1, 2, 3, 4)")
+}
+
+dependencies {
+    implementation(kotlin("stdlib"))
 }

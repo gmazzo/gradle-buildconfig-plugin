@@ -10,6 +10,8 @@ apply(from = "../buildShared.gradle.kts")
 base.archivesBaseName = "gradle-buildconfig-plugin"
 
 dependencies {
+    compileOnly(kotlin("gradle-plugin"))
+
     implementation(kotlin("stdlib"))
     implementation("com.squareup:javapoet:1.11.1")
     implementation("com.squareup:kotlinpoet:1.0.1")

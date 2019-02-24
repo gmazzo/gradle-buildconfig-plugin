@@ -17,7 +17,7 @@ open class BuildConfigTask : DefaultTask() {
     var packageName = ""
 
     @Input
-    lateinit var fields: Iterable<BuildConfigField>
+    lateinit var fields: Collection<BuildConfigField>
 
     @Input
     var language = BuildConfigLanguage.JAVA
@@ -30,6 +30,10 @@ open class BuildConfigTask : DefaultTask() {
             .map { it.name to it }
             .toMap()
             .values
+
+    init {
+        onlyIf { fields.isNotEmpty() }
+    }
 
     @TaskAction
     fun generateBuildConfigFile() {

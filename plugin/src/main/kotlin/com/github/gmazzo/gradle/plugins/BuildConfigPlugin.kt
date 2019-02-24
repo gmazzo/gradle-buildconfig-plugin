@@ -8,7 +8,9 @@ import org.gradle.api.Project
 import org.gradle.api.logging.Logging
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginConvention
+import org.gradle.api.tasks.SourceSet
 import org.gradle.internal.reflect.Instantiator
+import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import javax.inject.Inject
 
 class BuildConfigPlugin @Inject constructor(
@@ -38,7 +40,7 @@ class BuildConfigPlugin @Inject constructor(
                 createBuildConfigTask(
                     project,
                     extension,
-                    extension.create(ss.name) as DefaultBuildConfigSourceSet
+                    ss
                 ).apply {
                     ss.java.srcDir(outputDir)
                     project.tasks.getAt(ss.compileJavaTaskName).dependsOn(this)
@@ -50,16 +52,33 @@ class BuildConfigPlugin @Inject constructor(
     private fun createBuildConfigTask(
         project: Project,
         extension: DefaultBuildConfigExtension,
-        sourceSet: DefaultBuildConfigSourceSet
+        sourceSet: SourceSet
     ): BuildConfigTask {
         val prefix = sourceSet.name.takeUnless { it == "main" }?.capitalize() ?: ""
+        val bcss = extension.create(sourceSet.name) as DefaultBuildConfigSourceSet
 
         return project.tasks.create("generate${prefix}BuildConfig", BuildConfigTask::class.java).apply {
             className = extension.className ?: "${prefix}BuildConfig"
             packageName = extension.packageName ?: project.group.toString()
             language = extension.language ?: BuildConfigLanguage.JAVA
-            fields = sourceSet.fields
+            fields = bcss.fields
             outputDir = project.file("${project.buildDir}/generated/buildConfig/${sourceSet.name}")
+
+            when (language) {
+                BuildConfigLanguage.JAVA -> {
+                    sourceSet.java.srcDir(outputDir)
+                    project.tasks.getAt(sourceSet.compileJavaTaskName).dependsOn(this)
+                }
+                BuildConfigLanguage.KOTLIN -> {
+                    val kss = project.extensions
+                        .getByType(KotlinProjectExtension::class.java)
+                        .sourceSets
+                        .getAt(sourceSet.name)
+
+                    kss.kotlin.srcDir(outputDir)
+                    project.tasks.getAt("compileKotlin").dependsOn(this)
+                }
+            }
         }
     }
 
