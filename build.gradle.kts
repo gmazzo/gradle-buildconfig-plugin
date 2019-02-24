@@ -1,4 +1,4 @@
-apply(from = "buildShared.gradle.kts")
+apply(from = "build.shared.gradle.kts")
 
 task<Delete>("clean") {
     delete(rootProject.buildDir)

@@ -5,11 +5,12 @@ import com.github.gmazzo.gradle.plugins.internal.DefaultBuildConfigSourceSet
 import com.github.gmazzo.gradle.plugins.tasks.BuildConfigTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.internal.HasConvention
 import org.gradle.api.logging.Logging
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.internal.reflect.Instantiator
-import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import javax.inject.Inject
 
 class BuildConfigPlugin @Inject constructor(
@@ -50,12 +51,9 @@ class BuildConfigPlugin @Inject constructor(
                     project.tasks.getAt(ss.compileJavaTaskName).dependsOn(this)
 
                     if (kotlinDetected) {
-                        project.extensions
-                            .getByType(KotlinProjectExtension::class.java)
-                            .sourceSets
-                            .getAt(ss.name)
-                            .kotlin
-                            .srcDir(outputDir)
+                        (ss as HasConvention).convention.getPlugin(KotlinSourceSet::class.java).apply {
+                            kotlin.srcDir(outputDir)
+                        }
                         project.tasks.getAt("compileKotlin").dependsOn(this)
                     }
 

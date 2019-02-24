@@ -1,5 +1,5 @@
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "1.3.11"
+    id("org.jetbrains.kotlin.jvm") version "1.2.61"
     id("com.github.gmazzo.buildconfig") version "<local>"
 }
 
