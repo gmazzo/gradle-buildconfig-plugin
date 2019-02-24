@@ -7,27 +7,14 @@ import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
+import org.apache.commons.lang3.ClassUtils
 import org.gradle.api.logging.Logging
-import java.lang.reflect.Modifier.FINAL
-import java.lang.reflect.Modifier.PUBLIC
-import java.lang.reflect.Modifier.STATIC
 import javax.annotation.Generated
 import javax.lang.model.element.Modifier
 
 internal object BuildConfigJavaGenerator : BuildConfigGenerator {
 
     private val logger = Logging.getLogger(javaClass)
-
-    private val knownTypes by lazy {
-        val constantModifiers = PUBLIC or STATIC or FINAL
-
-        TypeName::class.java.declaredFields
-            .filter { it.modifiers and constantModifiers == constantModifiers }
-            .filter { TypeName::class.java.isAssignableFrom(it.type) }
-            .map { it.get(null) as TypeName }
-            .map { it.toString() to it }
-            .toMap() + ("String" to TypeName.get(String::class.java))
-    }
 
     override fun invoke(task: BuildConfigTask) {
         logger.debug("Generating ${task.className} for fields ${task.fields}")
@@ -39,19 +26,18 @@ internal object BuildConfigJavaGenerator : BuildConfigGenerator {
                     .build()
             )
 
-        task.distintFields.forEach {
-            val typeName = knownTypes.getOrElse(it.type) {
-                ClassName.bestGuess(it.type)
+        task.distinctFields.forEach {
+            val typeName = when (it.type) {
+                "String" -> TypeName.get(String::class.java)
+                else -> try {
+                    ClassName.bestGuess(it.type)
+                } catch (_: IllegalArgumentException) {
+                    TypeName.get(ClassUtils.getClass(it.type, false))
+                }
             }
 
             typeSpec.addField(
-                FieldSpec.builder(
-                    typeName,
-                    it.name,
-                    Modifier.PUBLIC,
-                    Modifier.STATIC,
-                    Modifier.FINAL
-                )
+                FieldSpec.builder(typeName, it.name, Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
                     .initializer(CodeBlock.of(it.value))
                     .build()
             )

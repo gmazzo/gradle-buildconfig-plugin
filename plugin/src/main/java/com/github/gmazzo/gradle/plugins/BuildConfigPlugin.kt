@@ -29,24 +29,23 @@ class BuildConfigPlugin @Inject constructor(
             sharedSourceSet
         ) as DefaultBuildConfigExtension
 
-        project.plugins.withType(JavaPlugin::class.java) {
-            project.convention.getPlugin(JavaPluginConvention::class.java).sourceSets.all { ss ->
-                logger.debug("Creating buildConfig sourceSet '${ss.name}' for $project")
-
-                extension.create(ss.name)
-            }
-        }
-
         project.plugins.withId("org.jetbrains.kotlin.jvm") {
             logger.debug("Configuring buildConfig '${BuildConfigLanguage.KOTLIN}' language for $project")
 
             extension.language(BuildConfigLanguage.KOTLIN)
         }
 
-        extension.all {
-            val task = createBuildConfigTask(project, extension, it as DefaultBuildConfigSourceSet)
+        project.plugins.withType(JavaPlugin::class.java) {
+            project.convention.getPlugin(JavaPluginConvention::class.java).sourceSets.all { ss ->
+                logger.debug("Creating buildConfig sourceSet '${ss.name}' for $project")
 
+                val buildConfidSS = extension.create(ss.name)
 
+                val task = createBuildConfigTask(project, extension, buildConfidSS as DefaultBuildConfigSourceSet)
+
+                ss.java.srcDir(task.outputDir)
+                project.tasks.getAt(ss.compileJavaTaskName).dependsOn(task)
+            }
         }
     }
 
@@ -55,17 +54,17 @@ class BuildConfigPlugin @Inject constructor(
         extension: DefaultBuildConfigExtension,
         sourceSet: DefaultBuildConfigSourceSet
     ): BuildConfigTask {
-        val prefix = sourceSet.name.takeUnless { it == "main" } ?: ""
+        val prefix = sourceSet.name.takeUnless { it == "main" }?.capitalize() ?: ""
 
-        return project.tasks.create("generate${prefix}BuildConfig", BuildConfigTask::class.java) {
-            it.packageName = project.group.toString()
-            it.fields = CompositeDomainObjectSet.create(
+        return project.tasks.create("generate${prefix}BuildConfig", BuildConfigTask::class.java).apply {
+            packageName = project.group.toString()
+            fields = CompositeDomainObjectSet.create(
                 BuildConfigField::class.java,
                 extension.sharedSourceSet.fields,
                 sourceSet.fields
             )
-            it.language = extension.language
-            it.outputDir = project.file("${project.buildDir}/generated/buildConfig/${sourceSet.name}")
+            language = extension.language
+            outputDir = project.file("${project.buildDir}/generated/buildConfig/${sourceSet.name}")
         }
     }
 

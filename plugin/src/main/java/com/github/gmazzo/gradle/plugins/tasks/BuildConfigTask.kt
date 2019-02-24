@@ -25,7 +25,7 @@ open class BuildConfigTask : DefaultTask() {
     @OutputDirectory
     lateinit var outputDir: File
 
-    internal val distintFields
+    internal val distinctFields
         get() = fields
             .map { it.name to it }
             .toMap()
@@ -35,7 +35,7 @@ open class BuildConfigTask : DefaultTask() {
     fun generateBuildConfigFile() {
         when (language) {
             BuildConfigLanguage.JAVA -> BuildConfigJavaGenerator
-            BuildConfigLanguage.KOTLIN -> BuildConfigJavaGenerator
+            BuildConfigLanguage.KOTLIN -> BuildConfigKoltinGenerator
         }(this)
     }
 

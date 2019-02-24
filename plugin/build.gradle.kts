@@ -13,6 +13,7 @@ dependencies {
     implementation(kotlin("stdlib"))
     implementation("com.squareup:javapoet:1.11.1")
     implementation("com.squareup:kotlinpoet:1.0.1")
+    implementation("org.apache.commons:commons-lang3:3.8.1")
 }
 
 gradlePlugin {
