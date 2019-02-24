@@ -29,7 +29,7 @@ dependencies {
 
 val pluginId = "com.github.gmazzo.buildconfig"
 val repoName = "gradle-buildconfig-plugin"
-val repoDesc = "A Gradle plugin for generating BuildConstants for any kind of project (no just Android)"
+val repoDesc = "A plugin for generating BuildConstants for any kind of Gradle projects: Java, Kotlin, Groovy, etc. Designed for KTS scripts."
 val repoUrl = "https://github.com/gmazzo/$repoName"
 val repoTags = listOf("buildconfig", "java", "kotlin", "gradle", "gradle-plugin", "gradle-kotlin-dsl")
 

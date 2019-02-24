@@ -1,5 +1,5 @@
 # gradle-buildconfig-plugin
-A Gradle plugin for generating BuildConstants for any kind of project (no just Android)
+A plugin for generating BuildConstants for any kind of Gradle projects: Java, Kotlin, Groovy, etc. Designed for KTS scripts.
 Check [https://plugins.gradle.org/plugin/com.github.gmazzo.buildconfig](https://plugins.gradle.org/plugin/com.github.gmazzo.buildconfig)
 
 [![Build Status](https://travis-ci.com/gmazzo/gradle-buildconfig-plugin.svg?branch=master)](https://travis-ci.com/gmazzo/gradle-buildconfig-plugin)
@@ -24,6 +24,8 @@ buildConfig {
 ```
 Will generate `BuildConfig.kt`:
 ```kotlin
+@file:Generated("com.github.gmazzo.gradle.plugins.tasks.BuildConfigKoltinGenerator")
+
 const val APP_NAME: String = "example-kts"
 
 const val APP_SECRET: String = "Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu"
@@ -89,11 +91,14 @@ Will generate `com.foo.MyConfig` in a `MyConfig.java` file.
 ## Advanced
 ### Generate constants from resources files
 Assuming you have the following structure:
-```yaml
+```
 myproject
 - src
   - main
     - resources
+      - config
+        - local.properties
+        - prod.properties
       - file1.json
       - file1.json
 ```
@@ -116,6 +121,10 @@ task("generateResourcesConstants") {
 ```
 Will generate in `BuildConfig.kt`:
 ```kotlin
+val RESOURCE_CONFIG_LOCAL_PROPERTIES: File = File("config/local.properties")
+
+val RESOURCE_CONFIG_PROD_PROPERTIES: File = File("config/prod.properties")
+
 val RESOURCE_FILE1_JSON: File = File("file1.json")
 
 val RESOURCE_FILE2_JSON: File = File("file2.json")
