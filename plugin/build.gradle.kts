@@ -3,11 +3,20 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("java-gradle-plugin")
     id("org.jetbrains.kotlin.jvm")
+    id("com.gradle.plugin-publish") version "0.10.1"
 }
 
 apply(from = "../buildShared.gradle.kts")
 
 base.archivesBaseName = "gradle-buildconfig-plugin"
+
+tasks {
+    withType(KotlinCompile::class).all {
+        kotlinOptions {
+            jvmTarget = "1.8"
+        }
+    }
+}
 
 dependencies {
     compileOnly(kotlin("gradle-plugin"))
@@ -18,19 +27,30 @@ dependencies {
     implementation("org.apache.commons:commons-lang3:3.8.1")
 }
 
+val pluginId = "com.github.gmazzo.buildconfig"
+val repoName = "gradle-buildconfig-plugin"
+val repoDesc = "A Gradle plugin for generating BuildConstants for any kind of project (no just Android)"
+val repoUrl = "https://github.com/gmazzo/$repoName"
+val repoTags = listOf("buildconfig", "java", "kotlin", "gradle", "gradle-plugin", "gradle-kotlin-dsl")
+
 gradlePlugin {
     plugins {
         create("buildconfig") {
             id = "com.github.gmazzo.buildconfig"
+            displayName = "Gradle BuildConfig Plugin"
             implementationClass = "com.github.gmazzo.gradle.plugins.BuildConfigPlugin"
         }
     }
 }
 
-tasks {
-    withType(KotlinCompile::class).all {
-        kotlinOptions {
-            jvmTarget = "1.8"
-        }
+pluginBundle {
+    website = repoUrl
+    vcsUrl = repoUrl
+    description = repoDesc
+    tags = repoTags
+
+    mavenCoordinates {
+        groupId = project.group.toString()
+        artifactId = base.archivesBaseName
     }
 }
