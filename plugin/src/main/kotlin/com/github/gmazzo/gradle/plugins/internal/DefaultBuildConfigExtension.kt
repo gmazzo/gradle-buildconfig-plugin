@@ -43,6 +43,6 @@ internal open class DefaultBuildConfigExtension(
         default.name
 
     override fun doCreate(name: String): BuildConfigSourceSet =
-        instantiator.newInstance(DefaultBuildConfigSourceSet::class.java, name)
+        instantiator.newInstance(DefaultBuildConfigSourceSet::class.java, name, instantiator)
 
 }

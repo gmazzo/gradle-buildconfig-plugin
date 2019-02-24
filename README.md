@@ -19,6 +19,7 @@ buildConfig {
     buildConfigField("long", "BUILD_TIME", "${System.currentTimeMillis()}L")
     buildConfigField("boolean", "FEATURE_ENABLED", "${true}")
     buildConfigField("IntArray", "MAGIC_NUMBERS", "intArrayOf(1, 2, 3, 4)")
+    buildConfigField("com.github.gmazzo.SomeData", "MY_DATA", "new SomeData(\"a\",1)")
 }
 ```
 Will generate `BuildConfig.kt`:
@@ -32,6 +33,8 @@ const val BUILD_TIME: Long = 1550997069821L
 const val FEATURE_ENABLED: Boolean = true
 
 val MAGIC_NUMBERS: IntArray = intArrayOf(1, 2, 3, 4)
+
+val MY_DATA: SomeData = SomeData("a",1)
 ```
 
 ## Usage in Groovy
@@ -48,6 +51,7 @@ buildConfig {
     buildConfigField('long', 'BUILD_TIME', "${System.currentTimeMillis()}L")
     buildConfigField('boolean', 'FEATURE_ENABLED', "${true}")
     buildConfigField('int[]', 'MAGIC_NUMBERS', '{1, 2, 3, 4}')
+    buildConfigField("com.github.gmazzo.SomeData", "MY_DATA", "new SomeData(\"a\",1)")
 }
 ```
 Will generate `BuildConfig.java`:
@@ -63,6 +67,8 @@ public final class BuildConfig {
   public static final boolean FEATURE_ENABLED = true;
 
   public static final int[] MAGIC_NUMBERS = {1, 2, 3, 4};
+
+  public static final SomeData MY_DATA = new SomeData("a",1);
 
   private BuildConfig() {
   }

@@ -9,4 +9,5 @@ buildConfig {
     buildConfigField('long', 'BUILD_TIME', "${System.currentTimeMillis()}L")
     buildConfigField('boolean', 'FEATURE_ENABLED', "${true}")
     buildConfigField('int[]', 'MAGIC_NUMBERS', '{1, 2, 3, 4}')
+    buildConfigField("com.github.gmazzo.SomeData", "MY_DATA", "new SomeData(\"a\",1)")
 }

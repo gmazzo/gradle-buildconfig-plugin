@@ -4,7 +4,6 @@ import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.io.File
 
 class BuildConfigTest {
 
@@ -15,10 +14,13 @@ class BuildConfigTest {
         assertTrue(System.currentTimeMillis() >= BUILD_TIME)
         assertTrue(FEATURE_ENABLED)
         assertArrayEquals(intArrayOf(1, 2, 3, 4), MAGIC_NUMBERS)
+        assertEquals(SomeData("a", 1), MY_DATA)
 
         // resource files
-        assertEquals(File("file1.json"), RESOURCE_FILE1_JSON)
-        assertEquals(File("file2.json"), RESOURCE_FILE2_JSON)
+        assertEquals("file1.json", RESOURCE_FILE1_JSON.path)
+        assertEquals("file2.json", RESOURCE_FILE2_JSON.path)
+        assertEquals("config/local.properties", RESOURCE_CONFIG_LOCAL_PROPERTIES.path)
+        assertEquals("config/prod.properties", RESOURCE_CONFIG_PROD_PROPERTIES.path)
     }
 
 }

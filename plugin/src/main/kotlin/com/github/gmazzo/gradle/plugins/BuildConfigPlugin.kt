@@ -40,9 +40,10 @@ class BuildConfigPlugin @Inject constructor(
                 logger.debug("Creating buildConfig sourceSet '${ss.name}' for $project")
 
                 val prefix = ss.name.takeUnless { it == "main" }?.capitalize() ?: ""
+                val sourceSet = extension.create(ss.name) as DefaultBuildConfigSourceSet
 
                 project.tasks.create("generate${prefix}BuildConfig", BuildConfigTask::class.java).apply {
-                    fields = (extension.create(ss.name) as DefaultBuildConfigSourceSet).fields
+                    fields = sourceSet.fields
                     outputDir = project.file("${project.buildDir}/generated/buildConfig/${ss.name}")
 
                     ss.java.srcDir(outputDir)

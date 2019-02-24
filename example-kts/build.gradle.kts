@@ -9,15 +9,19 @@ buildConfig {
     buildConfigField("long", "BUILD_TIME", "${System.currentTimeMillis()}L")
     buildConfigField("boolean", "FEATURE_ENABLED", "${true}")
     buildConfigField("IntArray", "MAGIC_NUMBERS", "intArrayOf(1, 2, 3, 4)")
+    buildConfigField("com.github.gmazzo.SomeData", "MY_DATA", "SomeData(\"a\",1)")
 }
 
+/**
+ *  A task that iterates over your classpath resources and generate constants for them
+ */
 task("generateResourcesConstants") {
     doFirst {
         val resources = sourceSets["main"].resources
 
         resources.files.forEach {
-            val name = it.name.toUpperCase().replace("\\W".toRegex(), "_")
-            val path = it.relativeTo(resources.srcDirs.iterator().next())
+            val path = it.relativeTo(resources.srcDirs.iterator().next()).path
+            val name = path.toUpperCase().replace("\\W".toRegex(), "_")
 
             buildConfig.buildConfigField("java.io.File", "RESOURCE_$name", "File(\"$path\")")
         }

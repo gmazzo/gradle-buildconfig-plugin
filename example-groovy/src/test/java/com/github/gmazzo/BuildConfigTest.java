@@ -15,6 +15,7 @@ public class BuildConfigTest {
         assertTrue(System.currentTimeMillis() >= BuildConfig.BUILD_TIME);
         assertTrue(BuildConfig.FEATURE_ENABLED);
         assertArrayEquals(new int[]{1, 2, 3, 4}, BuildConfig.MAGIC_NUMBERS);
+        assertEquals(new SomeData("a", 1), BuildConfig.MY_DATA);
     }
 
 }
