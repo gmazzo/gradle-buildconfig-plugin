@@ -20,7 +20,7 @@ open class BuildConfigTask : DefaultTask() {
     lateinit var fields: Iterable<BuildConfigField>
 
     @Input
-    lateinit var language: BuildConfigLanguage
+    var language = BuildConfigLanguage.JAVA
 
     @OutputDirectory
     lateinit var outputDir: File
