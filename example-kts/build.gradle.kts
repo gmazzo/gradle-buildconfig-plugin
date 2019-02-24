@@ -11,6 +11,21 @@ buildConfig {
     buildConfigField("IntArray", "MAGIC_NUMBERS", "intArrayOf(1, 2, 3, 4)")
 }
 
+task("generateResourcesConstants") {
+    doFirst {
+        val resources = sourceSets["main"].resources
+
+        resources.files.forEach {
+            val name = it.name.toUpperCase().replace("\\W".toRegex(), "_")
+            val path = it.relativeTo(resources.srcDirs.iterator().next())
+
+            buildConfig.buildConfigField("java.io.File", "RESOURCE_$name", "File(\"$path\")")
+        }
+    }
+
+    tasks["generateBuildConfig"].dependsOn(this)
+}
+
 dependencies {
     implementation(kotlin("stdlib"))
 }

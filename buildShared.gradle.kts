@@ -8,7 +8,7 @@ allprojects {
     version = "0.1"
 
     project.plugins.withType(JavaPlugin::class.java) {
-        dependencies.add("testImplementation", "org.junit.jupiter:junit-jupiter:5.4.0")
+        dependencies.add("testImplementation", "junit:junit:4.12")
     }
 
 }

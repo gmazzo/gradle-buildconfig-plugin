@@ -5,6 +5,7 @@ import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.JavaFile
+import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
 import org.apache.commons.lang3.ClassUtils
@@ -20,6 +21,7 @@ internal object BuildConfigJavaGenerator : BuildConfigGenerator {
         logger.debug("Generating ${task.className} for fields ${task.fields}")
 
         val typeSpec = TypeSpec.classBuilder(task.className)
+            .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
             .addAnnotation(
                 AnnotationSpec.builder(Generated::class.java)
                     .addMember("value", "\$S", javaClass.name)
@@ -43,7 +45,15 @@ internal object BuildConfigJavaGenerator : BuildConfigGenerator {
             )
         }
 
-        JavaFile.builder(task.packageName, typeSpec.build())
+        JavaFile.builder(
+            task.packageName, typeSpec
+                .addMethod(
+                    MethodSpec.constructorBuilder()
+                        .addModifiers(Modifier.PRIVATE)
+                        .build()
+                )
+                .build()
+        )
             .build()
             .writeTo(task.outputDir)
     }

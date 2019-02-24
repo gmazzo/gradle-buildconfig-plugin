@@ -1,13 +1,15 @@
 package com.github.gmazzo;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class BuildConfigTest {
 
     @Test
-    void testBuildConfigProperties() {
+    public void testBuildConfigProperties() {
         assertEquals("example-groovy", BuildConfig.APP_NAME);
         assertEquals("Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu", BuildConfig.APP_SECRET);
         assertTrue(System.currentTimeMillis() >= BuildConfig.BUILD_TIME);

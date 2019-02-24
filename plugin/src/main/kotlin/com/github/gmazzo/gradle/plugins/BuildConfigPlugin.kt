@@ -8,7 +8,6 @@ import org.gradle.api.Project
 import org.gradle.api.logging.Logging
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginConvention
-import org.gradle.api.tasks.SourceSet
 import org.gradle.internal.reflect.Instantiator
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import javax.inject.Inject
@@ -27,9 +26,12 @@ class BuildConfigPlugin @Inject constructor(
             instantiator
         ) as DefaultBuildConfigExtension
 
+        var kotlinDetected = false
+
         project.plugins.withId("org.jetbrains.kotlin.jvm") {
             logger.debug("Configuring buildConfig '${BuildConfigLanguage.KOTLIN}' language for $project")
 
+            kotlinDetected = true
             extension.language(BuildConfigLanguage.KOTLIN)
         }
 
@@ -37,46 +39,30 @@ class BuildConfigPlugin @Inject constructor(
             project.convention.getPlugin(JavaPluginConvention::class.java).sourceSets.all { ss ->
                 logger.debug("Creating buildConfig sourceSet '${ss.name}' for $project")
 
-                createBuildConfigTask(
-                    project,
-                    extension,
-                    ss
-                ).apply {
+                val prefix = ss.name.takeUnless { it == "main" }?.capitalize() ?: ""
+
+                project.tasks.create("generate${prefix}BuildConfig", BuildConfigTask::class.java).apply {
+                    fields = (extension.create(ss.name) as DefaultBuildConfigSourceSet).fields
+                    outputDir = project.file("${project.buildDir}/generated/buildConfig/${ss.name}")
+
                     ss.java.srcDir(outputDir)
                     project.tasks.getAt(ss.compileJavaTaskName).dependsOn(this)
-                }
-            }
-        }
-    }
 
-    private fun createBuildConfigTask(
-        project: Project,
-        extension: DefaultBuildConfigExtension,
-        sourceSet: SourceSet
-    ): BuildConfigTask {
-        val prefix = sourceSet.name.takeUnless { it == "main" }?.capitalize() ?: ""
-        val bcss = extension.create(sourceSet.name) as DefaultBuildConfigSourceSet
+                    if (kotlinDetected) {
+                        project.extensions
+                            .getByType(KotlinProjectExtension::class.java)
+                            .sourceSets
+                            .getAt(ss.name)
+                            .kotlin
+                            .srcDir(outputDir)
+                        project.tasks.getAt("compileKotlin").dependsOn(this)
+                    }
 
-        return project.tasks.create("generate${prefix}BuildConfig", BuildConfigTask::class.java).apply {
-            className = extension.className ?: "${prefix}BuildConfig"
-            packageName = extension.packageName ?: project.group.toString()
-            language = extension.language ?: BuildConfigLanguage.JAVA
-            fields = bcss.fields
-            outputDir = project.file("${project.buildDir}/generated/buildConfig/${sourceSet.name}")
-
-            when (language) {
-                BuildConfigLanguage.JAVA -> {
-                    sourceSet.java.srcDir(outputDir)
-                    project.tasks.getAt(sourceSet.compileJavaTaskName).dependsOn(this)
-                }
-                BuildConfigLanguage.KOTLIN -> {
-                    val kss = project.extensions
-                        .getByType(KotlinProjectExtension::class.java)
-                        .sourceSets
-                        .getAt(sourceSet.name)
-
-                    kss.kotlin.srcDir(outputDir)
-                    project.tasks.getAt("compileKotlin").dependsOn(this)
+                    project.afterEvaluate {
+                        className = extension.className ?: "${prefix}BuildConfig"
+                        packageName = extension.packageName ?: project.group.toString()
+                        language = extension.language ?: BuildConfigLanguage.JAVA
+                    }
                 }
             }
         }
