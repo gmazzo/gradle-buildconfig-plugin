@@ -39,7 +39,7 @@ open class BuildConfigTask : DefaultTask() {
     fun generateBuildConfigFile() {
         when (language) {
             BuildConfigLanguage.JAVA -> BuildConfigJavaGenerator
-            BuildConfigLanguage.KOTLIN -> BuildConfigKoltinGenerator
+            BuildConfigLanguage.KOTLIN -> BuildConfigKotlinGenerator
         }(this)
     }
 

@@ -20,7 +20,7 @@ import org.apache.commons.lang3.ClassUtils
 import org.gradle.api.logging.Logging
 import javax.annotation.Generated
 
-internal object BuildConfigKoltinGenerator : BuildConfigGenerator {
+internal object BuildConfigKotlinGenerator : BuildConfigGenerator {
 
     private val constTypes = setOf(String::class.asClassName(), BOOLEAN, BYTE, SHORT, INT, LONG, CHAR, FLOAT, DOUBLE)
 

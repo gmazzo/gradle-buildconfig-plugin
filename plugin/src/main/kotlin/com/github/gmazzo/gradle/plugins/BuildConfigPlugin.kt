@@ -20,11 +20,13 @@ class BuildConfigPlugin @Inject constructor(
     private val logger = Logging.getLogger(javaClass)
 
     override fun apply(project: Project) {
+        val sourceSets = project.container(BuildConfigSourceSet::class.java, ::DefaultBuildConfigSourceSet)
+
         val extension = project.extensions.create(
             BuildConfigExtension::class.java,
             "buildConfig",
             DefaultBuildConfigExtension::class.java,
-            instantiator
+            sourceSets.create("main")
         ) as DefaultBuildConfigExtension
 
         var kotlinDetected = false
@@ -41,11 +43,12 @@ class BuildConfigPlugin @Inject constructor(
                 logger.debug("Creating buildConfig sourceSet '${ss.name}' for $project")
 
                 val prefix = ss.name.takeUnless { it == "main" }?.capitalize() ?: ""
-                val sourceSet = extension.create(ss.name) as DefaultBuildConfigSourceSet
+                val sourceSet = sourceSets.maybeCreate(ss.name) as DefaultBuildConfigSourceSet
+                (ss as HasConvention).convention.add(ss.name, sourceSet)
 
                 project.tasks.create("generate${prefix}BuildConfig", BuildConfigTask::class.java).apply {
-                    fields = sourceSet.fields
-                    outputDir = project.file("${project.buildDir}/generated/buildConfig/${ss.name}")
+                    fields = sourceSet.fields.lazyValues
+                    outputDir = project.file("${project.buildDir}/generated/source/buildConfig/${ss.name}")
 
                     ss.java.srcDir(outputDir)
                     project.tasks.getAt(ss.compileJavaTaskName).dependsOn(this)

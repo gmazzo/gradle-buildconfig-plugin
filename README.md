@@ -24,7 +24,7 @@ buildConfig {
 ```
 Will generate `BuildConfig.kt`:
 ```kotlin
-@file:Generated("com.github.gmazzo.gradle.plugins.tasks.BuildConfigKoltinGenerator")
+@file:Generated("com.github.gmazzo.gradle.plugins.tasks.BuildConfigKotlinGenerator")
 
 const val APP_NAME: String = "example-kts"
 

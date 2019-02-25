@@ -1,22 +1,13 @@
 package com.github.gmazzo.gradle.plugins.internal
 
 import com.github.gmazzo.gradle.plugins.BuildConfigExtension
-import com.github.gmazzo.gradle.plugins.BuildConfigField
 import com.github.gmazzo.gradle.plugins.BuildConfigLanguage
 import com.github.gmazzo.gradle.plugins.BuildConfigSourceSet
-import org.gradle.api.internal.FactoryNamedDomainObjectContainer
-import org.gradle.internal.reflect.Instantiator
 
 internal open class DefaultBuildConfigExtension(
-    instantiator: Instantiator
-) :
-    FactoryNamedDomainObjectContainer<BuildConfigSourceSet>(
-        BuildConfigSourceSet::class.java,
-        instantiator
-    ),
-    BuildConfigExtension {
-
-    private val default get() = maybeCreate("main")
+    defaultSourceSet: BuildConfigSourceSet
+) : BuildConfigExtension,
+    BuildConfigSourceSet by defaultSourceSet {
 
     var className: String? = null
 
@@ -35,14 +26,5 @@ internal open class DefaultBuildConfigExtension(
     override fun language(language: BuildConfigLanguage) {
         this.language = language
     }
-
-    override fun buildConfigField(field: BuildConfigField) =
-        default.buildConfigField(field)
-
-    override fun getName(): String =
-        default.name
-
-    override fun doCreate(name: String): BuildConfigSourceSet =
-        instantiator.newInstance(DefaultBuildConfigSourceSet::class.java, name, instantiator)
 
 }

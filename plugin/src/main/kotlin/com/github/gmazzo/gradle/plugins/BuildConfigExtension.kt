@@ -1,8 +1,6 @@
 package com.github.gmazzo.gradle.plugins
 
-import org.gradle.api.NamedDomainObjectContainer
-
-interface BuildConfigExtension : NamedDomainObjectContainer<BuildConfigSourceSet>, BuildConfigSourceSet {
+interface BuildConfigExtension : BuildConfigSourceSet {
 
     fun className(className: String)
 
