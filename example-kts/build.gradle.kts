@@ -1,3 +1,5 @@
+import com.github.gmazzo.gradle.plugins.BuildConfigSourceSet
+
 plugins {
     id("org.jetbrains.kotlin.jvm") version "1.2.61"
     id("com.github.gmazzo.buildconfig") version "<local>"
@@ -10,6 +12,10 @@ buildConfig {
     buildConfigField("boolean", "FEATURE_ENABLED", "${true}")
     buildConfigField("IntArray", "MAGIC_NUMBERS", "intArrayOf(1, 2, 3, 4)")
     buildConfigField("com.github.gmazzo.SomeData", "MY_DATA", "SomeData(\"a\",1)")
+}
+
+sourceSets["test"].withConvention(BuildConfigSourceSet::class) {
+    buildConfigField("String", "TEST_CONSTANT", "\"aTestValue\"")
 }
 
 /**

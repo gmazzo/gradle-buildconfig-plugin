@@ -89,6 +89,22 @@ buildConfig {
 Will generate `com.foo.MyConfig` in a `MyConfig.java` file.
 
 ## Advanced
+### Generate constants for 'test' sourceSet (or any)
+If you add in your `build.gradle.kts`:
+```kotlin
+sourceSets["test"].withConvention(BuildConfigSourceSet::class) {
+    buildConfigField("String", "TEST_CONSTANT", "\"aTestValue\"")
+}
+```
+Will generate in `TestBuildConfig.kt`:
+```kotlin
+@file:Generated("com.github.gmazzo.gradle.plugins.tasks.BuildConfigKotlinGenerator")
+
+package com.github.gmazzo
+
+const val TEST_CONSTANT: String = "aTestValue"
+```
+
 ### Generate constants from resources files
 Assuming you have the following structure:
 ```

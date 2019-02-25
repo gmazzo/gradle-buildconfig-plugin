@@ -5,7 +5,7 @@ import com.github.gmazzo.gradle.plugins.internal.DefaultBuildConfigSourceSet
 import com.github.gmazzo.gradle.plugins.tasks.BuildConfigTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.internal.HasConvention
+import org.gradle.api.internal.plugins.DslObject
 import org.gradle.api.logging.Logging
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginConvention
@@ -44,7 +44,7 @@ class BuildConfigPlugin @Inject constructor(
 
                 val prefix = ss.name.takeUnless { it == "main" }?.capitalize() ?: ""
                 val sourceSet = sourceSets.maybeCreate(ss.name) as DefaultBuildConfigSourceSet
-                (ss as HasConvention).convention.add(ss.name, sourceSet)
+                DslObject(ss).convention.plugins[ss.name] = sourceSet
 
                 project.tasks.create("generate${prefix}BuildConfig", BuildConfigTask::class.java).apply {
                     fields = sourceSet.fields.lazyValues
@@ -54,7 +54,7 @@ class BuildConfigPlugin @Inject constructor(
                     project.tasks.getAt(ss.compileJavaTaskName).dependsOn(this)
 
                     if (kotlinDetected) {
-                        (ss as HasConvention).convention.getPlugin(KotlinSourceSet::class.java).apply {
+                        DslObject(ss).convention.getPlugin(KotlinSourceSet::class.java).apply {
                             kotlin.srcDir(outputDir)
                         }
                         project.tasks.getAt("compileKotlin").dependsOn(this)

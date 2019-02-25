@@ -16,6 +16,9 @@ class BuildConfigTest {
         assertArrayEquals(intArrayOf(1, 2, 3, 4), MAGIC_NUMBERS)
         assertEquals(SomeData("a", 1), MY_DATA)
 
+        // test sourceSet buildConfig
+        assertEquals("aTestValue", TEST_CONSTANT)
+
         // resource files
         assertEquals("file1.json", RESOURCE_FILE1_JSON.path)
         assertEquals("file2.json", RESOURCE_FILE2_JSON.path)
