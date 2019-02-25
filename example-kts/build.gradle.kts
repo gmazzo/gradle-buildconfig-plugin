@@ -24,9 +24,10 @@ sourceSets["test"].withConvention(BuildConfigSourceSet::class) {
 task("generateResourcesConstants") {
     doFirst {
         val resources = sourceSets["main"].resources
+        val basePath = resources.srcDirs.iterator().next()
 
         resources.files.forEach {
-            val path = it.relativeTo(resources.srcDirs.iterator().next()).path
+            val path = it.relativeTo(basePath).path
             val name = path.toUpperCase().replace("\\W".toRegex(), "_")
 
             buildConfig.buildConfigField("java.io.File", "RESOURCE_$name", "File(\"$path\")")

@@ -11,3 +11,28 @@ buildConfig {
     buildConfigField('int[]', 'MAGIC_NUMBERS', '{1, 2, 3, 4}')
     buildConfigField("com.github.gmazzo.SomeData", "MY_DATA", "new SomeData(\"a\",1)")
 }
+
+sourceSets {
+    test {
+        buildConfigField('String', 'TEST_CONSTANT', '"aTestValue"')
+    }
+}
+
+/**
+ *  A task that iterates over your classpath resources and generate constants for them
+ */
+task("generateResourcesConstants") {
+    doFirst {
+        def resources = sourceSets["main"].resources
+        def basePath = resources.srcDirs.iterator().next().toURI()
+
+        resources.files.forEach { file ->
+            def path = basePath.relativize(file.toURI()).path
+            def name = path.toUpperCase().replaceAll("\\W", "_")
+
+            buildConfig.buildConfigField("java.io.File", "RESOURCE_$name", "new File(\"$path\")")
+        }
+    }
+
+    tasks["generateBuildConfig"].dependsOn(it)
+}

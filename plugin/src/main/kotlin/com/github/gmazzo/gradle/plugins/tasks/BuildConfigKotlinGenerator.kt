@@ -1,21 +1,6 @@
 package com.github.gmazzo.gradle.plugins.tasks
 
-import com.squareup.kotlinpoet.AnnotationSpec
-import com.squareup.kotlinpoet.BOOLEAN
-import com.squareup.kotlinpoet.BYTE
-import com.squareup.kotlinpoet.CHAR
-import com.squareup.kotlinpoet.ClassName
-import com.squareup.kotlinpoet.CodeBlock
-import com.squareup.kotlinpoet.DOUBLE
-import com.squareup.kotlinpoet.FLOAT
-import com.squareup.kotlinpoet.FileSpec
-import com.squareup.kotlinpoet.INT
-import com.squareup.kotlinpoet.KModifier
-import com.squareup.kotlinpoet.LONG
-import com.squareup.kotlinpoet.PropertySpec
-import com.squareup.kotlinpoet.SHORT
-import com.squareup.kotlinpoet.asClassName
-import com.squareup.kotlinpoet.asTypeName
+import com.squareup.kotlinpoet.*
 import org.apache.commons.lang3.ClassUtils
 import org.gradle.api.logging.Logging
 import javax.annotation.Generated
@@ -29,7 +14,7 @@ internal object BuildConfigKotlinGenerator : BuildConfigGenerator {
     override fun invoke(task: BuildConfigTask) {
         logger.debug("Generating ${task.className} for fields ${task.fields}")
 
-        val fileSpec = FileSpec.builder(task.packageName, task.className)
+        val typeSpec = TypeSpec.objectBuilder(task.className)
             .addAnnotation(
                 AnnotationSpec.builder(Generated::class.java)
                     .addMember("%S", javaClass.name)
@@ -46,7 +31,7 @@ internal object BuildConfigKotlinGenerator : BuildConfigGenerator {
                 }
             }
 
-            fileSpec.addProperty(
+            typeSpec.addProperty(
                 PropertySpec.builder(
                     it.name,
                     typeName,
@@ -58,7 +43,8 @@ internal object BuildConfigKotlinGenerator : BuildConfigGenerator {
             )
         }
 
-        fileSpec
+        FileSpec.builder(task.packageName, task.className)
+            .addType(typeSpec.build())
             .build()
             .writeTo(task.outputDir)
     }

@@ -24,19 +24,28 @@ buildConfig {
 ```
 Will generate `BuildConfig.kt`:
 ```kotlin
-@file:Generated("com.github.gmazzo.gradle.plugins.tasks.BuildConfigKotlinGenerator")
+@Generated("com.github.gmazzo.gradle.plugins.tasks.BuildConfigKotlinGenerator")
+object BuildConfig {
+    const val APP_NAME: String = "example-kts"
 
-const val APP_NAME: String = "example-kts"
+    const val APP_SECRET: String = "Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu"
 
-const val APP_SECRET: String = "Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu"
+    const val BUILD_TIME: Long = 1551108377126L
 
-const val BUILD_TIME: Long = 1550997069821L
+    const val FEATURE_ENABLED: Boolean = true
 
-const val FEATURE_ENABLED: Boolean = true
+    val MAGIC_NUMBERS: IntArray = intArrayOf(1, 2, 3, 4)
 
-val MAGIC_NUMBERS: IntArray = intArrayOf(1, 2, 3, 4)
+    val MY_DATA: SomeData = SomeData("a",1)
 
-val MY_DATA: SomeData = SomeData("a",1)
+    val RESOURCE_CONFIG_LOCAL_PROPERTIES: File = File("config/local.properties")
+
+    val RESOURCE_CONFIG_PROD_PROPERTIES: File = File("config/prod.properties")
+
+    val RESOURCE_FILE2_JSON: File = File("file2.json")
+
+    val RESOURCE_FILE1_JSON: File = File("file1.json")
+}
 ```
 
 ## Usage in Groovy
@@ -98,11 +107,18 @@ sourceSets["test"].withConvention(BuildConfigSourceSet::class) {
 ```
 Will generate in `TestBuildConfig.kt`:
 ```kotlin
-@file:Generated("com.github.gmazzo.gradle.plugins.tasks.BuildConfigKotlinGenerator")
-
-package com.github.gmazzo
-
-const val TEST_CONSTANT: String = "aTestValue"
+@Generated("com.github.gmazzo.gradle.plugins.tasks.BuildConfigKotlinGenerator")
+object TestBuildConfig {
+    const val TEST_CONSTANT: String = "aTestValue"
+}
+```
+#### Or in Groovy:
+```groovy
+sourceSets {
+    test {
+        buildConfigField('String', 'TEST_CONSTANT', '"aTestValue"')
+    }
+}
 ```
 
 ### Generate constants from resources files
@@ -123,10 +139,11 @@ If you add in your `build.gradle.kts`:
 task("generateResourcesConstants") {
     doFirst {
         val resources = sourceSets["main"].resources
+        val basePath = resources.srcDirs.iterator().next()
 
         resources.files.forEach {
-            val name = it.name.toUpperCase().replace("\\W".toRegex(), "_")
-            val path = it.relativeTo(resources.srcDirs.iterator().next())
+            val path = it.relativeTo(basePath).path
+            val name = path.toUpperCase().replace("\\W".toRegex(), "_")
 
             buildConfig.buildConfigField("java.io.File", "RESOURCE_$name", "File(\"$path\")")
         }
@@ -144,4 +161,32 @@ val RESOURCE_CONFIG_PROD_PROPERTIES: File = File("config/prod.properties")
 val RESOURCE_FILE1_JSON: File = File("file1.json")
 
 val RESOURCE_FILE2_JSON: File = File("file2.json")
+```
+#### Or in Groovy:
+```groovy
+task("generateResourcesConstants") {
+    doFirst {
+        def resources = sourceSets["main"].resources
+        def basePath = resources.srcDirs.iterator().next().toURI()
+
+        resources.files.forEach { file ->
+            def path = basePath.relativize(file.toURI()).path
+            def name = path.toUpperCase().replaceAll("\\W", "_")
+
+            buildConfig.buildConfigField("java.io.File", "RESOURCE_$name", "new File(\"$path\")")
+        }
+    }
+
+    tasks["generateBuildConfig"].dependsOn(it)
+}
+```
+Will generate:
+```java
+  public static final File RESOURCE_CONFIG_LOCAL_PROPERTIES = new File("config/local.properties");
+
+  public static final File RESOURCE_CONFIG_PROD_PROPERTIES = new File("config/prod.properties");
+
+  public static final File RESOURCE_FILE2_JSON = new File("file2.json");
+
+  public static final File RESOURCE_FILE1_JSON = new File("file1.json");
 ```
