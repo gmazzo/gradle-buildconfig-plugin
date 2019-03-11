@@ -1,6 +1,8 @@
 package com.github.gmazzo
 
-import org.junit.Assert.*
+import org.junit.Assert.assertArrayEquals
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class BuildConfigTest {
@@ -13,15 +15,20 @@ class BuildConfigTest {
         assertTrue(BuildConfig.FEATURE_ENABLED)
         assertArrayEquals(intArrayOf(1, 2, 3, 4), BuildConfig.MAGIC_NUMBERS)
         assertEquals(SomeData("a", 1), BuildConfig.MY_DATA)
+    }
 
-        // test sourceSet buildConfig
+    @Test
+    fun testBuildConfigTestProperties() {
         assertEquals("aTestValue", TestBuildConfig.TEST_CONSTANT)
+    }
 
-        // resource files
-        assertEquals("file1.json", BuildConfig.RESOURCE_FILE1_JSON.path)
-        assertEquals("file2.json", BuildConfig.RESOURCE_FILE2_JSON.path)
-        assertEquals("config/local.properties", BuildConfig.RESOURCE_CONFIG_LOCAL_PROPERTIES.path)
-        assertEquals("config/prod.properties", BuildConfig.RESOURCE_CONFIG_PROD_PROPERTIES.path)
+    @Test
+    fun testResourcesConfigProperties() {
+        assertEquals("aConstant", BuildResources.A_CONSTANT)
+        assertEquals("file1.json", BuildResources.FILE1_JSON.path)
+        assertEquals("file2.json", BuildResources.FILE2_JSON.path)
+        assertEquals("config/local.properties", BuildResources.CONFIG_LOCAL_PROPERTIES.path)
+        assertEquals("config/prod.properties", BuildResources.CONFIG_PROD_PROPERTIES.path)
     }
 
 }

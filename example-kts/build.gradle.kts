@@ -22,6 +22,10 @@ sourceSets["test"].withConvention(BuildConfigSourceSet::class) {
  *  A task that iterates over your classpath resources and generate constants for them
  */
 task("generateResourcesConstants") {
+    val buildResources = buildConfig.forClass("BuildResources") {
+        buildConfigField("String", "A_CONSTANT", "\"aConstant\"")
+    }
+
     doFirst {
         val resources = sourceSets["main"].resources
         val basePath = resources.srcDirs.iterator().next()
@@ -30,7 +34,7 @@ task("generateResourcesConstants") {
             val path = it.relativeTo(basePath).path
             val name = path.toUpperCase().replace("\\W".toRegex(), "_")
 
-            buildConfig.buildConfigField("java.io.File", "RESOURCE_$name", "File(\"$path\")")
+            buildResources.buildConfigField("java.io.File", name, "File(\"$path\")")
         }
     }
 

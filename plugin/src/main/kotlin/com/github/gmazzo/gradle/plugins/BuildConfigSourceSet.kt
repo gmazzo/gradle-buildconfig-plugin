@@ -1,15 +1,34 @@
 package com.github.gmazzo.gradle.plugins
 
-import org.gradle.api.Named
+import org.gradle.api.Action
 
-interface BuildConfigSourceSet : Named {
+interface BuildConfigSourceSet : BuildConfigClassSpec {
 
-    fun buildConfigField(field: BuildConfigField): BuildConfigField
+    /**
+     * Creates a secondary build class with the given [className] in the same package
+     */
+    fun forClass(className: String) = forClass(null, className)
 
-    fun buildConfigField(type: String, name: String, value: String) =
-        buildConfigField(BuildConfigField(type, name, value))
+    /**
+     * Creates a secondary build class with the given [className] in the same package
+     */
+    fun forClass(
+        className: String,
+        configureAction: Action<BuildConfigClassSpec>
+    ) = forClass(null, className, configureAction)
 
-    fun buildConfigField(type: String, name: String, value: () -> String) =
-        buildConfigField(BuildConfigField(type, name, value()))
+    /**
+     * Creates a secondary build class with the given [className] in a new [packageName]
+     */
+    fun forClass(packageName: String?, className: String): BuildConfigClassSpec
+
+    /**
+     * Creates a secondary build class with the given [className] in a new [packageName]
+     */
+    fun forClass(
+        packageName: String?,
+        className: String,
+        configureAction: Action<BuildConfigClassSpec>
+    ) = forClass(packageName, className).apply { configureAction.execute(this) }
 
 }

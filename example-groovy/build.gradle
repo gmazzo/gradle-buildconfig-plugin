@@ -22,6 +22,10 @@ sourceSets {
  *  A task that iterates over your classpath resources and generate constants for them
  */
 task("generateResourcesConstants") {
+    def buildResources = buildConfig.forClass("BuildResources") {
+        buildConfigField('String', 'A_CONSTANT', '"aConstant"')
+    }
+
     doFirst {
         def resources = sourceSets["main"].resources
         def basePath = resources.srcDirs.iterator().next().toURI()
@@ -30,7 +34,7 @@ task("generateResourcesConstants") {
             def path = basePath.relativize(file.toURI()).path
             def name = path.toUpperCase().replaceAll("\\W", "_")
 
-            buildConfig.buildConfigField("java.io.File", "RESOURCE_$name", "new File(\"$path\")")
+            buildResources.buildConfigField("java.io.File", name, "new File(\"$path\")")
         }
     }
 

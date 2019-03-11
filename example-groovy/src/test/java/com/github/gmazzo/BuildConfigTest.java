@@ -2,7 +2,9 @@ package com.github.gmazzo;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class BuildConfigTest {
 
@@ -14,15 +16,20 @@ public class BuildConfigTest {
         assertTrue(BuildConfig.FEATURE_ENABLED);
         assertArrayEquals(new int[]{1, 2, 3, 4}, BuildConfig.MAGIC_NUMBERS);
         assertEquals(new SomeData("a", 1), BuildConfig.MY_DATA);
+    }
 
-        // test sourceSet buildConfig
+    @Test
+    public void testBuildConfigTestProperties() {
         assertEquals("aTestValue", TestBuildConfig.TEST_CONSTANT);
+    }
 
-        // resource files
-        assertEquals("file1.json", BuildConfig.RESOURCE_FILE1_JSON.getPath());
-        assertEquals("file2.json", BuildConfig.RESOURCE_FILE2_JSON.getPath());
-        assertEquals("config/local.properties", BuildConfig.RESOURCE_CONFIG_LOCAL_PROPERTIES.getPath());
-        assertEquals("config/prod.properties", BuildConfig.RESOURCE_CONFIG_PROD_PROPERTIES.getPath());
+    @Test
+    public void testResourcesConfigProperties() {
+        assertEquals("aConstant", BuildResources.A_CONSTANT);
+        assertEquals("file1.json", BuildResources.FILE1_JSON.getPath());
+        assertEquals("file2.json", BuildResources.FILE2_JSON.getPath());
+        assertEquals("config/local.properties", BuildResources.CONFIG_LOCAL_PROPERTIES.getPath());
+        assertEquals("config/prod.properties", BuildResources.CONFIG_PROD_PROPERTIES.getPath());
     }
 
 }

@@ -9,7 +9,7 @@ A plugin for generating BuildConstants for any kind of Gradle projects: Java, Ko
 On your `build.gradle.kts` add:
 ```kotlin
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "1.3.11"
+    id("org.jetbrains.kotlin.jvm") version "1.3.21"
     id("com.github.gmazzo.buildconfig") version <current version>
 }
 
@@ -97,6 +97,27 @@ buildConfig {
 ```
 Will generate `com.foo.MyConfig` in a `MyConfig.java` file.
 
+## Secondary classes
+Sometimes one generated does not fits your needs or code style.
+You may add multiple classes with the following syntax:
+```kotlin
+buildConfig {
+    buildConfigField("String", "FIELD1", "\"field1\"")
+
+    forClass("OtherClass") {
+        buildConfigField("String", "FIELD2", "\"field2\"")
+    }
+
+    forClass(packageName = "", className = "RootConfig") {
+        buildConfigField("String", "FIELD3", "\"field3\"")
+    }
+}
+```
+Will generate the files:
+- `com.github.gmazzo.BuildConfig`
+- `com.github.gmazzo.OtherClass`
+- `RootConfig` (in the root package)
+
 ## Advanced
 ### Generate constants for 'test' sourceSet (or any)
 If you add in your `build.gradle.kts`:
@@ -137,6 +158,8 @@ myproject
 If you add in your `build.gradle.kts`:
 ```kotlin
 task("generateResourcesConstants") {
+    val buildResources = buildConfig.forClass("BuildResources")
+
     doFirst {
         val resources = sourceSets["main"].resources
         val basePath = resources.srcDirs.iterator().next()
@@ -145,26 +168,28 @@ task("generateResourcesConstants") {
             val path = it.relativeTo(basePath).path
             val name = path.toUpperCase().replace("\\W".toRegex(), "_")
 
-            buildConfig.buildConfigField("java.io.File", "RESOURCE_$name", "File(\"$path\")")
+            buildResources.buildConfigField("java.io.File", name, "File(\"$path\")")
         }
     }
 
     tasks["generateBuildConfig"].dependsOn(this)
 }
 ```
-Will generate in `BuildConfig.kt`:
+Will generate in `BuildResources.kt`:
 ```kotlin
-val RESOURCE_CONFIG_LOCAL_PROPERTIES: File = File("config/local.properties")
+val CONFIG_LOCAL_PROPERTIES: File = File("config/local.properties")
 
-val RESOURCE_CONFIG_PROD_PROPERTIES: File = File("config/prod.properties")
+val CONFIG_PROD_PROPERTIES: File = File("config/prod.properties")
 
-val RESOURCE_FILE1_JSON: File = File("file1.json")
+val FILE1_JSON: File = File("file1.json")
 
-val RESOURCE_FILE2_JSON: File = File("file2.json")
+val FILE2_JSON: File = File("file2.json")
 ```
 #### Or in Groovy:
 ```groovy
 task("generateResourcesConstants") {
+    def buildResources = buildConfig.forClass("BuildResources")
+
     doFirst {
         def resources = sourceSets["main"].resources
         def basePath = resources.srcDirs.iterator().next().toURI()
@@ -173,20 +198,20 @@ task("generateResourcesConstants") {
             def path = basePath.relativize(file.toURI()).path
             def name = path.toUpperCase().replaceAll("\\W", "_")
 
-            buildConfig.buildConfigField("java.io.File", "RESOURCE_$name", "new File(\"$path\")")
+            buildResources.buildConfigField("java.io.File", name, "new File(\"$path\")")
         }
     }
 
     tasks["generateBuildConfig"].dependsOn(it)
 }
 ```
-Will generate:
+Will generate in `BuildResources.java`:
 ```java
-  public static final File RESOURCE_CONFIG_LOCAL_PROPERTIES = new File("config/local.properties");
+  public static final File CONFIG_LOCAL_PROPERTIES = new File("config/local.properties");
 
-  public static final File RESOURCE_CONFIG_PROD_PROPERTIES = new File("config/prod.properties");
+  public static final File CONFIG_PROD_PROPERTIES = new File("config/prod.properties");
 
-  public static final File RESOURCE_FILE2_JSON = new File("file2.json");
+  public static final File FILE2_JSON = new File("file2.json");
 
-  public static final File RESOURCE_FILE1_JSON = new File("file1.json");
+  public static final File FILE1_JSON = new File("file1.json");
 ```
