@@ -27,15 +27,11 @@ task("generateResourcesConstants") {
     }
 
     doFirst {
-        val resources = sourceSets["main"].resources
-        val basePath = resources.srcDirs.iterator().next()
-
-        resources.files.forEach {
-            val path = it.relativeTo(basePath).path
+        sourceSets["main"].resources.asFileTree.visit(Action<FileVisitDetails> {
             val name = path.toUpperCase().replace("\\W".toRegex(), "_")
 
             buildResources.buildConfigField("java.io.File", name, "File(\"$path\")")
-        }
+        })
     }
 
     tasks["generateBuildConfig"].dependsOn(this)

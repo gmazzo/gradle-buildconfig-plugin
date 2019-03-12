@@ -36,70 +36,80 @@ class BuildConfigPlugin @Inject constructor(
             defaultSS
         )
 
-        var kotlinDetected = false
+        val args = ApplyArgs(project, sourceSets, defaultSS.classSpec)
 
-        project.plugins.withId("org.jetbrains.kotlin.jvm") {
-            logger.debug("Configuring buildConfig '${BuildConfigLanguage.KOTLIN}' language for $project")
+        with(project) {
+            gradle.taskGraph.whenReady { args.taskGraphLocked = true }
 
-            kotlinDetected = true
-            extension.language(BuildConfigLanguage.KOTLIN)
-        }
+            plugins.withId("org.jetbrains.kotlin.jvm") {
+                logger.debug("Configuring buildConfig '${BuildConfigLanguage.KOTLIN}' language for $project")
 
-        project.plugins.withType(JavaPlugin::class.java) {
-            project.convention.getPlugin(JavaPluginConvention::class.java).sourceSets.all { ss ->
-                createSourceSet(project, sourceSets, defaultSS.classSpec, ss, kotlinDetected)
+                args.kotlinDetected = true
+                extension.language(BuildConfigLanguage.KOTLIN)
+            }
+
+            plugins.withType(JavaPlugin::class.java) {
+                convention.getPlugin(JavaPluginConvention::class.java).sourceSets.all { ss ->
+                    createSourceSet(args, ss)
+                }
             }
         }
     }
 
-    private fun createSourceSet(
-        project: Project,
-        sourceSets: NamedDomainObjectContainer<BuildConfigSourceSet>,
-        defaultSpec: DefaultBuildConfigClassSpec,
-        javaSourceSet: SourceSet,
-        kotlinDetected: Boolean
-    ) {
+    private fun createSourceSet(args: ApplyArgs, javaSourceSet: SourceSet) = with(args) {
         logger.debug("Creating buildConfig sourceSet '${javaSourceSet.name}' for $project")
 
         val prefix = javaSourceSet.name.takeUnless { it == "main" }?.capitalize() ?: ""
         val sourceSet = sourceSets.maybeCreate(javaSourceSet.name) as DefaultBuildConfigSourceSet
         DslObject(javaSourceSet).convention.plugins[javaSourceSet.name] = sourceSet
 
-        createGenerateTask(project, prefix, sourceSet.classSpec, defaultSpec, javaSourceSet, kotlinDetected)
+        createGenerateTask(this, prefix, sourceSet.classSpec, javaSourceSet)
 
         sourceSet.all {
+            if (args.taskGraphLocked) {
+                throw IllegalStateException("Can't call 'forClass' after taskGraph was built!")
+            }
+
             val childPrefix = prefix + it.name.capitalize()
 
-            createGenerateTask(project, childPrefix, it, defaultSpec, javaSourceSet, kotlinDetected)
+            createGenerateTask(this, childPrefix, it, javaSourceSet)
         }
     }
 
     private fun createGenerateTask(
-        project: Project,
+        args: ApplyArgs,
         prefix: String,
         spec: DefaultBuildConfigClassSpec,
-        defaultSpec: DefaultBuildConfigClassSpec,
-        javaSourceSet: SourceSet,
-        kotlinDetected: Boolean
-    ) = project.tasks.create("generate${prefix}BuildConfig", BuildConfigTask::class.java).apply {
-        fields = spec.fields.lazyValues
-        outputDir = project.file("${project.buildDir}/generated/source/buildConfig/${javaSourceSet.name}")
+        javaSourceSet: SourceSet
+    ) = with(args) {
+        project.tasks.create("generate${prefix}BuildConfig", BuildConfigTask::class.java).apply {
+            fields = spec.fields.lazyValues
+            outputDir = project.file("${project.buildDir}/generated/source/buildConfig/${javaSourceSet.name}")
 
-        javaSourceSet.java.srcDir(outputDir)
-        project.tasks.getAt(javaSourceSet.compileJavaTaskName).dependsOn(this)
+            javaSourceSet.java.srcDir(outputDir)
+            project.tasks.getAt(javaSourceSet.compileJavaTaskName).dependsOn(this)
 
-        if (kotlinDetected) {
-            DslObject(javaSourceSet).convention.getPlugin(KotlinSourceSet::class.java).apply {
-                kotlin.srcDir(outputDir)
+            if (kotlinDetected) {
+                DslObject(javaSourceSet).convention.getPlugin(KotlinSourceSet::class.java).apply {
+                    kotlin.srcDir(outputDir)
+                }
+                project.tasks.getAt("compileKotlin").dependsOn(this)
             }
-            project.tasks.getAt("compileKotlin").dependsOn(this)
-        }
 
-        project.afterEvaluate {
-            className = spec.className ?: defaultSpec.className ?: "${prefix}BuildConfig"
-            packageName = spec.packageName ?: defaultSpec.packageName ?: project.group.toString()
-            language = spec.language ?: defaultSpec.language ?: BuildConfigLanguage.JAVA
+            project.afterEvaluate {
+                className = spec.className ?: defaultSpec.className ?: "${prefix}BuildConfig"
+                packageName = spec.packageName ?: defaultSpec.packageName ?: project.group.toString()
+                language = spec.language ?: defaultSpec.language ?: BuildConfigLanguage.JAVA
+            }
         }
     }
+
+    private data class ApplyArgs(
+        val project: Project,
+        val sourceSets: NamedDomainObjectContainer<BuildConfigSourceSet>,
+        val defaultSpec: DefaultBuildConfigClassSpec,
+        var kotlinDetected: Boolean = false,
+        var taskGraphLocked: Boolean = false
+    )
 
 }

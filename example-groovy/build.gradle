@@ -27,14 +27,10 @@ task("generateResourcesConstants") {
     }
 
     doFirst {
-        def resources = sourceSets["main"].resources
-        def basePath = resources.srcDirs.iterator().next().toURI()
+        sourceSets["main"].resources.asFileTree.visit { file ->
+            def name = file.path.toUpperCase().replaceAll("\\W", "_")
 
-        resources.files.forEach { file ->
-            def path = basePath.relativize(file.toURI()).path
-            def name = path.toUpperCase().replaceAll("\\W", "_")
-
-            buildResources.buildConfigField("java.io.File", name, "new File(\"$path\")")
+            buildResources.buildConfigField("java.io.File", name, "new File(\"$file.path\")")
         }
     }
 
