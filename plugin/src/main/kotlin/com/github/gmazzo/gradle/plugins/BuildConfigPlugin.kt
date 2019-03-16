@@ -62,7 +62,7 @@ class BuildConfigPlugin : Plugin<Project> {
         val sourceSet = sourceSets.maybeCreate(javaSourceSet.name) as DefaultBuildConfigSourceSet
         DslObject(javaSourceSet).convention.plugins[javaSourceSet.name] = sourceSet
 
-        createGenerateTask(this, prefix, sourceSet.classSpec, javaSourceSet)
+        createGenerateTask(this, prefix, sourceSet.classSpec, javaSourceSet, "'${sourceSet.name}' source")
 
         sourceSet.extraSpecs.all {
             if (args.taskGraphLocked) {
@@ -71,7 +71,7 @@ class BuildConfigPlugin : Plugin<Project> {
 
             val childPrefix = prefix + it.name.capitalize()
 
-            createGenerateTask(this, childPrefix, it, javaSourceSet)
+            createGenerateTask(this, childPrefix, it, javaSourceSet, "'${it.name}' spec on '${sourceSet.name}' source")
         }
     }
 
@@ -79,9 +79,13 @@ class BuildConfigPlugin : Plugin<Project> {
         args: ApplyArgs,
         prefix: String,
         spec: DefaultBuildConfigClassSpec,
-        javaSourceSet: SourceSet
+        javaSourceSet: SourceSet,
+        descriptionSuffix: String
     ) = with(args) {
         project.tasks.create("generate${prefix}BuildConfig", BuildConfigTask::class.java).apply {
+            group = "BuildConfig"
+            description = "Generates the build constants class for $descriptionSuffix"
+
             fields = spec.fields.lazyValues
             outputDir = project.file("${project.buildDir}/generated/source/buildConfig/${javaSourceSet.name}")
 
