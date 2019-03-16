@@ -157,6 +157,8 @@ myproject
 ```
 If you add in your `build.gradle.kts`:
 ```kotlin
+val generateBuildConfig by tasks
+
 task("generateResourcesConstants") {
     val buildResources = buildConfig.forClass("BuildResources")
 
@@ -168,7 +170,7 @@ task("generateResourcesConstants") {
         })
     }
 
-    tasks["generateBuildConfig"].dependsOn(this)
+    generateBuildConfig.dependsOn(this)
 }
 ```
 Will generate in `BuildResources.kt`:
@@ -194,7 +196,7 @@ task("generateResourcesConstants") {
         }
     }
 
-    tasks["generateBuildConfig"].dependsOn(it)
+    generateBuildConfig.dependsOn(it)
 }
 ```
 Will generate in `BuildResources.java`:

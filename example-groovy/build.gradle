@@ -34,5 +34,5 @@ task("generateResourcesConstants") {
         }
     }
 
-    tasks["generateBuildConfig"].dependsOn(it)
+    generateBuildConfig.dependsOn(it)
 }

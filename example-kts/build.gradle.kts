@@ -21,6 +21,8 @@ sourceSets["test"].withConvention(BuildConfigSourceSet::class) {
 /**
  *  A task that iterates over your classpath resources and generate constants for them
  */
+val generateBuildConfig by tasks
+
 task("generateResourcesConstants") {
     val buildResources = buildConfig.forClass("BuildResources") {
         buildConfigField("String", "A_CONSTANT", "\"aConstant\"")
@@ -34,7 +36,7 @@ task("generateResourcesConstants") {
         })
     }
 
-    tasks["generateBuildConfig"].dependsOn(this)
+    generateBuildConfig.dependsOn(this)
 }
 
 dependencies {
