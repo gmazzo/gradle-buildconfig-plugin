@@ -12,19 +12,18 @@ import org.gradle.api.logging.Logging
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.tasks.SourceSet
-import org.gradle.internal.reflect.Instantiator
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
-import javax.inject.Inject
 
-class BuildConfigPlugin @Inject constructor(
-    private val instantiator: Instantiator
-) : Plugin<Project> {
+class BuildConfigPlugin : Plugin<Project> {
 
     private val logger = Logging.getLogger(javaClass)
 
     override fun apply(project: Project) {
         val sourceSets = project.container(BuildConfigSourceSet::class.java) { name ->
-            DefaultBuildConfigSourceSet(DefaultBuildConfigClassSpec(name), instantiator)
+            DefaultBuildConfigSourceSet(
+                DefaultBuildConfigClassSpec(name),
+                project.container(DefaultBuildConfigClassSpec::class.java)
+            )
         }
 
         val defaultSS = sourceSets.create("main") as DefaultBuildConfigSourceSet
@@ -65,7 +64,7 @@ class BuildConfigPlugin @Inject constructor(
 
         createGenerateTask(this, prefix, sourceSet.classSpec, javaSourceSet)
 
-        sourceSet.all {
+        sourceSet.extraSpecs.all {
             if (args.taskGraphLocked) {
                 throw IllegalStateException("Can't call 'forClass' after taskGraph was built!")
             }
