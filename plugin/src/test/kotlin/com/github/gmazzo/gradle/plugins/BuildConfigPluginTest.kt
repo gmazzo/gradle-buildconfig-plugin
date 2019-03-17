@@ -10,6 +10,8 @@ import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
+import java.io.File
+import java.io.FileOutputStream
 
 @RunWith(Parameterized::class)
 class BuildConfigPluginTest(
@@ -34,6 +36,7 @@ class BuildConfigPluginTest(
     fun setUp() {
         temporaryFolder.create()
 
+        writeGradleProperties()
         writeBuildGradle(kotlinVersion)
         writeTest()
     }
@@ -121,6 +124,13 @@ public class BuildConfigTest {
             )
         }
 
+    }
+
+    // This allows to coverage data to be collected from GradleRunner instance
+    // https://github.com/koral--/jacoco-gradle-testkit-plugin
+    private fun writeGradleProperties() {
+        javaClass.classLoader.getResourceAsStream("testkit-gradle.properties")
+            .copyTo(FileOutputStream(File(projectDir, "gradle.properties")))
     }
 
     companion object {

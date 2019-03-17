@@ -2,9 +2,10 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("java-gradle-plugin")
-    id ("jacoco")
     id("org.jetbrains.kotlin.jvm")
     id("com.gradle.plugin-publish") version "0.10.1"
+    id("jacoco")
+    id("pl.droidsonroids.jacoco.testkit") version "1.0.3"
 }
 
 apply(from = "../build.shared.gradle.kts")
@@ -72,8 +73,13 @@ task("generateCompileOnlyClasspathForTests") {
     processTestResources.dependsOn(this)
 }
 
-task("verify") {
-    dependsOn("jacocoTestReport")
+val test by tasks
+val jacocoTestReport: JacocoReport by tasks
+
+test.finalizedBy(jacocoTestReport)
+
+jacoco {
+    toolVersion = "0.8.2"
 }
 
 tasks.withType(JacocoReport::class.java) {
@@ -81,6 +87,8 @@ tasks.withType(JacocoReport::class.java) {
         xml.isEnabled = true
         html.isEnabled = true
     }
+}
 
-    tasks["check"].dependsOn(this)
+jacocoTestReport.apply {
+
 }
