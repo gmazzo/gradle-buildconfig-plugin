@@ -4,6 +4,7 @@ import com.github.gmazzo.gradle.plugins.BuildConfigField
 import com.github.gmazzo.gradle.plugins.BuildConfigLanguage
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import java.io.File
@@ -25,6 +26,7 @@ open class BuildConfigTask : DefaultTask() {
     @OutputDirectory
     lateinit var outputDir: File
 
+    @get:Internal
     internal val distinctFields
         get() = fields
             .map { it.name to it }

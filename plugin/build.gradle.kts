@@ -2,6 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("java-gradle-plugin")
+    id ("jacoco")
     id("org.jetbrains.kotlin.jvm")
     id("com.gradle.plugin-publish") version "0.10.1"
 }
@@ -54,4 +55,32 @@ pluginBundle {
         groupId = project.group.toString()
         artifactId = base.archivesBaseName
     }
+}
+
+val processTestResources by tasks
+
+task("generateCompileOnlyClasspathForTests") {
+    val outFile = file("$buildDir/generated/test/resources/compileOnly-classpath.txt")
+    val outDir = outFile.parentFile
+
+    doFirst {
+        outDir.mkdirs()
+        outFile.writeText(configurations["compileOnly"].files.joinToString(separator = "\n"))
+    }
+
+    sourceSets["test"].resources.srcDir(outDir)
+    processTestResources.dependsOn(this)
+}
+
+task("verify") {
+    dependsOn("jacocoTestReport")
+}
+
+tasks.withType(JacocoReport::class.java) {
+    reports {
+        xml.isEnabled = true
+        html.isEnabled = true
+    }
+
+    tasks["check"].dependsOn(this)
 }
