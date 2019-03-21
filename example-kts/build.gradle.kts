@@ -1,7 +1,7 @@
 import com.github.gmazzo.gradle.plugins.BuildConfigSourceSet
 
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "1.2.61"
+    id("org.jetbrains.kotlin.jvm") version "1.3.10"
     id("com.github.gmazzo.buildconfig") version "<local>"
 }
 

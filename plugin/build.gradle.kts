@@ -58,8 +58,6 @@ pluginBundle {
     }
 }
 
-val processTestResources by tasks
-
 task("generateCompileOnlyClasspathForTests") {
     val outFile = file("$buildDir/generated/test/resources/compileOnly-classpath.txt")
     val outDir = outFile.parentFile
@@ -70,16 +68,11 @@ task("generateCompileOnlyClasspathForTests") {
     }
 
     sourceSets["test"].resources.srcDir(outDir)
-    processTestResources.dependsOn(this)
+    tasks["processTestResources"].dependsOn(this)
 }
 
-val test by tasks
-val jacocoTestReport: JacocoReport by tasks
-
-test.finalizedBy(jacocoTestReport)
-
 jacoco {
-    toolVersion = "0.8.2"
+    toolVersion = "0.8.3"
 }
 
 tasks.withType(JacocoReport::class.java) {
@@ -89,6 +82,4 @@ tasks.withType(JacocoReport::class.java) {
     }
 }
 
-jacocoTestReport.apply {
-
-}
+tasks["check"].dependsOn("jacocoTestReport")

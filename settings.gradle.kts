@@ -4,4 +4,4 @@ includeBuild("plugin") {
     }
 }
 
-include("example-groovy", "example-kts")
+include("example-groovy", "example-kts", "example-generic")

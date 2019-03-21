@@ -3,6 +3,7 @@ package com.github.gmazzo.gradle.plugins.internal
 import com.github.gmazzo.gradle.plugins.BuildConfigClassSpec
 import com.github.gmazzo.gradle.plugins.BuildConfigField
 import com.github.gmazzo.gradle.plugins.BuildConfigLanguage
+import com.github.gmazzo.gradle.plugins.tasks.BuildConfigTask
 
 internal open class DefaultBuildConfigClassSpec(
     private val name: String
@@ -15,6 +16,8 @@ internal open class DefaultBuildConfigClassSpec(
     var language: BuildConfigLanguage? = null
 
     internal val fields = linkedMapOf<String, BuildConfigField>()
+
+    internal lateinit var task: BuildConfigTask
 
     override fun className(className: String) {
         this.className = className
