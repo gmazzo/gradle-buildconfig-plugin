@@ -23,6 +23,9 @@ open class BuildConfigTask : DefaultTask() {
     @Input
     var language = BuildConfigLanguage.JAVA
 
+    @Input
+    var addGeneratedAnnotation = false
+
     @OutputDirectory
     lateinit var outputDir: File
 

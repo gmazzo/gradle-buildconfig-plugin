@@ -121,6 +121,8 @@ class BuildConfigPlugin : Plugin<Project> {
         }
 
     private fun BuildConfigTask.bindTo(javaSourceSet: SourceSet, kotlinDetected: Boolean) {
+        addGeneratedAnnotation = true
+
         javaSourceSet.java.srcDir(outputDir)
         project.tasks.getAt(javaSourceSet.compileJavaTaskName).dependsOn(this)
 
