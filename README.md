@@ -209,3 +209,12 @@ Will generate in `BuildResources.java`:
 
   public static final File FILE1_JSON = new File("file1.json");
 ```
+
+### If the 'javax.annotation.Generated' annotation is a problem
+In your build file add:
+```kotlin
+tasks.withType(BuildConfigTask::class) {
+    addGeneratedAnnotation = false
+}
+```
+And the annotation will be replaced by a JavaDoc.
