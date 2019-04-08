@@ -8,6 +8,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.internal.plugins.DslObject
 import org.gradle.api.logging.Logging
+import org.gradle.api.plugins.AppliedPlugin
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.tasks.SourceSet
@@ -39,15 +40,13 @@ class BuildConfigPlugin : Plugin<Project> {
         }
 
         with(project) {
-            var kotlinDetected = false
             var taskGraphLocked = false
 
             gradle.taskGraph.whenReady { taskGraphLocked = true }
 
-            plugins.withId("org.jetbrains.kotlin.jvm") {
+            ifKotlin {
                 logger.debug("Configuring buildConfig '${BuildConfigLanguage.KOTLIN}' language for $project")
 
-                kotlinDetected = true
                 extension.language(BuildConfigLanguage.KOTLIN)
             }
 
@@ -56,14 +55,14 @@ class BuildConfigPlugin : Plugin<Project> {
                     with(sourceSets.maybeCreate(ss.name) as DefaultBuildConfigSourceSet) {
                         DslObject(ss).convention.plugins[ss.name] = this
 
-                        classSpec.task.bindTo(ss, kotlinDetected)
+                        classSpec.task.bindTo(project, ss)
 
                         extraSpecs.all {
                             if (taskGraphLocked) {
                                 throw IllegalStateException("Can't call 'forClass' after taskGraph was built!")
                             }
 
-                            it.task.bindTo(ss, kotlinDetected)
+                            it.task.bindTo(project, ss)
                         }
                     }
                 }
@@ -120,18 +119,21 @@ class BuildConfigPlugin : Plugin<Project> {
             spec.task = this
         }
 
-    private fun BuildConfigTask.bindTo(javaSourceSet: SourceSet, kotlinDetected: Boolean) {
+    private fun BuildConfigTask.bindTo(project: Project, javaSourceSet: SourceSet) {
         addGeneratedAnnotation = true
 
         javaSourceSet.java.srcDir(outputDir)
         project.tasks.getAt(javaSourceSet.compileJavaTaskName).dependsOn(this)
 
-        if (kotlinDetected) {
+        project.ifKotlin {
             DslObject(javaSourceSet).convention.getPlugin(KotlinSourceSet::class.java).apply {
                 kotlin.srcDir(outputDir)
             }
             project.tasks.getAt("compileKotlin").dependsOn(this)
         }
     }
+
+    private fun Project.ifKotlin(action: (AppliedPlugin) -> Unit) =
+        pluginManager.withPlugin("org.jetbrains.kotlin.jvm", action)
 
 }
