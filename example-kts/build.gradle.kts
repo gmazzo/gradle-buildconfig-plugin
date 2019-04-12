@@ -48,27 +48,29 @@ task("generateResourcesConstants") {
     generateBuildConfig.dependsOn(this)
 }
 
-
-// example of a custom language that builds into XML
-// Look at the end of this file the code for 'BuildConfigXMLGenerator'
+// example of a custom language that builds into XML in a new generated resource folder
 buildConfig.forClass("properties") {
     buildConfigField("String", "value1", "AAA")
     buildConfigField("String", "value2", "BBB")
     buildConfigField("String", "value3", "CCC")
 
+    val generatePropertiesBuildConfig: BuildConfigTask by tasks
+    val newOutputForRes = generatePropertiesBuildConfig.outputDir
+        .let { File(it.parentFile, "res${it.name.capitalize()}") }
+
     language(object : BuildConfigGenerator {
 
         override fun invoke(spec: BuildConfigTaskSpec) {
+            newOutputForRes.mkdirs()
+
             Properties().apply {
                 spec.fields.forEach { setProperty(it.name, it.value) }
-                storeToXML(FileOutputStream(File(spec.outputDir, "${spec.className}.xml")), null)
+                storeToXML(FileOutputStream(File(newOutputForRes, "${spec.className}.xml")), null)
             }
         }
 
     })
 
-    val generatePropertiesBuildConfig :BuildConfigTask by tasks
-
-    sourceSets["main"].resources.srcDir(generatePropertiesBuildConfig.outputDir)
+    sourceSets["main"].resources.srcDir(newOutputForRes)
     tasks["generateResourcesConstants"].dependsOn(generatePropertiesBuildConfig)
 }
