@@ -4,6 +4,7 @@ import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.util.*
 
 class BuildConfigTest {
 
@@ -29,6 +30,15 @@ class BuildConfigTest {
         assertEquals("file2.json", BuildResources.FILE2_JSON.path)
         assertEquals("config/local.properties", BuildResources.CONFIG_LOCAL_PROPERTIES.path)
         assertEquals("config/prod.properties", BuildResources.CONFIG_PROD_PROPERTIES.path)
+    }
+
+    @Test
+    fun testCustomXMLGeneratorProperties() {
+        val props = Properties().apply { loadFromXML(javaClass.getResourceAsStream("/properties.xml")) }
+
+        assertEquals("AAA", props["value1"])
+        assertEquals("BBB", props["value2"])
+        assertEquals("CCC", props["value3"])
     }
 
 }

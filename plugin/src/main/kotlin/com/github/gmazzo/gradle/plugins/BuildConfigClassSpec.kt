@@ -11,7 +11,7 @@ interface BuildConfigClassSpec : Named {
     fun language(language: String) =
         language(BuildConfigLanguage.valueOf(language.toUpperCase()))
 
-    fun language(language: BuildConfigLanguage)
+    fun language(language: BuildConfigGenerator)
 
     fun buildConfigField(field: BuildConfigField): BuildConfigField
 

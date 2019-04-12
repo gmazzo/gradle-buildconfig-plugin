@@ -1,23 +1,22 @@
 package com.github.gmazzo.gradle.plugins.internal
 
-import com.github.gmazzo.gradle.plugins.BuildConfigClassSpec
 import com.github.gmazzo.gradle.plugins.BuildConfigField
-import com.github.gmazzo.gradle.plugins.BuildConfigLanguage
+import com.github.gmazzo.gradle.plugins.BuildConfigGenerator
 import com.github.gmazzo.gradle.plugins.tasks.BuildConfigTask
 
 internal open class DefaultBuildConfigClassSpec(
     private val name: String
-) : BuildConfigClassSpec {
+) : BuildConfigClassSpecInternal {
 
-    var className: String? = null
+    override var className: String? = null
 
-    var packageName: String? = null
+    override var packageName: String? = null
 
-    var language: BuildConfigLanguage? = null
+    override var language: BuildConfigGenerator? = null
 
-    internal val fields = linkedMapOf<String, BuildConfigField>()
+    override val fields = linkedMapOf<String, BuildConfigField>()
 
-    internal lateinit var task: BuildConfigTask
+    override lateinit var task: BuildConfigTask
 
     override fun className(className: String) {
         this.className = className
@@ -27,7 +26,7 @@ internal open class DefaultBuildConfigClassSpec(
         this.packageName = packageName
     }
 
-    override fun language(language: BuildConfigLanguage) {
+    override fun language(language: BuildConfigGenerator) {
         this.language = language
     }
 

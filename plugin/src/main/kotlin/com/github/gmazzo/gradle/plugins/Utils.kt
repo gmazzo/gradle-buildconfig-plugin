@@ -2,7 +2,7 @@ package com.github.gmazzo.gradle.plugins
 
 import java.io.Serializable
 
-val <T> Map<*, T>.lazyValues: Collection<T>
+internal val <T> Map<*, T>.lazyValues: Collection<T>
     get() = let { map ->
         object : Collection<T>, Serializable {
 

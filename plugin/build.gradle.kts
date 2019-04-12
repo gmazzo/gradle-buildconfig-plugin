@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.lang.Thread.sleep
 
 plugins {
     id("java-gradle-plugin")
@@ -79,6 +80,10 @@ tasks.withType(JacocoReport::class.java) {
     reports {
         xml.isEnabled = true
         html.isEnabled = true
+    }
+    doFirst {
+        // sometimes fails with "Unable to read execution data file build/jacoco/test.exec"
+        sleep(TimeUnit.SECONDS.toMillis(1))
     }
 }
 

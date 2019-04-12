@@ -1,17 +1,15 @@
 package com.github.gmazzo.gradle.plugins.internal
 
-import com.github.gmazzo.gradle.plugins.BuildConfigClassSpec
-import com.github.gmazzo.gradle.plugins.BuildConfigSourceSet
 import org.gradle.api.NamedDomainObjectContainer
 
 internal open class DefaultBuildConfigSourceSet(
-    internal val classSpec: DefaultBuildConfigClassSpec,
-    internal val extraSpecs: NamedDomainObjectContainer<DefaultBuildConfigClassSpec>
+    override val classSpec: BuildConfigClassSpecInternal,
+    override val extraSpecs: NamedDomainObjectContainer<out BuildConfigClassSpecInternal>
 ) :
-    BuildConfigSourceSet,
-    BuildConfigClassSpec by classSpec {
+    BuildConfigSourceSetInternal,
+    BuildConfigClassSpecInternal by classSpec {
 
-    override fun forClass(packageName: String?, className: String): BuildConfigClassSpec =
+    override fun forClass(packageName: String?, className: String) =
         extraSpecs.maybeCreate(className).apply {
             className(className)
             packageName?.let(::packageName)

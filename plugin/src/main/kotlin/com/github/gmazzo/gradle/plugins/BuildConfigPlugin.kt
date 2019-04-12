@@ -1,5 +1,7 @@
 package com.github.gmazzo.gradle.plugins
 
+import com.github.gmazzo.gradle.plugins.internal.BuildConfigClassSpecInternal
+import com.github.gmazzo.gradle.plugins.internal.BuildConfigSourceSetInternal
 import com.github.gmazzo.gradle.plugins.internal.DefaultBuildConfigClassSpec
 import com.github.gmazzo.gradle.plugins.internal.DefaultBuildConfigExtension
 import com.github.gmazzo.gradle.plugins.internal.DefaultBuildConfigSourceSet
@@ -19,14 +21,14 @@ class BuildConfigPlugin : Plugin<Project> {
     private val logger = Logging.getLogger(javaClass)
 
     override fun apply(project: Project) {
-        val sourceSets = project.container(BuildConfigSourceSet::class.java) { name ->
+        val sourceSets = project.container(BuildConfigSourceSetInternal::class.java) { name ->
             DefaultBuildConfigSourceSet(
                 DefaultBuildConfigClassSpec(name),
-                project.container(DefaultBuildConfigClassSpec::class.java)
+                project.container(BuildConfigClassSpecInternal::class.java, ::DefaultBuildConfigClassSpec)
             )
         }
 
-        val defaultSS = sourceSets.create("main") as DefaultBuildConfigSourceSet
+        val defaultSS = sourceSets.create("main")
 
         val extension = project.extensions.create(
             BuildConfigExtension::class.java,
@@ -36,7 +38,7 @@ class BuildConfigPlugin : Plugin<Project> {
         )
 
         sourceSets.all {
-            configureSourceSet(project, it as DefaultBuildConfigSourceSet, defaultSS.classSpec)
+            configureSourceSet(project, it, defaultSS.classSpec)
         }
 
         with(project) {
@@ -52,7 +54,7 @@ class BuildConfigPlugin : Plugin<Project> {
 
             plugins.withType(JavaPlugin::class.java) {
                 convention.getPlugin(JavaPluginConvention::class.java).sourceSets.all { ss ->
-                    with(sourceSets.maybeCreate(ss.name) as DefaultBuildConfigSourceSet) {
+                    with(sourceSets.maybeCreate(ss.name)) {
                         DslObject(ss).convention.plugins[ss.name] = this
 
                         classSpec.task.bindTo(project, ss)
@@ -72,8 +74,8 @@ class BuildConfigPlugin : Plugin<Project> {
 
     private fun configureSourceSet(
         project: Project,
-        sourceSet: DefaultBuildConfigSourceSet,
-        defaultSpec: DefaultBuildConfigClassSpec
+        sourceSet: BuildConfigSourceSetInternal,
+        defaultSpec: BuildConfigClassSpecInternal
     ) {
         logger.debug("Creating buildConfig sourceSet '${sourceSet.name}' for $project")
 
@@ -99,8 +101,8 @@ class BuildConfigPlugin : Plugin<Project> {
         project: Project,
         prefix: String,
         buildDir: String,
-        spec: DefaultBuildConfigClassSpec,
-        defaultSpec: DefaultBuildConfigClassSpec,
+        spec: BuildConfigClassSpecInternal,
+        defaultSpec: BuildConfigClassSpecInternal,
         descriptionSuffix: String
     ) =
         project.tasks.create("generate${prefix}BuildConfig", BuildConfigTask::class.java).apply {

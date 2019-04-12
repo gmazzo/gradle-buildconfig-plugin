@@ -1,8 +1,17 @@
+import com.github.gmazzo.gradle.plugins.BuildConfigGenerator
 import com.github.gmazzo.gradle.plugins.BuildConfigSourceSet
+import com.github.gmazzo.gradle.plugins.BuildConfigTaskSpec
+import com.github.gmazzo.gradle.plugins.tasks.BuildConfigTask
+import java.io.FileOutputStream
+import java.util.*
 
 plugins {
     id("org.jetbrains.kotlin.jvm") version "1.3.10"
     id("com.github.gmazzo.buildconfig") version "<local>"
+}
+
+dependencies {
+    implementation(kotlin("stdlib"))
 }
 
 buildConfig {
@@ -39,6 +48,27 @@ task("generateResourcesConstants") {
     generateBuildConfig.dependsOn(this)
 }
 
-dependencies {
-    implementation(kotlin("stdlib"))
+
+// example of a custom language that builds into XML
+// Look at the end of this file the code for 'BuildConfigXMLGenerator'
+buildConfig.forClass("properties") {
+    buildConfigField("String", "value1", "AAA")
+    buildConfigField("String", "value2", "BBB")
+    buildConfigField("String", "value3", "CCC")
+
+    language(object : BuildConfigGenerator {
+
+        override fun invoke(spec: BuildConfigTaskSpec) {
+            Properties().apply {
+                spec.fields.forEach { setProperty(it.name, it.value) }
+                storeToXML(FileOutputStream(File(spec.outputDir, "${spec.className}.xml")), null)
+            }
+        }
+
+    })
+
+    val generatePropertiesBuildConfig :BuildConfigTask by tasks
+
+    sourceSets["main"].resources.srcDir(generatePropertiesBuildConfig.outputDir)
+    tasks["generateResourcesConstants"].dependsOn(generatePropertiesBuildConfig)
 }
