@@ -23,6 +23,7 @@ tasks {
 
 dependencies {
     compileOnly(kotlin("gradle-plugin"))
+    testImplementation(kotlin("gradle-plugin"))
 
     implementation(kotlin("stdlib"))
     implementation("com.squareup:javapoet:1.11.1")

@@ -23,12 +23,13 @@ class BuildConfigPlugin : Plugin<Project> {
             )
         }
 
-        val defaultSS = sourceSets.create("main")
+        val defaultSS = sourceSets.create(DEFAULT_SOURCE_SET_NAME)
 
         val extension = project.extensions.create(
             BuildConfigExtension::class.java,
             "buildConfig",
             DefaultBuildConfigExtension::class.java,
+            sourceSets,
             defaultSS
         )
 
@@ -109,5 +110,11 @@ class BuildConfigPlugin : Plugin<Project> {
 
             spec.generateTask = this
         }
+
+    companion object {
+
+        const val DEFAULT_SOURCE_SET_NAME = "main"
+
+    }
 
 }

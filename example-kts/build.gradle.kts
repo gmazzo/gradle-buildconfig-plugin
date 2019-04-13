@@ -11,7 +11,7 @@ plugins {
 }
 
 dependencies {
-    implementation(kotlin("stdlib"))
+    implementation(kotlin("stdlib-jdk8"))
 }
 
 buildConfig {
@@ -21,10 +21,10 @@ buildConfig {
     buildConfigField("boolean", "FEATURE_ENABLED", "${true}")
     buildConfigField("IntArray", "MAGIC_NUMBERS", "intArrayOf(1, 2, 3, 4)")
     buildConfigField("com.github.gmazzo.example_kts.SomeData", "MY_DATA", "SomeData(\"a\",1)")
-}
 
-sourceSets["test"].withConvention(BuildConfigSourceSet::class) {
-    buildConfigField("String", "TEST_CONSTANT", "\"aTestValue\"")
+    sourceSets.getByName("test") {
+        buildConfigField("String", "TEST_CONSTANT", "\"aTestValue\"")
+    }
 }
 
 /**

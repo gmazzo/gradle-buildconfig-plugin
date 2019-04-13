@@ -7,10 +7,10 @@ internal enum class PluginBindings(
 
     JAVA("java", JavaBindingHandler),
 
-    KOTLIN_JVM("org.jetbrains.kotlin.jvm", KotlinJvmBindingHandler);
+    KOTLIN_JVM("org.jetbrains.kotlin.jvm", KotlinJvmBindingHandler),
 
-    //TODO KOTLIN_JS(KotlinJsExtensionHandler, "kotlin-platform-js", "kotlin2js"),
+    KOTLIN_JS("kotlin2js", KotlinJsBindingHandler),
 
-    //TODO KOTLIN_MULTIPLATFORM(KotlinMultiplatformExtensionHandler, "org.jetbrains.kotlin.multiplatform");
+    KOTLIN_MULTIPLATFORM("org.jetbrains.kotlin.multiplatform", KotlinMultiplatformBindingHandler);
 
 }

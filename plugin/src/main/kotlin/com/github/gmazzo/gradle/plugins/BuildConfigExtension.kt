@@ -1,3 +1,9 @@
 package com.github.gmazzo.gradle.plugins
 
-interface BuildConfigExtension : BuildConfigSourceSet
+import org.gradle.api.NamedDomainObjectContainer
+
+interface BuildConfigExtension : BuildConfigSourceSet {
+
+    val sourceSets: NamedDomainObjectContainer<out BuildConfigSourceSet>
+
+}

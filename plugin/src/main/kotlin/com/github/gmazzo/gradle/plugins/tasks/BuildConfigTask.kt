@@ -25,7 +25,7 @@ open class BuildConfigTask : DefaultTask(), BuildConfigTaskSpec {
     var language: BuildConfigGenerator = BuildConfigLanguage.JAVA
 
     @Input
-    override var addGeneratedAnnotation = false
+    override var addGeneratedAnnotation = true
 
     @OutputDirectory
     override lateinit var outputDir: File
