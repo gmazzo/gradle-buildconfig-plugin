@@ -5,16 +5,11 @@ import com.github.gmazzo.gradle.plugins.internal.BuildConfigSourceSetInternal
 import com.github.gmazzo.gradle.plugins.internal.DefaultBuildConfigClassSpec
 import com.github.gmazzo.gradle.plugins.internal.DefaultBuildConfigExtension
 import com.github.gmazzo.gradle.plugins.internal.DefaultBuildConfigSourceSet
+import com.github.gmazzo.gradle.plugins.internal.bindings.PluginBindings
 import com.github.gmazzo.gradle.plugins.tasks.BuildConfigTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.internal.plugins.DslObject
 import org.gradle.api.logging.Logging
-import org.gradle.api.plugins.AppliedPlugin
-import org.gradle.api.plugins.JavaPlugin
-import org.gradle.api.plugins.JavaPluginConvention
-import org.gradle.api.tasks.SourceSet
-import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 
 class BuildConfigPlugin : Plugin<Project> {
 
@@ -46,25 +41,18 @@ class BuildConfigPlugin : Plugin<Project> {
 
             gradle.taskGraph.whenReady { taskGraphLocked = true }
 
-            ifKotlin {
-                logger.debug("Configuring buildConfig '${BuildConfigLanguage.KOTLIN}' language for $project")
+            PluginBindings.values().forEach {
+                pluginManager.withPlugin(it.pluginId) { _ ->
+                    it.handler(project, extension) { name, onSpec ->
+                        sourceSets.maybeCreate(name).apply {
+                            onSpec(classSpec)
 
-                extension.language(BuildConfigLanguage.KOTLIN)
-            }
-
-            plugins.withType(JavaPlugin::class.java) {
-                convention.getPlugin(JavaPluginConvention::class.java).sourceSets.all { ss ->
-                    with(sourceSets.maybeCreate(ss.name)) {
-                        DslObject(ss).convention.plugins["buildConfig"] = this
-
-                        classSpec.generateTask.bindTo(project, ss)
-
-                        extraSpecs.all {
-                            if (taskGraphLocked) {
-                                throw IllegalStateException("Can't call 'forClass' after taskGraph was built!")
+                            extraSpecs.all { extra ->
+                                if (taskGraphLocked) {
+                                    throw IllegalStateException("Can't call 'forClass' after taskGraph was built!")
+                                }
+                                onSpec(extra)
                             }
-
-                            it.generateTask.bindTo(project, ss)
                         }
                     }
                 }
@@ -121,22 +109,5 @@ class BuildConfigPlugin : Plugin<Project> {
 
             spec.generateTask = this
         }
-
-    private fun BuildConfigTask.bindTo(project: Project, javaSourceSet: SourceSet) {
-        addGeneratedAnnotation = true
-
-        javaSourceSet.java.srcDir(outputDir)
-        project.tasks.getAt(javaSourceSet.compileJavaTaskName).dependsOn(this)
-
-        project.ifKotlin {
-            DslObject(javaSourceSet).convention.getPlugin(KotlinSourceSet::class.java).apply {
-                kotlin.srcDir(outputDir)
-            }
-            project.tasks.getAt("compileKotlin").dependsOn(this)
-        }
-    }
-
-    private fun Project.ifKotlin(action: (AppliedPlugin) -> Unit) =
-        pluginManager.withPlugin("org.jetbrains.kotlin.jvm", action)
 
 }

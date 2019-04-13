@@ -64,6 +64,10 @@ val generateBuildResourcesBuildConfigTest = task<AssertGeneratedFile>("generateB
         """
 }
 
+task<Delete>("clean") {
+    delete(buildDir)
+}
+
 task("test") {
     dependsOn(generateBuildConfigTest, generateBuildResourcesBuildConfigTest)
 }

@@ -4,7 +4,7 @@ val plugin = gradle.includedBuild("plugin")
 
 task<Delete>("clean") {
     dependsOn(plugin.task(":clean"))
-    delete(rootProject.buildDir)
+    delete(buildDir)
 }
 
 task("test") {
