@@ -55,7 +55,7 @@ class BuildConfigPlugin : Plugin<Project> {
             plugins.withType(JavaPlugin::class.java) {
                 convention.getPlugin(JavaPluginConvention::class.java).sourceSets.all { ss ->
                     with(sourceSets.maybeCreate(ss.name)) {
-                        DslObject(ss).convention.plugins[ss.name] = this
+                        DslObject(ss).convention.plugins["buildConfig"] = this
 
                         classSpec.generateTask.bindTo(project, ss)
 
