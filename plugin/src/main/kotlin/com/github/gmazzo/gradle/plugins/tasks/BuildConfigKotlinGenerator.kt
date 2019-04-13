@@ -29,7 +29,7 @@ internal object BuildConfigKotlinGenerator : BuildConfigGenerator {
 
     private val logger = Logging.getLogger(javaClass)
 
-    override fun invoke(spec: BuildConfigTaskSpec) {
+    override fun execute(spec: BuildConfigTaskSpec) {
         logger.debug("Generating ${spec.className} for fields ${spec.fields}")
 
         val typeSpec = TypeSpec.objectBuilder(spec.className)

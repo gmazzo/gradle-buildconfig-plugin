@@ -1,14 +1,7 @@
-import com.github.gmazzo.gradle.plugins.BuildConfigGenerator
-import com.github.gmazzo.gradle.plugins.BuildConfigTaskSpec
 import com.github.gmazzo.gradle.plugins.tasks.BuildConfigTask
-import javax.xml.parsers.DocumentBuilderFactory
-import javax.xml.transform.OutputKeys
-import javax.xml.transform.TransformerFactory
-import javax.xml.transform.dom.DOMSource
-import javax.xml.transform.stream.StreamResult
 
 plugins {
-    id("com.github.gmazzo.buildconfig") version "<local>"
+    id("com.github.gmazzo.buildconfig") version "<latest>"
 }
 
 buildConfig {

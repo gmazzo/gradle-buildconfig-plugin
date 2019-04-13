@@ -6,8 +6,8 @@ import java.io.FileOutputStream
 import java.util.*
 
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "1.3.10"
-    id("com.github.gmazzo.buildconfig") version "<local>"
+    kotlin("jvm") version "1.3.21"
+    id("com.github.gmazzo.buildconfig") version "<latest>"
 }
 
 dependencies {
@@ -60,7 +60,7 @@ buildConfig.forClass("properties") {
 
     language(object : BuildConfigGenerator {
 
-        override fun invoke(spec: BuildConfigTaskSpec) {
+        override fun execute(spec: BuildConfigTaskSpec) {
             newOutputForRes.mkdirs()
 
             Properties().apply {

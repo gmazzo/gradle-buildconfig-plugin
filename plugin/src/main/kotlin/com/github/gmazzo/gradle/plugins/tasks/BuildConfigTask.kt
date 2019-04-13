@@ -36,7 +36,7 @@ open class BuildConfigTask : DefaultTask(), BuildConfigTaskSpec {
 
     @TaskAction
     fun generateBuildConfigFile() {
-        language(this)
+        language.execute(this)
     }
 
 }
