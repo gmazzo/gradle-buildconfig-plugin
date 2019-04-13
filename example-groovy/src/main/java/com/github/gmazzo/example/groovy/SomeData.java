@@ -1,4 +1,4 @@
-package com.github.gmazzo;
+package com.github.gmazzo.example.groovy;
 
 import java.util.Objects;
 

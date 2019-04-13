@@ -1,4 +1,4 @@
-package com.github.gmazzo
+package com.github.gmazzo.example_kts
 
 data class SomeData(
     val value1: String,

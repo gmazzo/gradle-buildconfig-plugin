@@ -4,12 +4,14 @@ plugins {
 }
 
 buildConfig {
+    packageName("com.github.gmazzo.example.groovy")
+
     buildConfigField('String', 'APP_NAME', "\"${project.name}\"")
     buildConfigField('String', 'APP_SECRET', "\"Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu\"")
     buildConfigField('long', 'BUILD_TIME', "${System.currentTimeMillis()}L")
     buildConfigField('boolean', 'FEATURE_ENABLED', "${true}")
     buildConfigField('int[]', 'MAGIC_NUMBERS', '{1, 2, 3, 4}')
-    buildConfigField("com.github.gmazzo.SomeData", "MY_DATA", "new SomeData(\"a\",1)")
+    buildConfigField("com.github.gmazzo.example.groovy.SomeData", "MY_DATA", "new SomeData(\"a\",1)")
 }
 
 sourceSets {

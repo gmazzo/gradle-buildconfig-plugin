@@ -54,7 +54,7 @@ class BuildConfigPluginTest(
         projectDir.resolve("build.gradle").writeText("""
 plugins {
     id ${kotlinVersion?.let { "'org.jetbrains.kotlin.jvm' version '$kotlinVersion'" } ?: "'java'"}
-    id 'com.github.gmazzo.buildconfig' version '<local>'
+    id 'com.github.gmazzo.buildconfig' version '<latest>'
 }
 
 group = 'gs.test'
@@ -68,6 +68,8 @@ dependencies {
 }
 
 buildConfig {
+    packageName(group)
+
     buildConfigField('String', 'APP_NAME', "\"${'$'}{project.name}\"")
     buildConfigField('String', 'APP_SECRET', "\"Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu\"")
     buildConfigField('long', 'BUILD_TIME', "${'$'}{System.currentTimeMillis()}L")

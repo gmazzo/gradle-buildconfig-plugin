@@ -1,4 +1,4 @@
-package com.github.gmazzo
+package com.github.gmazzo.example_kts
 
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals

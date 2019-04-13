@@ -1,8 +1,11 @@
 package com.github.gmazzo.gradle.plugins
 
+import com.github.gmazzo.gradle.plugins.tasks.BuildConfigTask
 import org.gradle.api.Named
 
 interface BuildConfigClassSpec : Named {
+
+    val generateTask: BuildConfigTask
 
     fun className(className: String)
 

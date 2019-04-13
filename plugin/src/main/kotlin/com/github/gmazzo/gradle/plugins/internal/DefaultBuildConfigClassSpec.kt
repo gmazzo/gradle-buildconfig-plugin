@@ -16,7 +16,7 @@ internal open class DefaultBuildConfigClassSpec(
 
     override val fields = linkedMapOf<String, BuildConfigField>()
 
-    override lateinit var task: BuildConfigTask
+    override lateinit var generateTask: BuildConfigTask
 
     override fun className(className: String) {
         this.className = className

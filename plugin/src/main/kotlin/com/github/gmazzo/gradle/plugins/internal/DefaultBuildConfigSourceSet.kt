@@ -9,7 +9,7 @@ internal open class DefaultBuildConfigSourceSet(
     BuildConfigSourceSetInternal,
     BuildConfigClassSpecInternal by classSpec {
 
-    override fun forClass(packageName: String?, className: String) =
+    override fun forClass(packageName: String?, className: String): BuildConfigClassSpecInternal =
         extraSpecs.maybeCreate(className).apply {
             className(className)
             packageName?.let(::packageName)

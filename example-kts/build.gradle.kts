@@ -20,7 +20,7 @@ buildConfig {
     buildConfigField("long", "BUILD_TIME", "${System.currentTimeMillis()}L")
     buildConfigField("boolean", "FEATURE_ENABLED", "${true}")
     buildConfigField("IntArray", "MAGIC_NUMBERS", "intArrayOf(1, 2, 3, 4)")
-    buildConfigField("com.github.gmazzo.SomeData", "MY_DATA", "SomeData(\"a\",1)")
+    buildConfigField("com.github.gmazzo.example_kts.SomeData", "MY_DATA", "SomeData(\"a\",1)")
 }
 
 sourceSets["test"].withConvention(BuildConfigSourceSet::class) {

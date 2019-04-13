@@ -15,6 +15,6 @@ internal interface BuildConfigClassSpecInternal : BuildConfigClassSpec {
 
     val fields: Map<String, BuildConfigField>
 
-    var task: BuildConfigTask
+    override var generateTask: BuildConfigTask
 
 }

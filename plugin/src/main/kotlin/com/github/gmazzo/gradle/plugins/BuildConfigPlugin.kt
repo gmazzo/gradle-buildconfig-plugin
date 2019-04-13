@@ -57,14 +57,14 @@ class BuildConfigPlugin : Plugin<Project> {
                     with(sourceSets.maybeCreate(ss.name)) {
                         DslObject(ss).convention.plugins[ss.name] = this
 
-                        classSpec.task.bindTo(project, ss)
+                        classSpec.generateTask.bindTo(project, ss)
 
                         extraSpecs.all {
                             if (taskGraphLocked) {
                                 throw IllegalStateException("Can't call 'forClass' after taskGraph was built!")
                             }
 
-                            it.task.bindTo(project, ss)
+                            it.generateTask.bindTo(project, ss)
                         }
                     }
                 }
@@ -114,11 +114,12 @@ class BuildConfigPlugin : Plugin<Project> {
 
             project.afterEvaluate {
                 className = spec.className ?: defaultSpec.className ?: "${prefix}BuildConfig"
-                packageName = spec.packageName ?: defaultSpec.packageName ?: project.group.toString()
+                packageName = spec.packageName ?: defaultSpec.packageName ?: "${project.group}.${project.name}"
+                    .replace("[^a-zA-Z._$]".toRegex(), "_")
                 language = spec.language ?: defaultSpec.language ?: BuildConfigLanguage.JAVA
             }
 
-            spec.task = this
+            spec.generateTask = this
         }
 
     private fun BuildConfigTask.bindTo(project: Project, javaSourceSet: SourceSet) {
