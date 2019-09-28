@@ -143,7 +143,7 @@ public class BuildConfigTest {
         @Parameterized.Parameters(name = "gradle={0}, kotlin={1}")
         fun versions() =
             listOf("3.5", "4.10.1", "5.2.1").flatMap { gradleVersion ->
-                listOf(null, "1.1.61", "1.2.41", "1.3.21").map { kotlinVersion ->
+                listOf(null, "1.1.61", "1.2.41", "1.3.50").map { kotlinVersion ->
                     arrayOf(gradleVersion, kotlinVersion)
                 }
             }
