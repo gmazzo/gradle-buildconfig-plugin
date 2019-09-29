@@ -5,7 +5,7 @@ allprojects {
     }
 
     group = "com.github.gmazzo"
-    version = "1.5.0"
+    version = "1.5.1"
 
     project.plugins.withType(JavaPlugin::class.java) {
         dependencies.add("testImplementation", "junit:junit:4.12")

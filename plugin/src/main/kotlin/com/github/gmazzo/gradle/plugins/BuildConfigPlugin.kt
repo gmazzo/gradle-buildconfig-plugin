@@ -1,10 +1,6 @@
 package com.github.gmazzo.gradle.plugins
 
-import com.github.gmazzo.gradle.plugins.internal.BuildConfigClassSpecInternal
-import com.github.gmazzo.gradle.plugins.internal.BuildConfigSourceSetInternal
-import com.github.gmazzo.gradle.plugins.internal.DefaultBuildConfigClassSpec
-import com.github.gmazzo.gradle.plugins.internal.DefaultBuildConfigExtension
-import com.github.gmazzo.gradle.plugins.internal.DefaultBuildConfigSourceSet
+import com.github.gmazzo.gradle.plugins.internal.*
 import com.github.gmazzo.gradle.plugins.internal.bindings.PluginBindings
 import com.github.gmazzo.gradle.plugins.tasks.BuildConfigTask
 import org.gradle.api.Plugin
@@ -103,13 +99,20 @@ class BuildConfigPlugin : Plugin<Project> {
 
             project.afterEvaluate {
                 className = spec.className ?: defaultSpec.className ?: "${prefix}BuildConfig"
-                packageName = spec.packageName ?: defaultSpec.packageName ?: "${project.group}.${project.name}"
+                packageName = spec.packageName ?: defaultSpec.packageName ?: project.defaultPackage
                     .replace("[^a-zA-Z._$]".toRegex(), "_")
                 language = spec.language ?: defaultSpec.language ?: BuildConfigLanguage.JAVA
             }
 
             spec.generateTask = this
         }
+
+    private val Project.defaultPackage
+        get() = group
+            .toString()
+            .takeUnless { it.isEmpty() }
+            ?.let { "$it.${project.name}" }
+            ?: project.name
 
     companion object {
 

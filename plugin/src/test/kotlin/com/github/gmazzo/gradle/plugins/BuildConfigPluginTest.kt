@@ -16,7 +16,8 @@ import java.io.FileOutputStream
 @RunWith(Parameterized::class)
 class BuildConfigPluginTest(
     private val gradleVersion: String,
-    private val kotlinVersion: String?
+    private val kotlinVersion: String?,
+    private val withPackage: Boolean
 ) {
 
     @get:Rule
@@ -37,7 +38,7 @@ class BuildConfigPluginTest(
         temporaryFolder.create()
 
         writeGradleProperties()
-        writeBuildGradle(kotlinVersion)
+        writeBuildGradle()
         writeTest()
     }
 
@@ -50,14 +51,15 @@ class BuildConfigPluginTest(
         assertEquals(TaskOutcome.SUCCESS, result.task(":build")?.outcome)
     }
 
-    private fun writeBuildGradle(kotlinVersion: String?) {
+    private fun writeBuildGradle() {
         projectDir.resolve("build.gradle").writeText("""
 plugins {
     id ${kotlinVersion?.let { "'org.jetbrains.kotlin.jvm' version '$kotlinVersion'" } ?: "'java'"}
     id 'com.github.gmazzo.buildconfig' version '<latest>'
 }
-
+""" + (if (withPackage) """
 group = 'gs.test'
+""" else "") + """
 
 repositories {
     jcenter()
@@ -67,9 +69,12 @@ dependencies {
     testImplementation 'junit:junit:4.12'
 }
 
-buildConfig {
+buildConfig {""" +
+                (if (withPackage) """
     packageName(group)
-
+    
+""" else "") + """
+    
     buildConfigField('String', 'APP_NAME', "\"${'$'}{project.name}\"")
     buildConfigField('String', 'APP_SECRET', "\"Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu\"")
     buildConfigField('long', 'BUILD_TIME', "${'$'}{System.currentTimeMillis()}L")
@@ -100,6 +105,10 @@ import org.junit.Test;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+""" + (if (!withPackage) """
+
+import test_project.*;
+""".trimIndent() else "") + """
 
 public class BuildConfigTest {
 
@@ -131,7 +140,7 @@ public class BuildConfigTest {
     // This allows to coverage data to be collected from GradleRunner instance
     // https://github.com/koral--/jacoco-gradle-testkit-plugin
     private fun writeGradleProperties() {
-        javaClass.classLoader.getResourceAsStream("testkit-gradle.properties")
+        javaClass.classLoader.getResourceAsStream("testkit-gradle.properties")!!
             .copyTo(FileOutputStream(File(projectDir, "gradle.properties")))
     }
 
@@ -140,11 +149,13 @@ public class BuildConfigTest {
         private const val PROJECT_NAME = "test-project"
 
         @JvmStatic
-        @Parameterized.Parameters(name = "gradle={0}, kotlin={1}")
+        @Parameterized.Parameters(name = "gradle={0}, kotlin={1}, withPackage={2}")
         fun versions() =
             listOf("3.5", "4.10.1", "5.2.1").flatMap { gradleVersion ->
-                listOf(null, "1.1.61", "1.2.41", "1.3.50").map { kotlinVersion ->
-                    arrayOf(gradleVersion, kotlinVersion)
+                listOf(null, "1.1.61", "1.2.41", "1.3.50").flatMap { kotlinVersion ->
+                    listOf(true, false).map { withPackage ->
+                        arrayOf(gradleVersion, kotlinVersion, withPackage)
+                    }
                 }
             }
 
