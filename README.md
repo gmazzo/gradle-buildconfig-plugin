@@ -25,7 +25,6 @@ buildConfig {
 ```
 Will generate `BuildConfig.kt`:
 ```kotlin
-@Generated("com.github.gmazzo.gradle.plugins.tasks.BuildConfigKotlinGenerator")
 object BuildConfig {
     const val APP_NAME: String = "example-kts"
 
@@ -68,7 +67,6 @@ buildConfig {
 ```
 Will generate `BuildConfig.java`:
 ```java
-@Generated("com.github.gmazzo.gradle.plugins.tasks.BuildConfigJavaGenerator")
 public final class BuildConfig {
   public static final String APP_NAME = "example-groovy";
 
@@ -131,7 +129,6 @@ buildConfig {
 ```
 Will generate in `TestBuildConfig.kt`:
 ```kotlin
-@Generated("com.github.gmazzo.gradle.plugins.tasks.BuildConfigKotlinGenerator")
 object TestBuildConfig {
     const val TEST_CONSTANT: String = "aTestValue"
 }
@@ -211,12 +208,4 @@ Will generate in `BuildResources.java`:
   public static final File FILE2_JSON = new File("file2.json");
 
   public static final File FILE1_JSON = new File("file1.json");
-```
-
-### If the 'javax.annotation.Generated' annotation is a problem
-In your build file add:
-```kotlin
-tasks.withType(BuildConfigTask::class) {
-    addGeneratedAnnotation = false
-}
 ```

@@ -11,8 +11,6 @@ interface BuildConfigTaskSpec : Serializable {
 
     val fields: Collection<BuildConfigField>
 
-    val addGeneratedAnnotation: Boolean
-
     val outputDir: File
 
 }

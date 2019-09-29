@@ -24,9 +24,6 @@ open class BuildConfigTask : DefaultTask(), BuildConfigTaskSpec {
     @Input
     var language: BuildConfigGenerator = BuildConfigLanguage.JAVA
 
-    @Input
-    override var addGeneratedAnnotation = true
-
     @OutputDirectory
     override lateinit var outputDir: File
 
@@ -35,7 +32,7 @@ open class BuildConfigTask : DefaultTask(), BuildConfigTaskSpec {
     }
 
     @TaskAction
-    fun generateBuildConfigFile() {
+    protected fun generateBuildConfigFile() {
         language.execute(this)
     }
 

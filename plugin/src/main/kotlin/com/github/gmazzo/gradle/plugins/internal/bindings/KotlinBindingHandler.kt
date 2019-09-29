@@ -10,9 +10,7 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 internal val Project.kotlinExtension
     get() = extensions.getByType(KotlinProjectExtension::class.java)
 
-internal abstract class KotlinBindingHandler(
-    private val hasJavaDependency: Boolean
-) : PluginBindingHandler {
+internal abstract class KotlinBindingHandler : PluginBindingHandler {
 
     abstract val KotlinSourceSet.compileTaskName: String
 
@@ -29,8 +27,6 @@ internal abstract class KotlinBindingHandler(
 
     private fun Project.bindSpec(spec: BuildConfigClassSpec, sourceSet: KotlinSourceSet) {
         with(spec.generateTask) {
-            addGeneratedAnnotation = hasJavaDependency
-
             sourceSet.kotlin.srcDir(outputDir)
 
             tasks.getByName(sourceSet.compileTaskName).dependsOn(this)

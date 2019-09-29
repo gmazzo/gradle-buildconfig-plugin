@@ -24,9 +24,9 @@ val generateBuildConfigTest = task<AssertGeneratedFile>("generateBuildConfigTest
     dependsOn(generateBuildConfig)
 
     task = generateBuildConfig
-    filePath = "com/github/gmazzo/BuildConfig.java"
+    filePath = "com/github/gmazzo/example_generic/BuildConfig.java"
     expectedContent = """
-        package com.github.gmazzo;
+        package com.github.gmazzo.example_generic;
         
         import java.lang.String;
         
@@ -49,9 +49,9 @@ val generateBuildResourcesBuildConfigTest = task<AssertGeneratedFile>("generateB
     dependsOn(generateBuildResourcesBuildConfig)
 
     task = generateBuildResourcesBuildConfig
-    filePath = "com/github/gmazzo/BuildResources.java"
+    filePath = "com/github/gmazzo/example_generic/BuildResources.java"
     expectedContent = """
-        package com.github.gmazzo;
+        package com.github.gmazzo.example_generic;
         
         import java.lang.String;
         

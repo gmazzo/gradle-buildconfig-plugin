@@ -2,17 +2,9 @@ package com.github.gmazzo.gradle.plugins.tasks
 
 import com.github.gmazzo.gradle.plugins.BuildConfigGenerator
 import com.github.gmazzo.gradle.plugins.BuildConfigTaskSpec
-import com.squareup.javapoet.AnnotationSpec
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.CodeBlock
-import com.squareup.javapoet.FieldSpec
-import com.squareup.javapoet.JavaFile
-import com.squareup.javapoet.MethodSpec
-import com.squareup.javapoet.TypeName
-import com.squareup.javapoet.TypeSpec
+import com.squareup.javapoet.*
 import org.apache.commons.lang3.ClassUtils
 import org.gradle.api.logging.Logging
-import javax.annotation.Generated
 import javax.lang.model.element.Modifier
 
 internal object BuildConfigJavaGenerator : BuildConfigGenerator {
@@ -24,14 +16,6 @@ internal object BuildConfigJavaGenerator : BuildConfigGenerator {
 
         val typeSpec = TypeSpec.classBuilder(spec.className)
             .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-
-        if (spec.addGeneratedAnnotation) {
-            typeSpec.addAnnotation(
-                AnnotationSpec.builder(Generated::class.java)
-                    .addMember("value", "\$S", javaClass.name)
-                    .build()
-            )
-        }
 
         spec.fields.forEach {
             val typeName = when (it.type) {

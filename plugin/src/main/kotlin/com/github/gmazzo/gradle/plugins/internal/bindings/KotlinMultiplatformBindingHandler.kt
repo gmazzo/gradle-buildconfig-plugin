@@ -8,7 +8,6 @@ import org.gradle.api.Project
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.KotlinTargetsContainer
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinJsCompilation
 
 internal object KotlinMultiplatformBindingHandler : PluginBindingHandler {
 
@@ -35,8 +34,6 @@ internal object KotlinMultiplatformBindingHandler : PluginBindingHandler {
         sourceSet: KotlinSourceSet
     ) {
         with(spec.generateTask) {
-            addGeneratedAnnotation = compilation !is KotlinJsCompilation
-
             sourceSet.kotlin.srcDir(outputDir)
 
             tasks.getByName(compilation.compileKotlinTaskName).dependsOn(this)
