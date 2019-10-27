@@ -2,8 +2,8 @@ package com.github.gmazzo.gradle.plugins.internal
 
 import com.github.gmazzo.gradle.plugins.BuildConfigClassSpec
 import com.github.gmazzo.gradle.plugins.BuildConfigField
-import com.github.gmazzo.gradle.plugins.BuildConfigGenerator
-import com.github.gmazzo.gradle.plugins.tasks.BuildConfigTask
+import com.github.gmazzo.gradle.plugins.BuildConfigTask
+import com.github.gmazzo.gradle.plugins.generators.BuildConfigGenerator
 
 internal interface BuildConfigClassSpecInternal : BuildConfigClassSpec {
 

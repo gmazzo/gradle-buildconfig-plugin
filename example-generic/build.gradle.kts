@@ -1,4 +1,4 @@
-import com.github.gmazzo.gradle.plugins.tasks.BuildConfigTask
+import com.github.gmazzo.gradle.plugins.BuildConfigTask
 
 plugins {
     id("com.github.gmazzo.buildconfig") version "<latest>"

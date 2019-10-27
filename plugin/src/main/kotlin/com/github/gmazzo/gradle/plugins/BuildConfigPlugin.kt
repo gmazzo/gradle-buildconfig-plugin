@@ -1,8 +1,8 @@
 package com.github.gmazzo.gradle.plugins
 
+import com.github.gmazzo.gradle.plugins.generators.BuildConfigLanguage
 import com.github.gmazzo.gradle.plugins.internal.*
 import com.github.gmazzo.gradle.plugins.internal.bindings.PluginBindings
-import com.github.gmazzo.gradle.plugins.tasks.BuildConfigTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.logging.Logging

@@ -1,7 +1,7 @@
-import com.github.gmazzo.gradle.plugins.BuildConfigGenerator
+import com.github.gmazzo.gradle.plugins.generators.BuildConfigGenerator
 import com.github.gmazzo.gradle.plugins.BuildConfigSourceSet
 import com.github.gmazzo.gradle.plugins.BuildConfigTaskSpec
-import com.github.gmazzo.gradle.plugins.tasks.BuildConfigTask
+import com.github.gmazzo.gradle.plugins.BuildConfigTask
 import java.io.FileOutputStream
 import java.util.*
 

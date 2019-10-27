@@ -2,7 +2,7 @@ package com.github.gmazzo.gradle.plugins.internal.bindings
 
 import com.github.gmazzo.gradle.plugins.BuildConfigClassSpec
 import com.github.gmazzo.gradle.plugins.BuildConfigExtension
-import com.github.gmazzo.gradle.plugins.BuildConfigLanguage
+import com.github.gmazzo.gradle.plugins.generators.BuildConfigLanguage
 import org.gradle.api.Project
 import org.gradle.api.internal.plugins.DslObject
 import org.gradle.api.plugins.JavaPluginConvention

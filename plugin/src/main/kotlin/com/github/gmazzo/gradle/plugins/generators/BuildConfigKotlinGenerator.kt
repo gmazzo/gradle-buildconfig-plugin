@@ -1,6 +1,5 @@
-package com.github.gmazzo.gradle.plugins.tasks
+package com.github.gmazzo.gradle.plugins.generators
 
-import com.github.gmazzo.gradle.plugins.BuildConfigGenerator
 import com.github.gmazzo.gradle.plugins.BuildConfigTaskSpec
 import com.squareup.kotlinpoet.*
 import org.apache.commons.lang3.ClassUtils

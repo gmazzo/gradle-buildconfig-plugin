@@ -1,6 +1,7 @@
 package com.github.gmazzo.gradle.plugins
 
-import com.github.gmazzo.gradle.plugins.tasks.BuildConfigTask
+import com.github.gmazzo.gradle.plugins.generators.BuildConfigGenerator
+import com.github.gmazzo.gradle.plugins.generators.BuildConfigLanguage
 import org.gradle.api.Named
 
 interface BuildConfigClassSpec : Named {

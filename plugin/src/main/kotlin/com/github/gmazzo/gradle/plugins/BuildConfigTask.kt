@@ -1,9 +1,7 @@
-package com.github.gmazzo.gradle.plugins.tasks
+package com.github.gmazzo.gradle.plugins
 
-import com.github.gmazzo.gradle.plugins.BuildConfigField
-import com.github.gmazzo.gradle.plugins.BuildConfigGenerator
-import com.github.gmazzo.gradle.plugins.BuildConfigLanguage
-import com.github.gmazzo.gradle.plugins.BuildConfigTaskSpec
+import com.github.gmazzo.gradle.plugins.generators.BuildConfigGenerator
+import com.github.gmazzo.gradle.plugins.generators.BuildConfigLanguage
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input

@@ -1,7 +1,4 @@
-package com.github.gmazzo.gradle.plugins
-
-import com.github.gmazzo.gradle.plugins.tasks.BuildConfigJavaGenerator
-import com.github.gmazzo.gradle.plugins.tasks.BuildConfigKotlinGenerator
+package com.github.gmazzo.gradle.plugins.generators
 
 enum class BuildConfigLanguage(
     generator: BuildConfigGenerator
