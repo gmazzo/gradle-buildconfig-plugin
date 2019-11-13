@@ -6,7 +6,7 @@ import org.apache.commons.lang3.ClassUtils
 import org.gradle.api.logging.Logging
 import javax.lang.model.element.Modifier
 
-internal object BuildConfigJavaGenerator : BuildConfigGenerator {
+object BuildConfigJavaGenerator : BuildConfigGenerator {
 
     private val logger = Logging.getLogger(javaClass)
 

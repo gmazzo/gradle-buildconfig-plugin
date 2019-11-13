@@ -2,7 +2,6 @@ package com.github.gmazzo.gradle.plugins.internal.bindings
 
 import com.github.gmazzo.gradle.plugins.BuildConfigClassSpec
 import com.github.gmazzo.gradle.plugins.BuildConfigExtension
-import com.github.gmazzo.gradle.plugins.generators.BuildConfigOutputType
 import org.gradle.api.Project
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
@@ -18,7 +17,7 @@ internal abstract class KotlinBindingHandler : PluginBindingHandler {
         get() = takeUnless { it.equals("main", ignoreCase = true) }?.capitalize() ?: ""
 
     override fun invoke(project: Project, extension: BuildConfigExtension, sourceSetProvider: SourceSetProvider) {
-        extension.outputType(BuildConfigOutputType.KOTLIN)
+        extension.useKotlinOutput()
 
         project.kotlinExtension.sourceSets.all { ss ->
             sourceSetProvider(ss.name) { project.bindSpec(it, ss) }

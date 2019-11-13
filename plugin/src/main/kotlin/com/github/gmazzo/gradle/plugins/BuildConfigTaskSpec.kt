@@ -1,9 +1,8 @@
 package com.github.gmazzo.gradle.plugins
 
 import java.io.File
-import java.io.Serializable
 
-interface BuildConfigTaskSpec : Serializable {
+interface BuildConfigTaskSpec {
 
     val className: String
 

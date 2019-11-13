@@ -1,6 +1,6 @@
 package com.github.gmazzo.gradle.plugins
 
-import com.github.gmazzo.gradle.plugins.generators.BuildConfigOutputType
+import com.github.gmazzo.gradle.plugins.generators.BuildConfigJavaGenerator
 import com.github.gmazzo.gradle.plugins.internal.*
 import com.github.gmazzo.gradle.plugins.internal.bindings.PluginBindings
 import org.gradle.api.Plugin
@@ -94,14 +94,14 @@ class BuildConfigPlugin : Plugin<Project> {
             group = "BuildConfig"
             description = "Generates the build constants class for $descriptionSuffix"
 
-            fields = spec.fields.lazyValues
+            fields = spec.fields.values
             outputDir = project.file("${project.buildDir}/generated/source/buildConfig/$buildDir")
 
             project.afterEvaluate {
                 className = spec.className ?: defaultSpec.className ?: "${prefix}BuildConfig"
                 packageName = spec.packageName ?: defaultSpec.packageName ?: project.defaultPackage
                     .replace("[^a-zA-Z._$]".toRegex(), "_")
-                outputType = spec.outputType ?: defaultSpec.outputType ?: BuildConfigOutputType.JAVA
+                generator = spec.generator ?: defaultSpec.generator ?: BuildConfigJavaGenerator
             }
 
             spec.generateTask = this

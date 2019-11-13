@@ -26,7 +26,7 @@ buildConfig {
     }
 
     forClass("Versions") {
-        outputType("kotlinFile")
+        useKotlinOutput(topLevelConstants = true)
 
         buildConfigField("String", "myDependencyVersion", "\"1.0.1\"")
     }
@@ -53,7 +53,7 @@ task("generateResourcesConstants") {
     generateBuildConfig.dependsOn(this)
 }
 
-// example of a custom outputType that builds into XML in a new generated resource folder
+// example of a custom generator that builds into XML in a new generated resource folder
 buildConfig.forClass("properties") {
     buildConfigField("String", "value1", "AAA")
     buildConfigField("String", "value2", "BBB")
@@ -63,7 +63,7 @@ buildConfig.forClass("properties") {
     val newOutputForRes = generatePropertiesBuildConfig.outputDir
         .let { File(it.parentFile, "res${it.name.capitalize()}") }
 
-    outputType(object : BuildConfigGenerator {
+    generator(object : BuildConfigGenerator {
 
         override fun execute(spec: BuildConfigTaskSpec) {
             newOutputForRes.mkdirs()

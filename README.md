@@ -91,7 +91,10 @@ If you add in your `build.gradle.kts`:
 buildConfig {
     className("MyConfig")   // forces the class name. Defaults to 'BuildConfig'
     packageName("com.foo")  // forces the package. Defaults to '${project.group}'
-    outputType("java")      // forces the outputType. Defaults to 'kotlin' if Kotlin's plugin was applied, 'java' otherwise
+
+    useJavaOutput()                             // forces the outputType to 'java'
+    useKotlinOutput()                           // forces the outputType to 'kotlin', generating an `object`
+    useKotlinOutput(topLevelConstants = true)   // forces the outputType to 'kotlin', generating top-level declarations
 }
 ```
 Will generate `com.foo.MyConfig` in a `MyConfig.java` file.

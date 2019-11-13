@@ -14,7 +14,7 @@ internal open class DefaultBuildConfigClassSpec(
 
     override var packageName: String? = null
 
-    override var outputType: BuildConfigGenerator? = null
+    override var generator: BuildConfigGenerator? = null
 
     override val fields = linkedMapOf<String, BuildConfigField>()
 

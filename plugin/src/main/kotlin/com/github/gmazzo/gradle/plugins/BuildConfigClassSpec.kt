@@ -1,7 +1,6 @@
 package com.github.gmazzo.gradle.plugins
 
-import com.github.gmazzo.gradle.plugins.generators.BuildConfigGenerator
-import com.github.gmazzo.gradle.plugins.generators.BuildConfigOutputType.Companion.asOutputType
+import com.github.gmazzo.gradle.plugins.generators.*
 import org.gradle.api.Named
 
 interface BuildConfigClassSpec : Named {
@@ -10,28 +9,35 @@ interface BuildConfigClassSpec : Named {
 
     var packageName: String?
 
-    var outputType: BuildConfigGenerator?
+    var generator: BuildConfigGenerator?
 
-    fun className(className: String) {
+    fun className(className: String) = apply {
         this.className = className
     }
 
-    fun packageName(packageName: String) {
+    fun packageName(packageName: String) = apply {
         this.packageName = packageName
     }
 
-    fun outputType(outputType: BuildConfigGenerator) {
-        this.outputType = outputType
+    fun withoutPackage() = apply {
+        packageName("")
     }
 
-    fun outputType(outputType: String) =
-        outputType(outputType.asOutputType())
+    fun generator(generator: BuildConfigGenerator) = apply {
+        this.generator = generator
+    }
+
+    fun useJavaOutput() = generator(BuildConfigJavaGenerator)
+
+    fun useKotlinOutput(topLevelConstants: Boolean = false) = generator(
+        if (topLevelConstants) BuildConfigKotlinFileGenerator else BuildConfigKotlinObjectGenerator
+    )
 
     @Deprecated("Use outputType instead", ReplaceWith("outputType(language)"))
-    fun language(language: String) = outputType(language)
+    fun language(language: String) = generator(BuildConfigLanguage.valueOf(language))
 
     @Deprecated("Use outputType instead", ReplaceWith("outputType(language)"))
-    fun language(language: BuildConfigGenerator) = outputType(language)
+    fun language(language: BuildConfigGenerator) = generator(language)
 
     fun buildConfigField(field: BuildConfigField): BuildConfigField
 

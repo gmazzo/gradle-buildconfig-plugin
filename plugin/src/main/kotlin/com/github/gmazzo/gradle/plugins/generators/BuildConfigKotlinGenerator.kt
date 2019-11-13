@@ -6,7 +6,7 @@ import com.squareup.kotlinpoet.*
 import org.apache.commons.lang3.ClassUtils
 import org.gradle.api.logging.Logging
 
-internal abstract class BuildConfigKotlinGenerator : BuildConfigGenerator {
+abstract class BuildConfigKotlinGenerator : BuildConfigGenerator {
 
     private val constTypes = setOf(String::class.asClassName(), BOOLEAN, BYTE, SHORT, INT, LONG, CHAR, FLOAT, DOUBLE)
 
