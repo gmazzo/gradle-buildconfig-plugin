@@ -8,6 +8,8 @@ internal open class DefaultBuildConfigClassSpec(
     private val name: String
 ) : BuildConfigClassSpecInternal {
 
+    override fun getName() = name
+
     override var className: String? = null
 
     override var packageName: String? = null
@@ -17,20 +19,6 @@ internal open class DefaultBuildConfigClassSpec(
     override val fields = linkedMapOf<String, BuildConfigField>()
 
     override lateinit var generateTask: BuildConfigTask
-
-    override fun className(className: String) {
-        this.className = className
-    }
-
-    override fun packageName(packageName: String) {
-        this.packageName = packageName
-    }
-
-    override fun outputType(outputType: BuildConfigGenerator) {
-        this.outputType = outputType
-    }
-
-    override fun getName() = name
 
     override fun buildConfigField(field: BuildConfigField) =
         field.also { fields[it.name] = it }
