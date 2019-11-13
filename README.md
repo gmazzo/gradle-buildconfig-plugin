@@ -117,6 +117,26 @@ Will generate the files:
 - `com.github.gmazzo.OtherClass`
 - `RootConfig` (in the root package)
 
+## Generate top-level constants
+On your `build.gradle.kts` add:
+```kotlin
+buildConfig {
+    outputFormat("kotlinFile")
+    // or
+    outputFormat = BuildConfigGenerator.KOTLIN_FILE
+
+    buildConfigField("String", "APP_NAME", "\"${project.name}\"")
+    buildConfigField("String", "APP_VERSION", "\"0.0.1\"")
+}
+```
+Will generate `BuildConfig.kt`:
+```kotlin
+const val APP_NAME: String = "example-kts"
+
+const val APP_VERSION: String = "0.0.1"
+}
+```
+
 ## Advanced
 ### Generate constants for 'test' sourceSet (or any)
 If you add in your `build.gradle.kts`:
