@@ -1,7 +1,7 @@
 package com.github.gmazzo.gradle.plugins
 
 import com.github.gmazzo.gradle.plugins.generators.BuildConfigGenerator
-import com.github.gmazzo.gradle.plugins.generators.BuildConfigLanguage
+import com.github.gmazzo.gradle.plugins.generators.BuildConfigOutputType.Companion.asOutputType
 import org.gradle.api.Named
 
 interface BuildConfigClassSpec : Named {
@@ -12,10 +12,16 @@ interface BuildConfigClassSpec : Named {
 
     fun packageName(packageName: String)
 
-    fun language(language: String) =
-        language(BuildConfigLanguage.valueOf(language.toUpperCase()))
+    @Deprecated("Use outputType instead", ReplaceWith("outputType(language)"))
+    fun language(language: String) = outputType(language)
 
-    fun language(language: BuildConfigGenerator)
+    @Deprecated("Use outputType instead", ReplaceWith("outputType(language)"))
+    fun language(language: BuildConfigGenerator) = outputType(language)
+
+    fun outputType(outputType: String) =
+        outputType(outputType.asOutputType())
+
+    fun outputType(outputType: BuildConfigGenerator)
 
     fun buildConfigField(field: BuildConfigField): BuildConfigField
 

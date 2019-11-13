@@ -11,7 +11,7 @@ internal interface BuildConfigClassSpecInternal : BuildConfigClassSpec {
 
     var packageName: String?
 
-    var language: BuildConfigGenerator?
+    var outputType: BuildConfigGenerator?
 
     val fields: Map<String, BuildConfigField>
 

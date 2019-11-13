@@ -1,7 +1,7 @@
 package com.github.gmazzo.gradle.plugins
 
 import com.github.gmazzo.gradle.plugins.generators.BuildConfigGenerator
-import com.github.gmazzo.gradle.plugins.generators.BuildConfigLanguage
+import com.github.gmazzo.gradle.plugins.generators.BuildConfigOutputType
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
@@ -22,7 +22,7 @@ open class BuildConfigTask : DefaultTask(), BuildConfigTaskSpec {
     override lateinit var fields: Collection<BuildConfigField>
 
     @Input
-    var language: BuildConfigGenerator = BuildConfigLanguage.JAVA
+    var outputType: BuildConfigGenerator = BuildConfigOutputType.JAVA
 
     @OutputDirectory
     override lateinit var outputDir: File
@@ -33,7 +33,7 @@ open class BuildConfigTask : DefaultTask(), BuildConfigTaskSpec {
 
     @TaskAction
     protected fun generateBuildConfigFile() {
-        language.execute(this)
+        outputType.execute(this)
     }
 
 }

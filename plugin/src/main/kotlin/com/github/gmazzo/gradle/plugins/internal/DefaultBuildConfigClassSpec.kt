@@ -12,7 +12,7 @@ internal open class DefaultBuildConfigClassSpec(
 
     override var packageName: String? = null
 
-    override var language: BuildConfigGenerator? = null
+    override var outputType: BuildConfigGenerator? = null
 
     override val fields = linkedMapOf<String, BuildConfigField>()
 
@@ -26,8 +26,8 @@ internal open class DefaultBuildConfigClassSpec(
         this.packageName = packageName
     }
 
-    override fun language(language: BuildConfigGenerator) {
-        this.language = language
+    override fun outputType(outputType: BuildConfigGenerator) {
+        this.outputType = outputType
     }
 
     override fun getName() = name

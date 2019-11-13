@@ -91,7 +91,7 @@ If you add in your `build.gradle.kts`:
 buildConfig {
     className("MyConfig")   // forces the class name. Defaults to 'BuildConfig'
     packageName("com.foo")  // forces the package. Defaults to '${project.group}'
-    language("java")        // forces the language. Defaults to 'kotlin' if Kotlin's plugin was applied, 'java' otherwise
+    outputType("java")      // forces the outputType. Defaults to 'kotlin' if Kotlin's plugin was applied, 'java' otherwise
 }
 ```
 Will generate `com.foo.MyConfig` in a `MyConfig.java` file.
@@ -175,13 +175,15 @@ task("generateResourcesConstants") {
 ```
 Will generate in `BuildResources.kt`:
 ```kotlin
-val CONFIG_LOCAL_PROPERTIES: File = File("config/local.properties")
+object BuildResources {
+    val CONFIG_LOCAL_PROPERTIES: File = File("config/local.properties")
 
-val CONFIG_PROD_PROPERTIES: File = File("config/prod.properties")
+    val CONFIG_PROD_PROPERTIES: File = File("config/prod.properties")
 
-val FILE1_JSON: File = File("file1.json")
+    val FILE1_JSON: File = File("file1.json")
 
-val FILE2_JSON: File = File("file2.json")
+    val FILE2_JSON: File = File("file2.json")
+}
 ```
 #### Or in Groovy:
 ```groovy

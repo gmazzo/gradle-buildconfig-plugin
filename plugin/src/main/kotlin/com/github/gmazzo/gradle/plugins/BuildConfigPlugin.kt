@@ -1,6 +1,6 @@
 package com.github.gmazzo.gradle.plugins
 
-import com.github.gmazzo.gradle.plugins.generators.BuildConfigLanguage
+import com.github.gmazzo.gradle.plugins.generators.BuildConfigOutputType
 import com.github.gmazzo.gradle.plugins.internal.*
 import com.github.gmazzo.gradle.plugins.internal.bindings.PluginBindings
 import org.gradle.api.Plugin
@@ -101,7 +101,7 @@ class BuildConfigPlugin : Plugin<Project> {
                 className = spec.className ?: defaultSpec.className ?: "${prefix}BuildConfig"
                 packageName = spec.packageName ?: defaultSpec.packageName ?: project.defaultPackage
                     .replace("[^a-zA-Z._$]".toRegex(), "_")
-                language = spec.language ?: defaultSpec.language ?: BuildConfigLanguage.JAVA
+                outputType = spec.outputType ?: defaultSpec.outputType ?: BuildConfigOutputType.JAVA
             }
 
             spec.generateTask = this

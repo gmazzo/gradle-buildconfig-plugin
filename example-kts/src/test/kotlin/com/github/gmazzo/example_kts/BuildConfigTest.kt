@@ -1,8 +1,7 @@
 package com.github.gmazzo.example_kts
 
-import org.junit.Assert.assertArrayEquals
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
+import com.github.gmazzo.example_kts.myDependencyVersion
+import org.junit.Assert.*
 import org.junit.Test
 import java.util.*
 
@@ -21,6 +20,11 @@ class BuildConfigTest {
     @Test
     fun testBuildConfigTestProperties() {
         assertEquals("aTestValue", TestBuildConfig.TEST_CONSTANT)
+    }
+
+    @Test
+    fun testBuildConfigVersionsProperties() {
+        assertEquals("1.0.1", myDependencyVersion)
     }
 
     @Test
