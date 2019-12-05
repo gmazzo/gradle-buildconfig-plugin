@@ -64,20 +64,19 @@ class BuildConfigPlugin : Plugin<Project> {
     ) {
         logger.debug("Creating buildConfig sourceSet '${sourceSet.name}' for $project")
 
-        val buildDir = sourceSet.name
-        val prefix = buildDir.takeUnless { it.equals("main", ignoreCase = true) }?.capitalize() ?: ""
+        val prefix = sourceSet.name.takeUnless { it.equals("main", ignoreCase = true) }?.capitalize() ?: ""
 
         createGenerateTask(
-            project, prefix, buildDir, sourceSet.classSpec, defaultSpec,
+            project, prefix, sourceSet, sourceSet.classSpec, defaultSpec,
             descriptionSuffix = "'${sourceSet.name}' source"
         )
 
-        sourceSet.extraSpecs.all {
-            val childPrefix = prefix + it.name.capitalize()
+        sourceSet.extraSpecs.all { subSpec ->
+            val childPrefix = prefix + subSpec.name.capitalize()
 
             createGenerateTask(
-                project, childPrefix, buildDir, it, defaultSpec,
-                descriptionSuffix = "'${it.name}' spec on '${sourceSet.name}' source"
+                project, childPrefix, sourceSet, subSpec, defaultSpec,
+                descriptionSuffix = "'${subSpec.name}' spec on '${sourceSet.name}' source"
             )
         }
     }
@@ -85,7 +84,7 @@ class BuildConfigPlugin : Plugin<Project> {
     private fun createGenerateTask(
         project: Project,
         prefix: String,
-        buildDir: String,
+        sourceSet: BuildConfigSourceSet,
         spec: BuildConfigClassSpecInternal,
         defaultSpec: BuildConfigClassSpecInternal,
         descriptionSuffix: String
@@ -95,7 +94,8 @@ class BuildConfigPlugin : Plugin<Project> {
             description = "Generates the build constants class for $descriptionSuffix"
 
             fields = spec.fields.values
-            outputDir = project.file("${project.buildDir}/generated/source/buildConfig/$buildDir")
+            outputDir =
+                project.file("${project.buildDir}/generated/source/buildConfig/${sourceSet.name}/${spec.name.decapitalize()}")
 
             project.afterEvaluate {
                 className = spec.className ?: defaultSpec.className ?: "${prefix}BuildConfig"
@@ -105,6 +105,10 @@ class BuildConfigPlugin : Plugin<Project> {
             }
 
             spec.generateTask = this
+
+            doFirst {
+                outputDir.deleteRecursively()
+            }
         }
 
     private val Project.defaultPackage
