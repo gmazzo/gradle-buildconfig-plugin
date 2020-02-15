@@ -22,10 +22,8 @@ tasks {
 }
 
 dependencies {
-    compileOnly(kotlin("gradle-plugin"))
-    testImplementation(kotlin("gradle-plugin"))
-
     implementation(kotlin("stdlib"))
+    implementation(kotlin("gradle-plugin"))
     implementation("com.squareup:javapoet:1.11.1")
     implementation("com.squareup:kotlinpoet:1.0.1")
     implementation("org.apache.commons:commons-lang3:3.8.1")
@@ -58,19 +56,6 @@ pluginBundle {
         groupId = project.group.toString()
         artifactId = base.archivesBaseName
     }
-}
-
-task("generateCompileOnlyClasspathForTests") {
-    val outFile = file("$buildDir/generated/test/resources/compileOnly-classpath.txt")
-    val outDir = outFile.parentFile
-
-    doFirst {
-        outDir.mkdirs()
-        outFile.writeText(configurations["compileOnly"].files.joinToString(separator = "\n"))
-    }
-
-    sourceSets["test"].resources.srcDir(outDir)
-    tasks["processTestResources"].dependsOn(this)
 }
 
 jacoco {

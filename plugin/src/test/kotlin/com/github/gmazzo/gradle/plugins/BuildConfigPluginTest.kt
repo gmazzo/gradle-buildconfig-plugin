@@ -2,7 +2,6 @@ package com.github.gmazzo.gradle.plugins
 
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
-import org.gradle.testkit.runner.internal.PluginUnderTestMetadataReading
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
@@ -28,7 +27,7 @@ class BuildConfigPluginTest(
     private val runner by lazy {
         GradleRunner.create()
             .forwardOutput()
-            .withPluginClasspath(PluginUnderTestMetadataReading.readImplementationClasspath() + readCompileOnlyClasspath())
+            .withPluginClasspath()
             .withProjectDir(projectDir)
             .withGradleVersion(gradleVersion)
     }
@@ -151,8 +150,8 @@ public class BuildConfigTest {
         @JvmStatic
         @Parameterized.Parameters(name = "gradle={0}, kotlin={1}, withPackage={2}")
         fun versions() =
-            listOf("3.5", "4.10.1", "5.2.1").flatMap { gradleVersion ->
-                listOf(null, "1.1.61", "1.2.41", "1.3.50").flatMap { kotlinVersion ->
+            listOf("4.10.1", "5.4.1", "6.1.1").flatMap { gradleVersion ->
+                listOf(null, "1.1.61", "1.2.41", "1.3.63").flatMap { kotlinVersion ->
                     listOf(true, false).map { withPackage ->
                         arrayOf(gradleVersion, kotlinVersion, withPackage)
                     }

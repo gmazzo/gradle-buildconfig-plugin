@@ -23,11 +23,11 @@ open class BuildConfigTask : DefaultTask(), BuildConfigTaskSpec {
         get() = field ?: BuildConfigJavaGenerator
 
     @get:Input
-    private val generatorProperty
+    internal val generatorProperty
         get() = generator!!::class.java
 
     @get:Input
-    private val fieldsProperty
+    internal val fieldsProperty
         get() = fields.map { it.toString() }
 
     @OutputDirectory

@@ -1,6 +1,9 @@
 package com.github.gmazzo.gradle.plugins
 
-import com.github.gmazzo.gradle.plugins.generators.*
+import com.github.gmazzo.gradle.plugins.generators.BuildConfigGenerator
+import com.github.gmazzo.gradle.plugins.generators.BuildConfigJavaGenerator
+import com.github.gmazzo.gradle.plugins.generators.BuildConfigKotlinFileGenerator
+import com.github.gmazzo.gradle.plugins.generators.BuildConfigKotlinObjectGenerator
 import org.gradle.api.Named
 
 interface BuildConfigClassSpec : Named {
@@ -32,12 +35,6 @@ interface BuildConfigClassSpec : Named {
     fun useKotlinOutput(topLevelConstants: Boolean = false) = generator(
         if (topLevelConstants) BuildConfigKotlinFileGenerator else BuildConfigKotlinObjectGenerator
     )
-
-    @Deprecated("Use outputType instead", ReplaceWith("outputType(language)"))
-    fun language(language: String) = generator(BuildConfigLanguage.valueOf(language))
-
-    @Deprecated("Use outputType instead", ReplaceWith("outputType(language)"))
-    fun language(language: BuildConfigGenerator) = generator(language)
 
     fun buildConfigField(field: BuildConfigField): BuildConfigField
 
