@@ -92,9 +92,10 @@ buildConfig {
     className("MyConfig")   // forces the class name. Defaults to 'BuildConfig'
     packageName("com.foo")  // forces the package. Defaults to '${project.group}'
 
-    useJavaOutput()                             // forces the outputType to 'java'
-    useKotlinOutput()                           // forces the outputType to 'kotlin', generating an `object`
-    useKotlinOutput(topLevelConstants = true)   // forces the outputType to 'kotlin', generating top-level declarations
+    useJavaOutput()                                 // forces the outputType to 'java'
+    useKotlinOutput()                               // forces the outputType to 'kotlin', generating an `object`
+    useKotlinOutput { topLevelConstants = true }    // forces the outputType to 'kotlin', generating top-level declarations
+    useKotlinOutput { internalVisibility = true }   // adds `internal` modifier to all declarations
 }
 ```
 Will generate `com.foo.MyConfig` in a `MyConfig.java` file.

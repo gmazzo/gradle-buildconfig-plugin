@@ -6,13 +6,14 @@ import com.squareup.kotlinpoet.*
 import org.apache.commons.lang3.ClassUtils
 import org.gradle.api.logging.Logging
 
-abstract class BuildConfigKotlinGenerator : BuildConfigGenerator {
+open class BuildConfigKotlinGenerator(
+    var topLevelConstants: Boolean = false,
+    var internalVisibility: Boolean = false
+) : BuildConfigGenerator {
 
     private val constTypes = setOf(String::class.asClassName(), BOOLEAN, BYTE, SHORT, INT, LONG, CHAR, FLOAT, DOUBLE)
 
     private val logger = Logging.getLogger(javaClass)
-
-    abstract fun FileSpec.Builder.addFields(fields: List<PropertySpec>): FileSpec.Builder
 
     private fun Iterable<BuildConfigField>.asPropertiesSpec() = map {
         val typeName = when (it.type) {
@@ -24,7 +25,7 @@ abstract class BuildConfigKotlinGenerator : BuildConfigGenerator {
             }
         }
 
-        return@map PropertySpec.builder(it.name, typeName, KModifier.PUBLIC)
+        return@map PropertySpec.builder(it.name, typeName, kModifiers)
             .addModifiers(*(if (typeName in constTypes) arrayOf(KModifier.CONST) else emptyArray()))
             .initializer(CodeBlock.of(it.value))
             .build()
@@ -40,5 +41,18 @@ abstract class BuildConfigKotlinGenerator : BuildConfigGenerator {
             .build()
             .writeTo(spec.outputDir)
     }
+
+    private fun FileSpec.Builder.addFields(fields: List<PropertySpec>): FileSpec.Builder = when {
+        topLevelConstants -> fields.fold(this) { acc, it -> acc.addProperty(it) }
+        else -> addType(
+            TypeSpec.objectBuilder(name)
+                .addModifiers(kModifiers)
+                .addProperties(fields)
+                .build()
+        )
+    }
+
+    private val kModifiers
+        get() = if (internalVisibility) KModifier.INTERNAL else KModifier.PUBLIC
 
 }

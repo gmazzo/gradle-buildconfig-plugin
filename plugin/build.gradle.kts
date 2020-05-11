@@ -4,7 +4,7 @@ import java.lang.Thread.sleep
 plugins {
     id("java-gradle-plugin")
     id("org.jetbrains.kotlin.jvm")
-    id("com.gradle.plugin-publish") version "0.10.1"
+    id("com.gradle.plugin-publish") version "0.11.0"
     id("jacoco")
     id("pl.droidsonroids.jacoco.testkit") version "1.0.3"
 }

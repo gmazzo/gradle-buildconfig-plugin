@@ -1,11 +1,7 @@
 package com.github.gmazzo.gradle.plugins.generators
 
-import com.squareup.kotlinpoet.FileSpec
-import com.squareup.kotlinpoet.PropertySpec
-
-object BuildConfigKotlinFileGenerator : BuildConfigKotlinGenerator() {
-
-    override fun FileSpec.Builder.addFields(fields: List<PropertySpec>) =
-        fields.fold(this) { acc, it -> acc.addProperty(it) }
-
-}
+@Deprecated(
+    message = "use BuildConfigKotlinGenerator instead",
+    replaceWith = ReplaceWith("BuildConfigKotlinGenerator(topLevelConstants = true)")
+)
+object BuildConfigKotlinFileGenerator : BuildConfigKotlinGenerator()

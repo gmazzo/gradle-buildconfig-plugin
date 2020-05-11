@@ -2,8 +2,7 @@ package com.github.gmazzo.gradle.plugins
 
 import com.github.gmazzo.gradle.plugins.generators.BuildConfigGenerator
 import com.github.gmazzo.gradle.plugins.generators.BuildConfigJavaGenerator
-import com.github.gmazzo.gradle.plugins.generators.BuildConfigKotlinFileGenerator
-import com.github.gmazzo.gradle.plugins.generators.BuildConfigKotlinObjectGenerator
+import com.github.gmazzo.gradle.plugins.generators.BuildConfigKotlinGenerator
 import org.gradle.api.Named
 
 interface BuildConfigClassSpec : Named {
@@ -32,9 +31,15 @@ interface BuildConfigClassSpec : Named {
 
     fun useJavaOutput() = generator(BuildConfigJavaGenerator)
 
-    fun useKotlinOutput(topLevelConstants: Boolean = false) = generator(
-        if (topLevelConstants) BuildConfigKotlinFileGenerator else BuildConfigKotlinObjectGenerator
+    @Deprecated(
+        message = "use useKotlinOutput { topLevelConstants = boolean } instead",
+        replaceWith = ReplaceWith("useKotlinOutput { topLevelConstants = [topLevelConstants] }")
     )
+    fun useKotlinOutput(topLevelConstants: Boolean) =
+        useKotlinOutput { this.topLevelConstants = topLevelConstants }
+
+    fun useKotlinOutput(configure: (BuildConfigKotlinGenerator).() -> Unit = {}) =
+        generator(BuildConfigKotlinGenerator().apply(configure))
 
     fun buildConfigField(field: BuildConfigField): BuildConfigField
 
