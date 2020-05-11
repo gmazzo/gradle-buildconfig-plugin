@@ -65,6 +65,9 @@ repositories {
 }
 
 dependencies {
+""" + (if (kotlinVersion != null) """
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion'
+""" else "") + """
     testImplementation 'junit:junit:4.12'
 }
 
@@ -151,7 +154,7 @@ public class BuildConfigTest {
         @Parameterized.Parameters(name = "gradle={0}, kotlin={1}, withPackage={2}")
         fun versions() =
             listOf("4.10.1", "5.4.1", "6.1.1").flatMap { gradleVersion ->
-                listOf(null, "1.1.61", "1.2.41", "1.3.63").flatMap { kotlinVersion ->
+                listOf(null, "1.2.41", "1.3.72").flatMap { kotlinVersion ->
                     listOf(true, false).map { withPackage ->
                         arrayOf(gradleVersion, kotlinVersion, withPackage)
                     }
