@@ -7,6 +7,7 @@ import org.gradle.api.Project
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.KotlinTargetsContainer
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinMetadataCompilation
 
 internal object KotlinMultiplatformBindingHandler : PluginBindingHandler {
 
@@ -22,6 +23,12 @@ internal object KotlinMultiplatformBindingHandler : PluginBindingHandler {
                     }
 
                     sourceSetProvider(name) { project.bindSpec(compilation, it, ss) }
+                }
+
+                if (compilation is KotlinMetadataCompilation) {
+                    sourceSetProvider(BuildConfigPlugin.DEFAULT_SOURCE_SET_NAME) {
+                        project.tasks.getByName(compilation.compileKotlinTaskName).dependsOn(it.generateTask)
+                    }
                 }
             }
         }
