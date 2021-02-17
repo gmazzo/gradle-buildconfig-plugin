@@ -1,17 +1,13 @@
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.21")
-    }
-}
-
 plugins {
+    kotlin("js")
     id("com.github.gmazzo.buildconfig") version "<latest>"
 }
 
-apply(plugin = "kotlin2js")
+kotlin {
+    js {
+        nodejs()
+    }
+}
 
 dependencies {
     "implementation"(kotlin("stdlib-js"))

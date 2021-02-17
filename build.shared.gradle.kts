@@ -7,9 +7,11 @@ allprojects {
     group = "com.github.gmazzo"
     version = "2.0.2"
 
-    project.plugins.withType(JavaPlugin::class.java) {
-        dependencies.add("testImplementation", "junit:junit:4.12")
-        dependencies.add("testImplementation", "org.mockito:mockito-core:2.27.0")
+    plugins.withType<JavaPlugin> {
+        dependencies {
+            "testImplementation"("junit:junit:4.12")
+            "testImplementation"("org.mockito:mockito-core:2.27.0")
+        }
     }
 
 }

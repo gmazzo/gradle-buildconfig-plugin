@@ -10,7 +10,7 @@ buildConfig {
     buildConfigField("long", "BUILD_TIME", "${TimeUnit.DAYS.toMillis(2)}L")
     buildConfigField("boolean", "FEATURE_ENABLED", "${true}")
 
-    buildConfig.forClass("BuildResources") {
+    forClass("BuildResources") {
         buildConfigField("String", "A_CONSTANT", "\"aConstant\"")
     }
 }

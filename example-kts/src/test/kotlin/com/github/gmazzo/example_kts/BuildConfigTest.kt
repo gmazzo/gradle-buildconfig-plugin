@@ -1,6 +1,5 @@
 package com.github.gmazzo.example_kts
 
-import com.github.gmazzo.example_kts.myDependencyVersion
 import org.junit.Assert.*
 import org.junit.Test
 import java.util.*
@@ -38,7 +37,9 @@ class BuildConfigTest {
 
     @Test
     fun testCustomXMLGeneratorProperties() {
-        val props = Properties().apply { loadFromXML(javaClass.getResourceAsStream("/properties.xml")) }
+        val props = javaClass.getResourceAsStream("/properties.xml").use {
+            Properties().apply { loadFromXML(it) }
+        }
 
         assertEquals("AAA", props["value1"])
         assertEquals("BBB", props["value2"])

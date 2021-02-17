@@ -1,11 +1,8 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import java.lang.Thread.sleep
-
 plugins {
-    id("java-gradle-plugin")
-    id("org.jetbrains.kotlin.jvm")
+    `java-gradle-plugin`
+    kotlin("jvm") version embeddedKotlinVersion
     id("com.gradle.plugin-publish") version "0.11.0"
-    id("jacoco")
+    jacoco
     id("pl.droidsonroids.jacoco.testkit") version "1.0.3"
 }
 
@@ -13,20 +10,15 @@ apply(from = "../build.shared.gradle.kts")
 
 base.archivesBaseName = "gradle-buildconfig-plugin"
 
-tasks {
-    withType(KotlinCompile::class).all {
-        kotlinOptions {
-            jvmTarget = "1.8"
-        }
-    }
-}
-
 dependencies {
+    implementation(gradleApi())
     implementation(kotlin("stdlib"))
     implementation(kotlin("gradle-plugin"))
     implementation("com.squareup:javapoet:1.11.1")
     implementation("com.squareup:kotlinpoet:1.0.1")
     implementation("org.apache.commons:commons-lang3:3.8.1")
+
+    testImplementation(gradleTestKit())
 }
 
 val pluginId = "com.github.gmazzo.buildconfig"
@@ -58,19 +50,13 @@ pluginBundle {
     }
 }
 
-jacoco {
-    toolVersion = "0.8.3"
-}
-
-tasks.withType(JacocoReport::class.java) {
+tasks.withType<JacocoReport> {
     reports {
         xml.isEnabled = true
         html.isEnabled = true
     }
-    doFirst {
-        // sometimes fails with "Unable to read execution data file build/jacoco/test.exec"
-        sleep(TimeUnit.SECONDS.toMillis(1))
-    }
 }
 
-tasks["check"].dependsOn("jacocoTestReport")
+tasks.named("check") {
+    dependsOn("jacocoTestReport")
+}
