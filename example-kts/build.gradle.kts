@@ -1,16 +1,29 @@
-import com.github.gmazzo.gradle.plugins.BuildConfigTask
 import com.github.gmazzo.gradle.plugins.BuildConfigTaskSpec
 import com.github.gmazzo.gradle.plugins.generators.BuildConfigGenerator
 import java.io.FileOutputStream
 import java.util.*
 
 plugins {
-    kotlin("jvm") version "1.3.21"
+    kotlin("jvm")
     id("com.github.gmazzo.buildconfig") version "<latest>"
 }
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
+}
+
+task<Test>("integrationTest") {
+    val sourceSet = sourceSets.create("integrationTest") {
+        compileClasspath += sourceSets.main.get().output + configurations.testRuntimeClasspath
+        runtimeClasspath += output + compileClasspath
+    }
+
+    testClassesDirs = sourceSet.output.classesDirs
+    classpath = sourceSet.runtimeClasspath
+
+    tasks.named("check") {
+        dependsOn(this@task)
+    }
 }
 
 buildConfig {
@@ -21,16 +34,16 @@ buildConfig {
     buildConfigField("IntArray", "MAGIC_NUMBERS", "intArrayOf(1, 2, 3, 4)")
     buildConfigField("com.github.gmazzo.example_kts.SomeData", "MY_DATA", "SomeData(\"a\",1)")
 
-    sourceSets.getByName("test") {
-        buildConfigField("String", "TEST_CONSTANT", "\"aTestValue\"")
-    }
+    sourceSets["test"].buildConfigField("String", "TEST_CONSTANT", "\"aTestValue\"")
+    sourceSets["integrationTest"].buildConfigField("String", "INTEGRATION_TEST_CONSTANT", "\"aIntTestValue\"")
 
     forClass("Versions") {
-        useKotlinOutput(topLevelConstants = true)
+        useKotlinOutput { topLevelConstants = true }
 
         buildConfigField("String", "myDependencyVersion", "\"1.0.1\"")
     }
 }
+
 
 /**
  *  A task that iterates over your classpath resources and generate constants for them
@@ -53,29 +66,24 @@ task("generateResourcesConstants") {
     generateBuildConfig.dependsOn(this)
 }
 
-// example of a custom generator that builds into XML in a new generated resource folder
+// example of a custom generator that builds into XML
 buildConfig.forClass("properties") {
     buildConfigField("String", "value1", "AAA")
     buildConfigField("String", "value2", "BBB")
     buildConfigField("String", "value3", "CCC")
 
-    val generatePropertiesBuildConfig: BuildConfigTask by tasks
-    val newOutputForRes = generatePropertiesBuildConfig.outputDir
-        .let { File(it.parentFile, "res${it.name.capitalize()}") }
-
     generator(object : BuildConfigGenerator {
 
         override fun execute(spec: BuildConfigTaskSpec) {
-            newOutputForRes.mkdirs()
+            spec.outputDir.mkdirs()
 
             Properties().apply {
                 spec.fields.forEach { setProperty(it.name, it.value) }
-                storeToXML(FileOutputStream(File(newOutputForRes, "${spec.className}.xml")), null)
+                storeToXML(FileOutputStream(File(spec.outputDir, "${spec.className}.xml")), null)
             }
         }
 
     })
 
-    sourceSets["main"].resources.srcDir(newOutputForRes)
-    tasks["generateResourcesConstants"].dependsOn(generatePropertiesBuildConfig)
+    sourceSets["main"].resources.srcDir(generateTask)
 }

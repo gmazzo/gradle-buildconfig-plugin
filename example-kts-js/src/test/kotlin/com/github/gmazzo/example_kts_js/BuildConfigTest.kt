@@ -9,11 +9,11 @@ class BuildConfigTest {
 
     @Test
     fun testBuildConfigProperties() {
-        assertEquals("example-kts", BuildConfig.APP_NAME)
+        assertEquals("example-kts-js", BuildConfig.APP_NAME)
         assertEquals("Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu", BuildConfig.APP_SECRET)
         assertTrue(Date().getTime() >= BuildConfig.BUILD_TIME)
         assertTrue(BuildConfig.FEATURE_ENABLED)
-        assertEquals(intArrayOf(1, 2, 3, 4), BuildConfig.MAGIC_NUMBERS)
+        assertEquals(listOf(1, 2, 3, 4), BuildConfig.MAGIC_NUMBERS.toList())
     }
 
 }

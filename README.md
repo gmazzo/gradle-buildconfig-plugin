@@ -10,7 +10,7 @@ Designed for KTS scripts, with *experimental* support for Kotlin's **multi-platf
 On your `build.gradle.kts` add:
 ```kotlin
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "1.3.21"
+    id("org.jetbrains.kotlin.jvm") version embeddedKotlinVersion
     id("com.github.gmazzo.buildconfig") version <current version>
 }
 

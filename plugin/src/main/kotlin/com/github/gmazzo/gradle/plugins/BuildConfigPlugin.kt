@@ -14,8 +14,10 @@ class BuildConfigPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         val sourceSets = project.container(BuildConfigSourceSetInternal::class.java) { name ->
             DefaultBuildConfigSourceSet(
-                DefaultBuildConfigClassSpec(name),
-                project.container(BuildConfigClassSpecInternal::class.java, ::DefaultBuildConfigClassSpec)
+                classSpec = DefaultBuildConfigClassSpec(name),
+                extraSpecs = project.container(BuildConfigClassSpecInternal::class.java) { extraName ->
+                    DefaultBuildConfigClassSpec(extraName)
+                }
             )
         }
 

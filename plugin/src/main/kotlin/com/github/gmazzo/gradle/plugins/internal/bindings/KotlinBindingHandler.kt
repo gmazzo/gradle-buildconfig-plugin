@@ -28,7 +28,13 @@ internal abstract class KotlinBindingHandler : PluginBindingHandler {
         with(spec.generateTask) {
             sourceSet.kotlin.srcDir(outputDir)
 
-            tasks.getByName(sourceSet.compileTaskName).dependsOn(this)
+            // FIXME find a way to hook on task creating eagerly and not rely on `afterEvaluate`
+            //  https://github.com/gmazzo/gradle-buildconfig-plugin/issues/7
+            afterEvaluate {
+                tasks.named(sourceSet.compileTaskName) {
+                    it.dependsOn(this@with)
+                }
+            }
         }
     }
 

@@ -52,46 +52,46 @@ class BuildConfigPluginTest(
 
     private fun writeBuildGradle() {
         projectDir.resolve("build.gradle").writeText("""
-plugins {
-    id ${kotlinVersion?.let { "'org.jetbrains.kotlin.jvm' version '$kotlinVersion'" } ?: "'java'"}
-    id 'com.github.gmazzo.buildconfig' version '<latest>'
-}
-""" + (if (withPackage) """
-group = 'gs.test'
-""" else "") + """
-
-repositories {
-    jcenter()
-}
-
-dependencies {
-""" + (if (kotlinVersion != null) """
-    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion'
-""" else "") + """
-    testImplementation 'junit:junit:4.12'
-}
-
-buildConfig {""" +
+        plugins {
+            id ${kotlinVersion?.let { "'org.jetbrains.kotlin.jvm' version '$kotlinVersion'" } ?: "'java'"}
+            id 'com.github.gmazzo.buildconfig' version '<latest>'
+        }
+        """ + (if (withPackage) """
+        group = 'gs.test'
+        """ else "") + """
+        
+        repositories {
+            jcenter()
+        }
+        
+        dependencies {
+        """ + (if (kotlinVersion != null) """
+            implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion'
+        """ else "") + """
+            testImplementation 'junit:junit:4.12'
+        }
+        
+        buildConfig {""" +
                 (if (withPackage) """
-    packageName(group)
-    
-""" else "") + """
-    
-    buildConfigField('String', 'APP_NAME', "\"${'$'}{project.name}\"")
-    buildConfigField('String', 'APP_SECRET', "\"Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu\"")
-    buildConfigField('long', 'BUILD_TIME', "${'$'}{System.currentTimeMillis()}L")
-    buildConfigField('boolean', 'FEATURE_ENABLED', "${'$'}{true}")
-
-    forClass("BuildResources") {
-        buildConfigField('String', 'A_CONSTANT', '"aConstant"')
-    }
-}
-
-sourceSets {
-    test {
-        buildConfigField('String', 'TEST_CONSTANT', '"aTestValue"')
-    }
-}
+            packageName(group)
+            
+        """ else "") + """
+            
+            buildConfigField('String', 'APP_NAME', "\"${'$'}{project.name}\"")
+            buildConfigField('String', 'APP_SECRET', "\"Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu\"")
+            buildConfigField('long', 'BUILD_TIME', "${'$'}{System.currentTimeMillis()}L")
+            buildConfigField('boolean', 'FEATURE_ENABLED', "${'$'}{true}")
+        
+            forClass("BuildResources") {
+                buildConfigField('String', 'A_CONSTANT', '"aConstant"')
+            }
+        }
+        
+        sourceSets {
+            test {
+                buildConfigField('String', 'TEST_CONSTANT', '"aTestValue"')
+            }
+        }
         """.trimIndent())
     }
 
@@ -100,39 +100,39 @@ sourceSets {
             parentFile.mkdirs()
             writeText(
                 """
-package gs.test;
-
-import org.junit.Test;
-
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-""" + (if (!withPackage) """
-
-import test_project.*;
-""".trimIndent() else "") + """
-
-public class BuildConfigTest {
-
-    @Test
-    public void testBuildConfigProperties() {
-        assertEquals("$PROJECT_NAME", BuildConfig.APP_NAME);
-        assertEquals("Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu", BuildConfig.APP_SECRET);
-        assertTrue(System.currentTimeMillis() >= BuildConfig.BUILD_TIME);
-        assertTrue(BuildConfig.FEATURE_ENABLED);
-    }
-
-    @Test
-    public void testBuildConfigTestProperties() {
-        assertEquals("aTestValue", TestBuildConfig.TEST_CONSTANT);
-    }
-
-    @Test
-    public void testResourcesConfigProperties() {
-        assertEquals("aConstant", BuildResources.A_CONSTANT);
-    }
-
-}
+            package gs.test;
+            
+            import org.junit.Test;
+            
+            import static org.junit.Assert.assertArrayEquals;
+            import static org.junit.Assert.assertEquals;
+            import static org.junit.Assert.assertTrue;
+            """ + (if (!withPackage) """
+            
+            import test_project.*;
+            """.trimIndent() else "") + """
+            
+            public class BuildConfigTest {
+            
+                @Test
+                public void testBuildConfigProperties() {
+                    assertEquals("$PROJECT_NAME", BuildConfig.APP_NAME);
+                    assertEquals("Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu", BuildConfig.APP_SECRET);
+                    assertTrue(System.currentTimeMillis() >= BuildConfig.BUILD_TIME);
+                    assertTrue(BuildConfig.FEATURE_ENABLED);
+                }
+            
+                @Test
+                public void testBuildConfigTestProperties() {
+                    assertEquals("aTestValue", TestBuildConfig.TEST_CONSTANT);
+                }
+            
+                @Test
+                public void testResourcesConfigProperties() {
+                    assertEquals("aConstant", BuildResources.A_CONSTANT);
+                }
+            
+            }
             """.trimIndent()
             )
         }
@@ -153,8 +153,8 @@ public class BuildConfigTest {
         @JvmStatic
         @Parameterized.Parameters(name = "gradle={0}, kotlin={1}, withPackage={2}")
         fun versions() =
-            listOf("4.10.1", "5.4.1", "6.1.1").flatMap { gradleVersion ->
-                listOf(null, "1.2.41", "1.3.72").flatMap { kotlinVersion ->
+            listOf("5.4.1", "6.1.1", "6.8.2").flatMap { gradleVersion ->
+                listOf(null, "1.2.41", "1.3.72", "1.4.20").flatMap { kotlinVersion ->
                     listOf(true, false).map { withPackage ->
                         arrayOf(gradleVersion, kotlinVersion, withPackage)
                     }

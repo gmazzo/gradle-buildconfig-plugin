@@ -1,53 +1,22 @@
 import com.github.gmazzo.gradle.plugins.BuildConfigSourceSet
 
 plugins {
-    kotlin("multiplatform") version "1.3.21"
+    kotlin("multiplatform")
     id("com.github.gmazzo.buildconfig") version "<latest>"
 }
 
 kotlin {
     jvm()
-    js()
+    js { nodejs() }
+}
 
-    sourceSets {
-        val commonMain by getting {
-            dependencies {
-                implementation(kotlin("stdlib-common"))
-            }
-        }
-
-        val commonTest by getting {
-            dependencies {
-                implementation(kotlin("test-common"))
-            }
-        }
-
-        jvm() {
-            compilations["main"].defaultSourceSet {
-                dependencies {
-                    implementation(kotlin("stdlib-jdk8"))
-                }
-            }
-            compilations["test"].defaultSourceSet {
-                dependencies {
-                    implementation(kotlin("test-junit"))
-                }
-            }
-        }
-
-        js() {
-            compilations["main"].defaultSourceSet {
-                dependencies {
-                    implementation(kotlin("stdlib-js"))
-                }
-            }
-            compilations["test"].defaultSourceSet {
-                dependencies {
-                    implementation(kotlin("test-js"))
-                }
-            }
-        }
-    }
+dependencies {
+    commonMainImplementation(kotlin("stdlib-common"))
+    commonTestImplementation(kotlin("test-common"))
+    "jvmImplementation"(kotlin("stdlib-jdk8"))
+    "jvmTestImplementation"(kotlin("test-junit"))
+    "jsImplementation"(kotlin("stdlib-js"))
+    "jsTestImplementation"(kotlin("test-js"))
 }
 
 buildConfig {

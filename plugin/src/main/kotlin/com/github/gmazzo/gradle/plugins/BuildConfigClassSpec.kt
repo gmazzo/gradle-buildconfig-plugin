@@ -33,7 +33,7 @@ interface BuildConfigClassSpec : Named {
 
     @Deprecated(
         message = "use useKotlinOutput { topLevelConstants = boolean } instead",
-        replaceWith = ReplaceWith("useKotlinOutput { topLevelConstants = [topLevelConstants] }")
+        replaceWith = ReplaceWith("useKotlinOutput { this.topLevelConstants = topLevelConstants }")
     )
     fun useKotlinOutput(topLevelConstants: Boolean) =
         useKotlinOutput { this.topLevelConstants = topLevelConstants }
