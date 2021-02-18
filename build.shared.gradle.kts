@@ -5,7 +5,7 @@ allprojects {
     }
 
     group = "com.github.gmazzo"
-    version = "2.0.2"
+    version = "2.1.0"
 
     plugins.withType<JavaPlugin> {
         dependencies {
