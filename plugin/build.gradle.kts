@@ -1,8 +1,12 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.lang.Thread.sleep
+
 plugins {
     `java-gradle-plugin`
+    `maven-publish`
+    jacoco
     kotlin("jvm") version embeddedKotlinVersion
     id("com.gradle.plugin-publish") version "0.11.0"
-    jacoco
     id("pl.droidsonroids.jacoco.testkit") version "1.0.3"
 }
 
@@ -50,13 +54,25 @@ pluginBundle {
     }
 }
 
-tasks.withType<JacocoReport> {
-    reports {
-        xml.isEnabled = true
-        html.isEnabled = true
-    }
-}
+tasks {
 
-tasks.named("check") {
-    dependsOn("jacocoTestReport")
+    withType<KotlinCompile> {
+        kotlinOptions.apiVersion = "1.3"
+    }
+
+    withType<JacocoReport> {
+        reports {
+            xml.isEnabled = true
+            html.isEnabled = true
+        }
+        doFirst {
+            // sometimes fails with "Unable to read execution data file build/jacoco/test.exec"
+            sleep(300)
+        }
+    }
+
+    named("check") {
+        dependsOn("jacocoTestReport")
+    }
+
 }
