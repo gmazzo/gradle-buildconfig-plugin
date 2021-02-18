@@ -5,6 +5,7 @@ jdk:
   - openjdk11
 
 script:
+  - ./gradlew -p plugin build -s
   - ./gradlew build -s
 
 after_success:
