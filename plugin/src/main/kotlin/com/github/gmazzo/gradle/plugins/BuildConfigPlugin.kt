@@ -2,17 +2,20 @@ package com.github.gmazzo.gradle.plugins
 
 import com.github.gmazzo.gradle.plugins.generators.BuildConfigJavaGenerator
 import com.github.gmazzo.gradle.plugins.internal.*
+import com.github.gmazzo.gradle.plugins.internal.bindings.PluginBindingHandler
 import com.github.gmazzo.gradle.plugins.internal.bindings.PluginBindings
+import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.internal.HasConvention
 import org.gradle.api.logging.Logging
 
 class BuildConfigPlugin : Plugin<Project> {
 
     private val logger = Logging.getLogger(javaClass)
 
-    override fun apply(project: Project) {
-        val sourceSets = project.container(BuildConfigSourceSetInternal::class.java) { name ->
+    override fun apply(project: Project) = with(project) {
+        val sourceSets = container(BuildConfigSourceSetInternal::class.java) { name ->
             DefaultBuildConfigSourceSet(
                 classSpec = DefaultBuildConfigClassSpec(name),
                 extraSpecs = project.container(BuildConfigClassSpecInternal::class.java) { extraName ->
@@ -23,7 +26,7 @@ class BuildConfigPlugin : Plugin<Project> {
 
         val defaultSS = sourceSets.create(DEFAULT_SOURCE_SET_NAME)
 
-        val extension = project.extensions.create(
+        val extension = extensions.create(
             BuildConfigExtension::class.java,
             "buildConfig",
             DefaultBuildConfigExtension::class.java,
@@ -35,26 +38,28 @@ class BuildConfigPlugin : Plugin<Project> {
             configureSourceSet(project, it, defaultSS.classSpec)
         }
 
-        with(project) {
-            var taskGraphLocked = false
+        PluginBindings.values().forEach { binding ->
+            pluginManager.withPlugin(binding.pluginId) {
+                binding
+                    .handler(project, extension)
+                    .configure(sourceSets)
+            }
+        }
+    }
 
-            gradle.taskGraph.whenReady { taskGraphLocked = true }
+    private fun <SourceSet> PluginBindingHandler<SourceSet>.configure(
+        specs: NamedDomainObjectContainer<BuildConfigSourceSetInternal>
+    ) {
+        onBind()
 
-            PluginBindings.values().forEach {
-                pluginManager.withPlugin(it.pluginId) { _ ->
-                    it.handler(project, extension) { name, onSpec ->
-                        sourceSets.maybeCreate(name).apply {
-                            onSpec(classSpec)
+        sourceSets.all { ss ->
+            val spec = specs.maybeCreate(nameOf(ss))
 
-                            extraSpecs.all { extra ->
-                                if (taskGraphLocked) {
-                                    throw IllegalStateException("Can't call 'forClass' after taskGraph was built!")
-                                }
-                                onSpec(extra)
-                            }
-                        }
-                    }
-                }
+            onSourceSetAdded(ss, spec)
+            spec.extraSpecs.all { onSourceSetAdded(ss, it) }
+
+            if (ss is HasConvention) {
+                ss.convention.plugins["buildConfig"] = spec
             }
         }
     }
@@ -66,7 +71,7 @@ class BuildConfigPlugin : Plugin<Project> {
     ) {
         logger.debug("Creating buildConfig sourceSet '${sourceSet.name}' for $project")
 
-        val prefix = sourceSet.name.takeUnless { it.equals("main", ignoreCase = true) }?.capitalize() ?: ""
+        val prefix = sourceSet.name.takeUnless { it.equals("main", ignoreCase = true) }?.capitalize().orEmpty()
 
         createGenerateTask(
             project, prefix, sourceSet, sourceSet.classSpec, defaultSpec,

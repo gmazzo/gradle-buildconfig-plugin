@@ -1,7 +1,16 @@
 package com.github.gmazzo.gradle.plugins.internal.bindings
 
-import com.github.gmazzo.gradle.plugins.BuildConfigExtension
-import org.gradle.api.Project
+import com.github.gmazzo.gradle.plugins.BuildConfigClassSpec
+import org.gradle.api.DomainObjectCollection
 
-internal typealias PluginBindingHandler =
-            (project: Project, extension: BuildConfigExtension, sourceSetProvider: SourceSetProvider) -> Unit
+internal interface PluginBindingHandler<SourceSet> {
+
+    val sourceSets: DomainObjectCollection<SourceSet>
+
+    fun nameOf(sourceSet: SourceSet): String
+
+    fun onBind()
+
+    fun onSourceSetAdded(sourceSet: SourceSet, spec: BuildConfigClassSpec)
+
+}
