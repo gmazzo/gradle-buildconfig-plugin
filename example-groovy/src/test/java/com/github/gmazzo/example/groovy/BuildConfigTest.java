@@ -2,9 +2,9 @@ package com.github.gmazzo.example.groovy;
 
 import org.junit.Test;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import java.lang.reflect.Modifier;
+
+import static org.junit.Assert.*;
 
 public class BuildConfigTest {
 
@@ -30,6 +30,12 @@ public class BuildConfigTest {
         assertEquals("file2.json", BuildResources.FILE2_JSON.getPath());
         assertEquals("config/local.properties", BuildResources.CONFIG_LOCAL_PROPERTIES.getPath());
         assertEquals("config/prod.properties", BuildResources.CONFIG_PROD_PROPERTIES.getPath());
+    }
+
+    @Test
+    public void testCustomBuildConfig() {
+        assertEquals("aValue", Custom.CUSTOM_VALUE);
+        assertFalse(Modifier.isPublic(Custom.class.getModifiers()));
     }
 
 }

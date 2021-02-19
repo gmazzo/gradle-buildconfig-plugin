@@ -125,9 +125,7 @@ Will generate the files:
 On your `build.gradle.kts` add:
 ```kotlin
 buildConfig {
-    outputFormat("kotlinFile")
-    // or
-    outputFormat = BuildConfigGenerator.KOTLIN_FILE
+    useKotlinOutput { topLevelConstants = true }
 
     buildConfigField("String", "APP_NAME", "\"${project.name}\"")
     buildConfigField("String", "APP_VERSION", "\"0.0.1\"")

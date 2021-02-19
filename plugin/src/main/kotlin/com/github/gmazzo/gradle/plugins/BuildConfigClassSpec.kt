@@ -3,9 +3,11 @@ package com.github.gmazzo.gradle.plugins
 import com.github.gmazzo.gradle.plugins.generators.BuildConfigGenerator
 import com.github.gmazzo.gradle.plugins.generators.BuildConfigJavaGenerator
 import com.github.gmazzo.gradle.plugins.generators.BuildConfigKotlinGenerator
+import groovy.lang.Closure
 import org.gradle.api.Named
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.TaskProvider
+import org.gradle.util.ConfigureUtil
 
 interface BuildConfigClassSpec : Named {
 
@@ -31,17 +33,23 @@ interface BuildConfigClassSpec : Named {
         this.generator.set(generator)
     }
 
-    fun useJavaOutput() = generator(BuildConfigJavaGenerator)
+    fun useJavaOutput() =
+        useJavaOutput {}
 
-    @Deprecated(
-        message = "use useKotlinOutput { topLevelConstants = boolean } instead",
-        replaceWith = ReplaceWith("useKotlinOutput { this.topLevelConstants = topLevelConstants }")
-    )
-    fun useKotlinOutput(topLevelConstants: Boolean) =
-        useKotlinOutput { this.topLevelConstants = topLevelConstants }
+    fun useJavaOutput(configure: (BuildConfigJavaGenerator).() -> Unit) =
+        generator(BuildConfigJavaGenerator().apply(configure))
 
-    fun useKotlinOutput(configure: (BuildConfigKotlinGenerator).() -> Unit = {}) =
+    fun useJavaOutput(configure: Closure<*>) =
+        useJavaOutput { ConfigureUtil.configure(configure, this) }
+
+    fun useKotlinOutput() =
+        useKotlinOutput {}
+
+    fun useKotlinOutput(configure: (BuildConfigKotlinGenerator).() -> Unit) =
         generator(BuildConfigKotlinGenerator().apply(configure))
+
+    fun useKotlinOutput(configure: Closure<*>) =
+        useKotlinOutput { ConfigureUtil.configure(configure, this) }
 
     fun buildConfigField(field: BuildConfigField): BuildConfigField
 

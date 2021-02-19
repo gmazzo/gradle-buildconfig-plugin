@@ -12,6 +12,14 @@ buildConfig {
     buildConfigField('boolean', 'FEATURE_ENABLED', "${true}")
     buildConfigField('int[]', 'MAGIC_NUMBERS', '{1, 2, 3, 4}')
     buildConfigField("com.github.gmazzo.example.groovy.SomeData", "MY_DATA", "new SomeData(\"a\",1)")
+
+    forClass('Custom') {
+        useJavaOutput {
+            defaultVisibility = true
+
+            buildConfigField('String', 'CUSTOM_VALUE', "\"aValue\"")
+        }
+    }
 }
 
 sourceSets {
