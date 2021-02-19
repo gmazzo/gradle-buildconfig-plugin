@@ -5,7 +5,9 @@ import org.apache.commons.lang3.ClassUtils
 import org.gradle.api.logging.Logging
 import javax.lang.model.element.Modifier
 
-object BuildConfigJavaGenerator : BuildConfigGenerator {
+class BuildConfigJavaGenerator(
+    var defaultVisibility: Boolean = false
+) : BuildConfigGenerator {
 
     private val logger = Logging.getLogger(javaClass)
 
@@ -13,7 +15,11 @@ object BuildConfigJavaGenerator : BuildConfigGenerator {
         logger.debug("Generating ${spec.className} for fields ${spec.fields}")
 
         val typeSpec = TypeSpec.classBuilder(spec.className)
-            .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+            .addModifiers(Modifier.FINAL)
+
+        if (!defaultVisibility) {
+            typeSpec.addModifiers(Modifier.PUBLIC)
+        }
 
         spec.fields.forEach {
             val typeName = when (it.type) {

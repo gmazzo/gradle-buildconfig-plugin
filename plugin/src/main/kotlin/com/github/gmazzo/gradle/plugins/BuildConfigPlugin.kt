@@ -11,7 +11,6 @@ import org.gradle.api.internal.HasConvention
 import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Provider
 import org.gradle.kotlin.dsl.register
-import kotlin.collections.forEach
 import kotlin.collections.set
 
 class BuildConfigPlugin : Plugin<Project> {
@@ -121,7 +120,7 @@ class BuildConfigPlugin : Plugin<Project> {
         generator.set(
             spec.generator
                 .or(project, defaultSpec.generator)
-                .or(project, BuildConfigJavaGenerator)
+                .or(project, BuildConfigJavaGenerator())
         )
 
     }.also { spec.generateTask = it }
