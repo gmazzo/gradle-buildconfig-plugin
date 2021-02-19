@@ -79,7 +79,7 @@ open class AssertGeneratedFile : DefaultTask() {
 
     @TaskAction
     fun performAssert() {
-        val actualFile = File(task.outputDir, filePath)
+        val actualFile = File(task.outputDir.asFile.get(), filePath)
         if (!actualFile.isFile) {
             throw AssertionError("Expected file doesn't exist: $actualFile")
         }

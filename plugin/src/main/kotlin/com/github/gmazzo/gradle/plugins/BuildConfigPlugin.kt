@@ -9,6 +9,10 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.internal.HasConvention
 import org.gradle.api.logging.Logging
+import org.gradle.api.provider.Provider
+import org.gradle.kotlin.dsl.register
+import kotlin.collections.forEach
+import kotlin.collections.set
 
 class BuildConfigPlugin : Plugin<Project> {
 
@@ -17,9 +21,9 @@ class BuildConfigPlugin : Plugin<Project> {
     override fun apply(project: Project) = with(project) {
         val sourceSets = container(BuildConfigSourceSetInternal::class.java) { name ->
             DefaultBuildConfigSourceSet(
-                classSpec = DefaultBuildConfigClassSpec(name),
+                classSpec = DefaultBuildConfigClassSpec(objects, name),
                 extraSpecs = project.container(BuildConfigClassSpecInternal::class.java) { extraName ->
-                    DefaultBuildConfigClassSpec(extraName)
+                    DefaultBuildConfigClassSpec(objects, extraName)
                 }
             )
         }
@@ -34,7 +38,7 @@ class BuildConfigPlugin : Plugin<Project> {
             defaultSS
         )
 
-        sourceSets.all {
+        sourceSets.configureEach {
             configureSourceSet(project, it, defaultSS.classSpec)
         }
 
@@ -52,11 +56,11 @@ class BuildConfigPlugin : Plugin<Project> {
     ) {
         onBind()
 
-        sourceSets.all { ss ->
+        sourceSets.configureEach { ss ->
             val spec = specs.maybeCreate(nameOf(ss))
 
             onSourceSetAdded(ss, spec)
-            spec.extraSpecs.all { onSourceSetAdded(ss, it) }
+            spec.extraSpecs.configureEach { onSourceSetAdded(ss, it) }
 
             if (ss is HasConvention) {
                 ss.convention.plugins["buildConfig"] = spec
@@ -71,14 +75,17 @@ class BuildConfigPlugin : Plugin<Project> {
     ) {
         logger.debug("Creating buildConfig sourceSet '${sourceSet.name}' for $project")
 
-        val prefix = sourceSet.name.takeUnless { it.equals("main", ignoreCase = true) }?.capitalize().orEmpty()
+        val prefix = when (val name = sourceSet.name.capitalize()) {
+            "Main" -> ""
+            else -> name
+        }
 
         createGenerateTask(
             project, prefix, sourceSet, sourceSet.classSpec, defaultSpec,
             descriptionSuffix = "'${sourceSet.name}' source"
         )
 
-        sourceSet.extraSpecs.all { subSpec ->
+        sourceSet.extraSpecs.configureEach { subSpec ->
             val childPrefix = prefix + subSpec.name.capitalize()
 
             createGenerateTask(
@@ -95,39 +102,52 @@ class BuildConfigPlugin : Plugin<Project> {
         spec: BuildConfigClassSpecInternal,
         defaultSpec: BuildConfigClassSpecInternal,
         descriptionSuffix: String
-    ) =
-        project.tasks.create("generate${prefix}BuildConfig", BuildConfigTask::class.java).apply {
-            group = "BuildConfig"
-            description = "Generates the build constants class for $descriptionSuffix"
+    ) = project.tasks.register<BuildConfigTask>("generate${prefix}BuildConfig") {
+        group = "BuildConfig"
+        description = "Generates the build constants class for $descriptionSuffix"
 
-            fields = spec.fields.values
-            outputDir =
-                project.file("${project.buildDir}/generated/source/buildConfig/${sourceSet.name}/${spec.name.decapitalize()}")
+        fields.set(spec.fields.values)
+        outputDir.set(project.file("${project.buildDir}/generated/source/buildConfig/${sourceSet.name}/${spec.name.decapitalize()}"))
+        className.set(
+            spec.className
+                .or(project, defaultSpec.className)
+                .or(project, "${prefix}BuildConfig")
+        )
+        packageName.set(
+            spec.packageName
+                .or(project, defaultSpec.packageName)
+                .or(project, project.defaultPackage.map { it.replace("[^a-zA-Z._$]".toRegex(), "_") })
+        )
+        generator.set(
+            spec.generator
+                .or(project, defaultSpec.generator)
+                .or(project, BuildConfigJavaGenerator)
+        )
 
-            project.afterEvaluate {
-                className = spec.className ?: defaultSpec.className ?: "${prefix}BuildConfig"
-                packageName = spec.packageName ?: defaultSpec.packageName ?: project.defaultPackage
-                    .replace("[^a-zA-Z._$]".toRegex(), "_")
-                generator = spec.generator ?: defaultSpec.generator ?: BuildConfigJavaGenerator
-            }
-
-            spec.generateTask = this
-
-            doFirst {
-                outputDir.deleteRecursively()
-            }
-        }
+    }.also { spec.generateTask = it }
 
     private val Project.defaultPackage
-        get() = group
-            .toString()
-            .takeUnless { it.isEmpty() }
-            ?.let { "$it.${project.name}" }
-            ?: project.name
+        get() = provider {
+            group
+                .toString()
+                .takeUnless { it.isEmpty() }
+                ?.let { "$it.${project.name}" }
+                ?: project.name
+        }
 
     companion object {
 
         const val DEFAULT_SOURCE_SET_NAME = "main"
+
+        @Suppress("DeprecatedCallableAddReplaceWith")
+        @Deprecated(message = "this should be Gradle's official `orElse`, but it's not available at Gradle 5")
+        private fun <T> Provider<T>.or(project: Project, other: Provider<T>) =
+            project.provider { orNull ?: other.orNull }
+
+        @Suppress("DeprecatedCallableAddReplaceWith")
+        @Deprecated(message = "this should be Gradle's official `orElse`, but it's not available at Gradle 5")
+        private fun <T> Provider<T>.or(project: Project, other: T?) =
+            project.provider { orNull ?: other }
 
     }
 

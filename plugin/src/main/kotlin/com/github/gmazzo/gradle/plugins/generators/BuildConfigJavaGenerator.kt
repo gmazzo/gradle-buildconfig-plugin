@@ -1,6 +1,5 @@
 package com.github.gmazzo.gradle.plugins.generators
 
-import com.github.gmazzo.gradle.plugins.BuildConfigTaskSpec
 import com.squareup.javapoet.*
 import org.apache.commons.lang3.ClassUtils
 import org.gradle.api.logging.Logging
@@ -10,7 +9,7 @@ object BuildConfigJavaGenerator : BuildConfigGenerator {
 
     private val logger = Logging.getLogger(javaClass)
 
-    override fun execute(spec: BuildConfigTaskSpec) {
+    override fun execute(spec: BuildConfigGeneratorSpec) {
         logger.debug("Generating ${spec.className} for fields ${spec.fields}")
 
         val typeSpec = TypeSpec.classBuilder(spec.className)
