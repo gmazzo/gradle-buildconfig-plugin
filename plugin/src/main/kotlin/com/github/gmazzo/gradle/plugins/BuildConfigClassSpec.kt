@@ -4,21 +4,23 @@ import com.github.gmazzo.gradle.plugins.generators.BuildConfigGenerator
 import com.github.gmazzo.gradle.plugins.generators.BuildConfigJavaGenerator
 import com.github.gmazzo.gradle.plugins.generators.BuildConfigKotlinGenerator
 import org.gradle.api.Named
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.TaskProvider
 
 interface BuildConfigClassSpec : Named {
 
-    var className: String?
+    val className: Property<String>
 
-    var packageName: String?
+    val packageName: Property<String>
 
-    var generator: BuildConfigGenerator?
+    val generator: Property<BuildConfigGenerator>
 
     fun className(className: String) = apply {
-        this.className = className
+        this.className.set(className)
     }
 
     fun packageName(packageName: String) = apply {
-        this.packageName = packageName
+        this.packageName.set(packageName)
     }
 
     fun withoutPackage() = apply {
@@ -26,7 +28,7 @@ interface BuildConfigClassSpec : Named {
     }
 
     fun generator(generator: BuildConfigGenerator) = apply {
-        this.generator = generator
+        this.generator.set(generator)
     }
 
     fun useJavaOutput() = generator(BuildConfigJavaGenerator)
@@ -49,6 +51,6 @@ interface BuildConfigClassSpec : Named {
     fun buildConfigField(type: String, name: String, value: () -> String) =
         buildConfigField(BuildConfigField(type, name, value()))
 
-    val generateTask: BuildConfigTask
+    val generateTask: TaskProvider<BuildConfigTask>
 
 }

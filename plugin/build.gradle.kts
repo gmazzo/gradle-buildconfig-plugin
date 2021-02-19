@@ -15,7 +15,7 @@ apply(from = "../build.shared.gradle.kts")
 base.archivesBaseName = "gradle-buildconfig-plugin"
 
 dependencies {
-    implementation(gradleApi())
+    implementation(gradleKotlinDsl())
     implementation(kotlin("stdlib"))
     implementation(kotlin("gradle-plugin"))
     implementation("com.squareup:javapoet:1.11.1")
@@ -57,7 +57,10 @@ pluginBundle {
 tasks {
 
     withType<KotlinCompile> {
-        kotlinOptions.apiVersion = "1.3"
+        kotlinOptions {
+            jvmTarget = "1.8"
+            apiVersion = "1.3"
+        }
     }
 
     withType<JacocoReport> {

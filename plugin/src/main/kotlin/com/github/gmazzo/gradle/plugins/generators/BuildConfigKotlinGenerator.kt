@@ -1,7 +1,6 @@
 package com.github.gmazzo.gradle.plugins.generators
 
 import com.github.gmazzo.gradle.plugins.BuildConfigField
-import com.github.gmazzo.gradle.plugins.BuildConfigTaskSpec
 import com.squareup.kotlinpoet.*
 import org.apache.commons.lang3.ClassUtils
 import org.gradle.api.logging.Logging
@@ -31,7 +30,7 @@ open class BuildConfigKotlinGenerator(
             .build()
     }
 
-    override fun execute(spec: BuildConfigTaskSpec) {
+    override fun execute(spec: BuildConfigGeneratorSpec) {
         logger.debug("Generating ${spec.className} for fields ${spec.fields}")
 
         val fields = spec.fields.asPropertiesSpec()

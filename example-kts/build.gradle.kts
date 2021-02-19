@@ -1,5 +1,5 @@
-import com.github.gmazzo.gradle.plugins.BuildConfigTaskSpec
 import com.github.gmazzo.gradle.plugins.generators.BuildConfigGenerator
+import com.github.gmazzo.gradle.plugins.generators.BuildConfigGeneratorSpec
 import java.io.FileOutputStream
 import java.util.*
 
@@ -74,7 +74,7 @@ buildConfig.forClass("properties") {
 
     generator(object : BuildConfigGenerator {
 
-        override fun execute(spec: BuildConfigTaskSpec) {
+        override fun execute(spec: BuildConfigGeneratorSpec) {
             spec.outputDir.mkdirs()
 
             Properties().apply {
