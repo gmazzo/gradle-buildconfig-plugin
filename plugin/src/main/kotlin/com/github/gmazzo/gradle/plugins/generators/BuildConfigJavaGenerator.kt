@@ -1,11 +1,17 @@
 package com.github.gmazzo.gradle.plugins.generators
 
-import com.squareup.javapoet.*
+import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.CodeBlock
+import com.squareup.javapoet.FieldSpec
+import com.squareup.javapoet.JavaFile
+import com.squareup.javapoet.MethodSpec
+import com.squareup.javapoet.TypeName
+import com.squareup.javapoet.TypeSpec
 import org.apache.commons.lang3.ClassUtils
 import org.gradle.api.logging.Logging
 import javax.lang.model.element.Modifier
 
-class BuildConfigJavaGenerator(
+data class BuildConfigJavaGenerator(
     var defaultVisibility: Boolean = false
 ) : BuildConfigGenerator {
 
