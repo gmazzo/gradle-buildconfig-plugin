@@ -7,7 +7,7 @@ plugins {
     jacoco
     kotlin("jvm") version embeddedKotlinVersion
     id("com.gradle.plugin-publish") version "0.11.0"
-    id("pl.droidsonroids.jacoco.testkit") version "1.0.3"
+    id("pl.droidsonroids.jacoco.testkit") version "1.0.8"
 }
 
 apply(from = "../build.shared.gradle.kts")

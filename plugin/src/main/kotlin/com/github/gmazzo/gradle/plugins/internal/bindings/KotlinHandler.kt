@@ -2,6 +2,7 @@ package com.github.gmazzo.gradle.plugins.internal.bindings
 
 import com.github.gmazzo.gradle.plugins.BuildConfigClassSpec
 import com.github.gmazzo.gradle.plugins.BuildConfigExtension
+import com.github.gmazzo.gradle.plugins.generators.BuildConfigKotlinGenerator
 import org.gradle.api.DomainObjectCollection
 import org.gradle.api.Project
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
@@ -18,7 +19,7 @@ internal class KotlinHandler(
     override fun nameOf(sourceSet: KotlinSourceSet): String = sourceSet.name
 
     override fun onBind() {
-        extension.useKotlinOutput()
+        extension.generator.convention(BuildConfigKotlinGenerator())
     }
 
     override fun onSourceSetAdded(sourceSet: KotlinSourceSet, spec: BuildConfigClassSpec) {

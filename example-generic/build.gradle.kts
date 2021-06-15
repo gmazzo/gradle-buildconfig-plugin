@@ -73,8 +73,11 @@ task("test") {
 }
 
 open class AssertGeneratedFile : DefaultTask() {
+    @Internal
     lateinit var task: BuildConfigTask
+    @Input
     lateinit var filePath: String
+    @Input
     lateinit var expectedContent: String
 
     @TaskAction

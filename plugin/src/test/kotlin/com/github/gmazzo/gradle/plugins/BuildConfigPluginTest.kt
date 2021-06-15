@@ -153,8 +153,8 @@ class BuildConfigPluginTest(
         @JvmStatic
         @Parameterized.Parameters(name = "gradle={0}, kotlin={1}, withPackage={2}")
         fun versions() =
-            listOf("5.4.1", "6.1.1", "6.8.2").flatMap { gradleVersion ->
-                listOf(null, "1.3.72", "1.4.20").flatMap { kotlinVersion ->
+            listOf("5.4.1", "6.8.2", "7.0.2").flatMap { gradleVersion ->
+                listOf(null, "1.3.72", "1.4.30", "1.5.10").flatMap { kotlinVersion ->
                     listOf(true, false).map { withPackage ->
                         arrayOf(gradleVersion, kotlinVersion, withPackage)
                     }

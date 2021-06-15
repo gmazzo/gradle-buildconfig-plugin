@@ -2,6 +2,7 @@ package com.github.gmazzo.gradle.plugins.internal.bindings
 
 import com.github.gmazzo.gradle.plugins.BuildConfigClassSpec
 import com.github.gmazzo.gradle.plugins.BuildConfigExtension
+import com.github.gmazzo.gradle.plugins.generators.BuildConfigJavaGenerator
 import org.gradle.api.DomainObjectCollection
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPluginConvention
@@ -18,7 +19,7 @@ internal class JavaHandler(
     override fun nameOf(sourceSet: SourceSet): String = sourceSet.name
 
     override fun onBind() {
-        extension.useJavaOutput()
+        extension.generator.convention(BuildConfigJavaGenerator())
     }
 
     override fun onSourceSetAdded(sourceSet: SourceSet, spec: BuildConfigClassSpec) {
