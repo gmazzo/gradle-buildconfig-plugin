@@ -12,7 +12,7 @@ plugins {
 
 apply(from = "../build.shared.gradle.kts")
 
-base.archivesBaseName = "gradle-buildconfig-plugin"
+base.archivesName.set("gradle-buildconfig-plugin")
 
 dependencies {
     implementation(gradleKotlinDsl())
@@ -50,7 +50,7 @@ pluginBundle {
 
     mavenCoordinates {
         groupId = project.group.toString()
-        artifactId = base.archivesBaseName
+        artifactId = base.archivesName.get()
     }
 }
 
@@ -63,10 +63,14 @@ tasks {
         }
     }
 
+    withType<Test> {
+        environment("test.tmpDir", temporaryDir)
+    }
+
     withType<JacocoReport> {
         reports {
-            xml.isEnabled = true
-            html.isEnabled = true
+            xml.required.set(true)
+            html.required.set(true)
         }
         doFirst {
             // sometimes fails with "Unable to read execution data file build/jacoco/test.exec"

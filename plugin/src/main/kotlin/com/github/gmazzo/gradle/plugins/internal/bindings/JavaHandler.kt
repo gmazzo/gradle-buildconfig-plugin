@@ -5,8 +5,9 @@ import com.github.gmazzo.gradle.plugins.BuildConfigExtension
 import com.github.gmazzo.gradle.plugins.generators.BuildConfigJavaGenerator
 import org.gradle.api.DomainObjectCollection
 import org.gradle.api.Project
-import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.tasks.SourceSet
+import org.gradle.api.tasks.SourceSetContainer
+import org.gradle.kotlin.dsl.the
 
 internal class JavaHandler(
     private val project: Project,
@@ -14,7 +15,7 @@ internal class JavaHandler(
 ) : PluginBindingHandler<SourceSet> {
 
     override val sourceSets: DomainObjectCollection<SourceSet>
-        get() = project.convention.getPlugin(JavaPluginConvention::class.java).sourceSets
+        get() = project.the<SourceSetContainer>()
 
     override fun nameOf(sourceSet: SourceSet): String = sourceSet.name
 
