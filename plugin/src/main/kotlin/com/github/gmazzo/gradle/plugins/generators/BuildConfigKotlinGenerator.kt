@@ -37,7 +37,7 @@ data class BuildConfigKotlinGenerator(
 
         return@map PropertySpec.builder(it.name, typeName, kModifiers)
             .apply { if (typeName in constTypes) addModifiers(KModifier.CONST) }
-            .initializer(it.value)
+            .initializer("%L", it.value.get())
             .build()
     }
 

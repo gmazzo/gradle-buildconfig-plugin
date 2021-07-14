@@ -1,7 +1,6 @@
 package com.github.gmazzo.gradle.plugins.generators
 
 import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.MethodSpec
@@ -39,7 +38,7 @@ data class BuildConfigJavaGenerator(
 
             typeSpec.addField(
                 FieldSpec.builder(typeName, it.name, Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-                    .initializer(CodeBlock.of(it.value))
+                    .initializer("\$L", it.value.get())
                     .build()
             )
         }

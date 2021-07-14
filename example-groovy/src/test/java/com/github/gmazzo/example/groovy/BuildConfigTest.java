@@ -11,6 +11,7 @@ public class BuildConfigTest {
     @Test
     public void testBuildConfigProperties() {
         assertEquals("example-groovy", BuildConfig.APP_NAME);
+        assertEquals("0.1.0-custom", BuildConfig.APP_VERSION);
         assertEquals("Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu", BuildConfig.APP_SECRET);
         assertTrue(System.currentTimeMillis() >= BuildConfig.BUILD_TIME);
         assertTrue(BuildConfig.FEATURE_ENABLED);

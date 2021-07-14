@@ -1,6 +1,8 @@
 package com.github.gmazzo.example_kts
 
-import org.junit.Assert.*
+import org.junit.Assert.assertArrayEquals
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.util.*
 
@@ -9,6 +11,7 @@ class BuildConfigTest {
     @Test
     fun testBuildConfigProperties() {
         assertEquals("example-kts", BuildConfig.APP_NAME)
+        assertEquals("0.1.0-custom", BuildConfig.APP_VERSION)
         assertEquals("Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu", BuildConfig.APP_SECRET)
         assertTrue(System.currentTimeMillis() >= BuildConfig.BUILD_TIME)
         assertTrue(BuildConfig.FEATURE_ENABLED)

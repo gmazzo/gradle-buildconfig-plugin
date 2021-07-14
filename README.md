@@ -16,6 +16,7 @@ plugins {
 
 buildConfig {
     buildConfigField("String", "APP_NAME", "\"${project.name}\"")
+    buildConfigField("String", "APP_VERSION", provider { "\"${project.version}\"" })
     buildConfigField("String", "APP_SECRET", "\"Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu\"")
     buildConfigField("long", "BUILD_TIME", "${System.currentTimeMillis()}L")
     buildConfigField("boolean", "FEATURE_ENABLED", "${true}")
@@ -24,9 +25,12 @@ buildConfig {
 }
 ```
 Will generate `BuildConfig.kt`:
+
 ```kotlin
 object BuildConfig {
     const val APP_NAME: String = "example-kts"
+
+    const val APP_VERSION: String = "0.0.1"
 
     const val APP_SECRET: String = "Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu"
 
@@ -58,6 +62,7 @@ plugins {
 
 buildConfig {
     buildConfigField('String', 'APP_NAME', "\"${project.name}\"")
+    buildConfigField('String', 'APP_VERSION', provider { "\"${project.version}\"" })
     buildConfigField('String', 'APP_SECRET', "\"Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu\"")
     buildConfigField('long', 'BUILD_TIME', "${System.currentTimeMillis()}L")
     buildConfigField('boolean', 'FEATURE_ENABLED', "${true}")
@@ -66,19 +71,22 @@ buildConfig {
 }
 ```
 Will generate `BuildConfig.java`:
+
 ```java
 public final class BuildConfig {
-  public static final String APP_NAME = "example-groovy";
+    public static final String APP_NAME = "example-groovy";
 
-  public static final String APP_SECRET = "Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu";
+    public static final String APP_VERSION = "0.0.1";
 
-  public static final long BUILD_TIME = 1550999393550L;
+    public static final String APP_SECRET = "Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu";
 
-  public static final boolean FEATURE_ENABLED = true;
+    public static final long BUILD_TIME = 1550999393550L;
 
-  public static final int[] MAGIC_NUMBERS = {1, 2, 3, 4};
+    public static final boolean FEATURE_ENABLED = true;
 
-  public static final SomeData MY_DATA = new SomeData("a",1);
+    public static final int[] MAGIC_NUMBERS = {1, 2, 3, 4};
+
+    public static final SomeData MY_DATA = new SomeData("a", 1);
 
   private BuildConfig() {
   }

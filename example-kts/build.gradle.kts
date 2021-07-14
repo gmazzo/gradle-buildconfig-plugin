@@ -28,6 +28,7 @@ task<Test>("integrationTest") {
 
 buildConfig {
     buildConfigField("String", "APP_NAME", "\"${project.name}\"")
+    buildConfigField("String", "APP_VERSION", provider { "\"${project.version}\"" })
     buildConfigField("String", "APP_SECRET", "\"Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu\"")
     buildConfigField("long", "BUILD_TIME", "${System.currentTimeMillis()}L")
     buildConfigField("boolean", "FEATURE_ENABLED", "${true}")
@@ -56,11 +57,11 @@ task("generateResourcesConstants") {
     }
 
     doFirst {
-        sourceSets["main"].resources.asFileTree.visit(Action<FileVisitDetails> {
+        sourceSets["main"].resources.asFileTree.visit {
             val name = path.toUpperCase().replace("\\W".toRegex(), "_")
 
             buildResources.buildConfigField("java.io.File", name, "File(\"$path\")")
-        })
+        }
     }
 
     generateBuildConfig.dependsOn(this)
@@ -77,13 +78,20 @@ buildConfig.forClass("properties") {
         override fun execute(spec: BuildConfigGeneratorSpec) {
             spec.outputDir.mkdirs()
 
-            Properties().apply {
-                spec.fields.forEach { setProperty(it.name, it.value) }
-                storeToXML(FileOutputStream(File(spec.outputDir, "${spec.className}.xml")), null)
+            Properties().also { props ->
+                spec.fields.forEach { props.setProperty(it.name, it.value.get()) }
+                props.storeToXML(FileOutputStream(File(spec.outputDir, "${spec.className}.xml")), null)
             }
         }
 
     })
 
     sourceSets["main"].resources.srcDir(generateTask)
+}
+
+task("changeProjectVersion") {
+    doLast {
+        project.version = "0.1.0-custom"
+    }
+    generateBuildConfig.dependsOn(this)
 }
