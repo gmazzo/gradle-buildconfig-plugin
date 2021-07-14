@@ -24,7 +24,9 @@ buildConfig {
 
 sourceSets {
     test {
-        buildConfigField('String', 'TEST_CONSTANT', '"aTestValue"')
+        buildConfig {
+            buildConfigField('String', 'TEST_CONSTANT', '"aTestValue"')
+        }
     }
 }
 

@@ -22,7 +22,12 @@ class BuildConfigPluginTest(
     @get:Rule
     val temporaryFolder = TemporaryFolder()
 
-    private val projectDir by lazy { temporaryFolder.newFolder(PROJECT_NAME) }
+    private val projectDir by lazy {
+        val tmpDir = System.getenv()["test.tmpDir"]?.let(::File) ?: temporaryFolder.newFolder(PROJECT_NAME)
+        val testPath = "gradle-$gradleVersion/kotlin-${kotlinVersion ?: "none" }/${if (withPackage) "withPackage" else "withoutPackage"}"
+
+        File(tmpDir, testPath).apply { deleteRecursively(); mkdirs() }
+    }
 
     private val runner by lazy {
         GradleRunner.create()
@@ -51,6 +56,10 @@ class BuildConfigPluginTest(
     }
 
     private fun writeBuildGradle() {
+        projectDir.resolve("settings.gradle").writeText("""
+            rootProject.name = "$PROJECT_NAME"
+        """.trimIndent())
+
         projectDir.resolve("build.gradle").writeText("""
         plugins {
             id ${kotlinVersion?.let { "'org.jetbrains.kotlin.jvm' version '$kotlinVersion'" } ?: "'java'"}
@@ -89,7 +98,9 @@ class BuildConfigPluginTest(
         
         sourceSets {
             test {
-                buildConfigField('String', 'TEST_CONSTANT', '"aTestValue"')
+                buildConfig {
+                    buildConfigField('String', 'TEST_CONSTANT', '"aTestValue"')
+                }
             }
         }
         """.trimIndent())
@@ -153,8 +164,8 @@ class BuildConfigPluginTest(
         @JvmStatic
         @Parameterized.Parameters(name = "gradle={0}, kotlin={1}, withPackage={2}")
         fun versions() =
-            listOf("5.4.1", "6.8.2", "7.0.2").flatMap { gradleVersion ->
-                listOf(null, "1.3.72", "1.4.30", "1.5.10").flatMap { kotlinVersion ->
+            listOf("5.4.1", "6.8.2", "7.1.1").flatMap { gradleVersion ->
+                listOf(null, "1.3.72", "1.4.32", "1.5.20").flatMap { kotlinVersion ->
                     listOf(true, false).map { withPackage ->
                         arrayOf(gradleVersion, kotlinVersion, withPackage)
                     }

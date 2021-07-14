@@ -7,7 +7,13 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
-import org.gradle.api.tasks.*
+import org.gradle.api.tasks.CacheableTask
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.TaskAction
+import org.gradle.kotlin.dsl.listProperty
+import org.gradle.kotlin.dsl.property
 
 @CacheableTask
 @Suppress("UnstableApiUsage", "LeakingThis")
@@ -15,29 +21,24 @@ open class BuildConfigTask : DefaultTask() {
 
     @Input
     val className: Property<String> =
-        project.objects.property(String::class.java).convention("BuildConfig")
+        project.objects.property<String>().convention("BuildConfig")
 
     @Input
     val packageName: Property<String> =
-        project.objects.property(String::class.java).convention("")
+        project.objects.property<String>().convention("")
 
-    @Internal
+    @Input
     val fields: ListProperty<BuildConfigField> =
-        project.objects.listProperty(BuildConfigField::class.java).convention(emptyList<BuildConfigField>())
+        project.objects.listProperty<BuildConfigField>().convention(emptyList())
 
     @Internal
     val generator: Property<BuildConfigGenerator> =
-        project.objects.property(BuildConfigGenerator::class.java).convention(BuildConfigJavaGenerator())
+        project.objects.property<BuildConfigGenerator>().convention(BuildConfigJavaGenerator())
 
     @get:Input
     @Suppress("unused")
     internal val generatorName
         get() = generator.javaClass
-
-    @get:Input
-    @Suppress("unused")
-    internal val fieldsContent
-        get() = fields.map { it.toString() }
 
     @OutputDirectory
     val outputDir: DirectoryProperty =

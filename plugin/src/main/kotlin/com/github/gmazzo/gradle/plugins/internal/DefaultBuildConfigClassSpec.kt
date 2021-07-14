@@ -6,6 +6,7 @@ import com.github.gmazzo.gradle.plugins.generators.BuildConfigGenerator
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.TaskProvider
+import org.gradle.kotlin.dsl.property
 
 internal open class DefaultBuildConfigClassSpec(
     objects: ObjectFactory,
@@ -14,11 +15,11 @@ internal open class DefaultBuildConfigClassSpec(
 
     override fun getName() = name
 
-    override val className: Property<String> = objects.property(String::class.java)
+    override val className: Property<String> = objects.property<String>()
 
-    override val packageName: Property<String> = objects.property(String::class.java)
+    override val packageName: Property<String> = objects.property<String>()
 
-    override val generator: Property<BuildConfigGenerator> = objects.property(BuildConfigGenerator::class.java)
+    override val generator: Property<BuildConfigGenerator> = objects.property<BuildConfigGenerator>()
 
     override val fields = linkedMapOf<String, BuildConfigField>()
 

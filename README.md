@@ -145,7 +145,9 @@ If you add in your `build.gradle.kts`:
 ```kotlin
 buildConfig {
     sourceSets.getByName("test") {
-        buildConfigField("String", "TEST_CONSTANT", "\"aTestValue\"")
+        buildConfig {
+            buildConfigField("String", "TEST_CONSTANT", "\"aTestValue\"")
+        }
     }
 }
 ```
@@ -159,7 +161,9 @@ object TestBuildConfig {
 ```groovy
 sourceSets {
     test {
-        buildConfigField('String', 'TEST_CONSTANT', '"aTestValue"')
+        buildConfig {
+            buildConfigField('String', 'TEST_CONSTANT', '"aTestValue"')
+        }
     }
 }
 ```
