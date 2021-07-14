@@ -74,7 +74,7 @@ tasks {
         }
         doFirst {
             // sometimes fails with "Unable to read execution data file build/jacoco/test.exec"
-            sleep(300)
+            sleep(1000)
         }
     }
 

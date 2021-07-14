@@ -1,17 +1,21 @@
 package com.github.gmazzo.gradle.plugins
 
 import com.github.gmazzo.gradle.plugins.generators.BuildConfigJavaGenerator
-import com.github.gmazzo.gradle.plugins.internal.*
+import com.github.gmazzo.gradle.plugins.internal.BuildConfigClassSpecInternal
+import com.github.gmazzo.gradle.plugins.internal.BuildConfigSourceSetInternal
+import com.github.gmazzo.gradle.plugins.internal.DefaultBuildConfigClassSpec
+import com.github.gmazzo.gradle.plugins.internal.DefaultBuildConfigExtension
+import com.github.gmazzo.gradle.plugins.internal.DefaultBuildConfigSourceSet
 import com.github.gmazzo.gradle.plugins.internal.bindings.PluginBindingHandler
 import com.github.gmazzo.gradle.plugins.internal.bindings.PluginBindings
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.internal.HasConvention
 import org.gradle.api.logging.Logging
+import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.provider.Provider
+import org.gradle.kotlin.dsl.newInstance
 import org.gradle.kotlin.dsl.register
-import kotlin.collections.set
 
 class BuildConfigPlugin : Plugin<Project> {
 
@@ -20,9 +24,9 @@ class BuildConfigPlugin : Plugin<Project> {
     override fun apply(project: Project) = with(project) {
         val sourceSets = container(BuildConfigSourceSetInternal::class.java) { name ->
             DefaultBuildConfigSourceSet(
-                classSpec = DefaultBuildConfigClassSpec(objects, name),
+                classSpec = objects.newInstance<DefaultBuildConfigClassSpec>(name),
                 extraSpecs = project.container(BuildConfigClassSpecInternal::class.java) { extraName ->
-                    DefaultBuildConfigClassSpec(objects, extraName)
+                    objects.newInstance<DefaultBuildConfigClassSpec>(extraName)
                 }
             )
         }
@@ -61,9 +65,7 @@ class BuildConfigPlugin : Plugin<Project> {
             onSourceSetAdded(ss, spec)
             spec.extraSpecs.configureEach { onSourceSetAdded(ss, it) }
 
-            if (ss is HasConvention) {
-                ss.convention.plugins["buildConfig"] = spec
-            }
+            (ss as? ExtensionAware)?.extensions?.add("buildConfig", spec)
         }
     }
 

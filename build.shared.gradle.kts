@@ -1,7 +1,7 @@
 allprojects {
 
     repositories {
-        jcenter()
+        mavenCentral()
     }
 
     group = "com.github.gmazzo"

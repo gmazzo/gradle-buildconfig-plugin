@@ -70,7 +70,7 @@ class BuildConfigPluginTest(
         """ else "") + """
         
         repositories {
-            jcenter()
+            mavenCentral()
         }
         
         dependencies {

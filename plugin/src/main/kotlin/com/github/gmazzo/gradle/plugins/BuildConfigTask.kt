@@ -27,7 +27,7 @@ open class BuildConfigTask : DefaultTask() {
     val packageName: Property<String> =
         project.objects.property<String>().convention("")
 
-    @Input
+    @Internal
     val fields: ListProperty<BuildConfigField> =
         project.objects.listProperty<BuildConfigField>().convention(emptyList())
 
@@ -39,6 +39,15 @@ open class BuildConfigTask : DefaultTask() {
     @Suppress("unused")
     internal val generatorName
         get() = generator.javaClass
+
+    @get:Input
+    @Suppress("unused")
+    internal val fieldsContent
+        get() = fields.map { list ->
+            list.map {
+                mapOf("type" to it.type, "name" to it.name, "value" to it.value.get())
+            }
+        }
 
     @OutputDirectory
     val outputDir: DirectoryProperty =
