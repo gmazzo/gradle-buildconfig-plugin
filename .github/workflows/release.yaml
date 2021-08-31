@@ -52,5 +52,6 @@ jobs:
       - name: Publish GitHub Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "/!(buildSrc)/**/build/libs/**"
+          artifacts: "!(buildSrc)/**/build/libs/**"
           tag: ${{ steps.bump-version.outputs.version }}
+          token: ${{ secrets.ADMIN_TOKEN }} # requires push access to master as admin
