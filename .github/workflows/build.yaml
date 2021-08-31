@@ -1,0 +1,39 @@
+name: build
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  Build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 # disables shallow clone, required by SonarQube
+      - name: Verify branch name
+        uses: ./.github/actions/compute-release-type
+        if: github.event.pull_request
+      - name: Setup JDK11
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+      - name: Setup cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.sonar/cache
+          key: ${{ runner.os }}-cache-${{ hashFiles('**/*.gradle.kts') }}
+          restore-keys: ${{ runner.os }}-cache
+      - name: Test & Build
+        run: |
+          ./gradlew -s -p plugin build
+          ./gradlew -s build
+      - name: Coverage report
+        uses: codecov/codecov-action@v2
