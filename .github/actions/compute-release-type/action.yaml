@@ -1,0 +1,29 @@
+name: 'Compute release type'
+description: 'Determines the release type based on given branch name'
+inputs:
+  branch-name:
+    description: 'The branch name'
+    required: true
+    default: ${{ github.head_ref }}
+outputs:
+  release-type:
+    description: "Release type"
+    value: ${{ steps.compute.outputs.type }}
+runs:
+  using: 'composite'
+  steps:
+    - id: compute
+      shell: bash
+      run: |
+        BRANCH=${{ inputs.branch-name }}
+        REGEX="^(major|minor|patch|no-release)\/.+"
+
+        if [[ $BRANCH =~ $REGEX ]]
+        then
+          TYPE="${BASH_REMATCH[1]}"
+          echo "Release type is: $TYPE"
+          echo "::set-output name=type::$(echo $TYPE)"
+        else
+          echo "Branch name '$BRANCH' must match '$REGEX'"
+          exit 1
+        fi
