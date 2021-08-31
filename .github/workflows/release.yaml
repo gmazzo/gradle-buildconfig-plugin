@@ -34,7 +34,7 @@ jobs:
       - name: Bump version
         id: bump-version
         run: |
-          ./gradlew incrementSemanticVersion --${{ steps.compute-release-type.outputs.release-type }}
+          ./gradlew -p plugin incrementSemanticVersion --${{ steps.compute-release-type.outputs.release-type }}
           VERSION=$(cat version.properties | grep version | cut -d'=' -f2)
           git config user.name \"GitHub Actions\"
           git config user.email "ci@github.com"
