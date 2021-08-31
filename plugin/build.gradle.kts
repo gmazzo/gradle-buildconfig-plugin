@@ -6,6 +6,7 @@ plugins {
     `maven-publish`
     jacoco
     kotlin("jvm") version embeddedKotlinVersion
+    id("com.glovoapp.semantic-versioning") version "1.1.0"
     id("com.gradle.plugin-publish") version "0.11.0"
     id("pl.droidsonroids.jacoco.testkit") version "1.0.8"
 }
@@ -13,6 +14,10 @@ plugins {
 apply(from = "../build.shared.gradle.kts")
 
 base.archivesName.set("gradle-buildconfig-plugin")
+
+semanticVersion {
+    propertiesFile.set(file("../version.properties"))
+}
 
 dependencies {
     implementation(gradleKotlinDsl())
