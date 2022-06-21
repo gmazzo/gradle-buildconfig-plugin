@@ -6,5 +6,6 @@ import java.io.Serializable
 data class BuildConfigField(
     val type: String,
     val name: String,
-    val value: Provider<String>
+    val value: Provider<String>,
+    val optional: Boolean,
 ) : Serializable
