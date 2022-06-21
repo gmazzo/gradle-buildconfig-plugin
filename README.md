@@ -146,6 +146,24 @@ const val APP_NAME: String = "example-kts"
 const val APP_VERSION: String = "0.0.1"
 }
 ```
+## Values greater than 100 characters
+In some cases, such as embedded public certs, your build config values may exceed 100 characters in length and will become subject to line wrapping by the [Kotlin Poet](https://square.github.io/kotlinpoet/#spaces-wrap-by-default) output. If you need to workaround this behavior, you can explicitly control or prevent line wrapping by replacing spaces with a `·` character.
+
+```kotlin
+val alphabet = (65..90)
+    .map { it.toChar() }
+    .joinToString(separator = ",·")
+
+buildConfigField("String", "Example", "\"$alphabet\"")
+```
+
+will generate `BuildConfig.kt`:
+```kotlin
+object BuildConfig {
+    const val Example: String =
+            "A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z"
+}
+```
 
 ## Advanced
 ### Generate constants for 'test' sourceSet (or any)
