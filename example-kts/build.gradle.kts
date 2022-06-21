@@ -32,7 +32,7 @@ buildConfig {
     buildConfigField("String", "APP_SECRET", "\"Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu\"")
     buildConfigField("long", "BUILD_TIME", "${System.currentTimeMillis()}L")
     buildConfigField("boolean", "FEATURE_ENABLED", "${true}")
-    buildConfigField("IntArray", "MAGIC_NUMBERS", "intArrayOf(1, 2, 3, 4)")
+    buildConfigField("kotlin.IntArray", "MAGIC_NUMBERS", "intArrayOf(1, 2, 3, 4)")
     buildConfigField("com.github.gmazzo.example_kts.SomeData", "MY_DATA", "SomeData(\"a\",1)")
 
     sourceSets["test"].buildConfigField("String", "TEST_CONSTANT", "\"aTestValue\"")

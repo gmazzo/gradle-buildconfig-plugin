@@ -20,12 +20,12 @@ semanticVersion {
 }
 
 dependencies {
+    compileOnly(kotlin("gradle-plugin-api"))
+
     implementation(gradleKotlinDsl())
-    implementation(kotlin("stdlib"))
-    implementation(kotlin("gradle-plugin"))
-    implementation("com.squareup:javapoet:1.11.1")
-    implementation("com.squareup:kotlinpoet:1.0.1")
-    implementation("org.apache.commons:commons-lang3:3.8.1")
+    implementation("com.squareup:javapoet:1.13.0")
+    implementation("com.squareup:kotlinpoet:1.10.2")
+    implementation("org.apache.commons:commons-lang3:3.12.0")
 
     testImplementation(gradleTestKit())
 }

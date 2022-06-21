@@ -1,11 +1,7 @@
 package com.github.gmazzo.gradle.plugins
 
 import com.github.gmazzo.gradle.plugins.generators.BuildConfigJavaGenerator
-import com.github.gmazzo.gradle.plugins.internal.BuildConfigClassSpecInternal
-import com.github.gmazzo.gradle.plugins.internal.BuildConfigSourceSetInternal
-import com.github.gmazzo.gradle.plugins.internal.DefaultBuildConfigClassSpec
-import com.github.gmazzo.gradle.plugins.internal.DefaultBuildConfigExtension
-import com.github.gmazzo.gradle.plugins.internal.DefaultBuildConfigSourceSet
+import com.github.gmazzo.gradle.plugins.internal.*
 import com.github.gmazzo.gradle.plugins.internal.bindings.PluginBindingHandler
 import com.github.gmazzo.gradle.plugins.internal.bindings.PluginBindings
 import org.gradle.api.NamedDomainObjectContainer
@@ -13,7 +9,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.logging.Logging
 import org.gradle.api.plugins.ExtensionAware
-import org.gradle.api.provider.Provider
+import org.gradle.api.tasks.SourceSet
 import org.gradle.kotlin.dsl.newInstance
 import org.gradle.kotlin.dsl.register
 
@@ -31,7 +27,7 @@ class BuildConfigPlugin : Plugin<Project> {
             )
         }
 
-        val defaultSS = sourceSets.create(DEFAULT_SOURCE_SET_NAME)
+        val defaultSS = sourceSets.create(SourceSet.MAIN_SOURCE_SET_NAME)
 
         val extension = extensions.create(
             BuildConfigExtension::class.java,
@@ -111,18 +107,18 @@ class BuildConfigPlugin : Plugin<Project> {
         outputDir.set(project.file("${project.buildDir}/generated/source/buildConfig/${sourceSet.name}/${spec.name.decapitalize()}"))
         className.set(
             spec.className
-                .or(project, defaultSpec.className)
-                .or(project, "${prefix}BuildConfig")
+                .orElse(defaultSpec.className)
+                .orElse("${prefix}BuildConfig")
         )
         packageName.set(
             spec.packageName
-                .or(project, defaultSpec.packageName)
-                .or(project, project.defaultPackage.map { it.replace("[^a-zA-Z._$]".toRegex(), "_") })
+                .orElse(defaultSpec.packageName)
+                .orElse(project.defaultPackage.map { it.replace("[^a-zA-Z._$]".toRegex(), "_") })
         )
         generator.set(
             spec.generator
-                .or(project, defaultSpec.generator)
-                .or(project, BuildConfigJavaGenerator())
+                .orElse(defaultSpec.generator)
+                .orElse(BuildConfigJavaGenerator())
         )
 
     }.also { spec.generateTask = it }
@@ -135,21 +131,5 @@ class BuildConfigPlugin : Plugin<Project> {
                 ?.let { "$it.${project.name}" }
                 ?: project.name
         }
-
-    companion object {
-
-        const val DEFAULT_SOURCE_SET_NAME = "main"
-
-        @Suppress("DeprecatedCallableAddReplaceWith")
-        @Deprecated(message = "this should be Gradle's official `orElse`, but it's not available at Gradle 5")
-        private fun <T> Provider<T>.or(project: Project, other: Provider<T>) =
-            project.provider { orNull ?: other.orNull }
-
-        @Suppress("DeprecatedCallableAddReplaceWith")
-        @Deprecated(message = "this should be Gradle's official `orElse`, but it's not available at Gradle 5")
-        private fun <T> Provider<T>.or(project: Project, other: T?) =
-            project.provider { orNull ?: other }
-
-    }
 
 }

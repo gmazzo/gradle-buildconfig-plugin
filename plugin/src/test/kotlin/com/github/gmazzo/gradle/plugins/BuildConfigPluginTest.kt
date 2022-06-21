@@ -68,7 +68,11 @@ class BuildConfigPluginTest(
         """ + (if (withPackage) """
         group = 'gs.test'
         """ else "") + """
+                
+        """ + (if (kotlinVersion != null) """
+        assert "$kotlinVersion" == org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapperKt.getKotlinPluginVersion(project)
         
+        """ else "") + """
         repositories {
             mavenCentral()
         }
@@ -85,7 +89,6 @@ class BuildConfigPluginTest(
             packageName(group)
             
         """ else "") + """
-            
             buildConfigField('String', 'APP_NAME', "\"${'$'}{project.name}\"")
             buildConfigField('String', 'APP_SECRET', "\"Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu\"")
             buildConfigField('long', 'BUILD_TIME', "${'$'}{System.currentTimeMillis()}L")
@@ -142,7 +145,7 @@ class BuildConfigPluginTest(
                 public void testResourcesConfigProperties() {
                     assertEquals("aConstant", BuildResources.A_CONSTANT);
                 }
-            
+       
             }
             """.trimIndent()
             )
@@ -164,8 +167,8 @@ class BuildConfigPluginTest(
         @JvmStatic
         @Parameterized.Parameters(name = "gradle={0}, kotlin={1}, withPackage={2}")
         fun versions() =
-            listOf("5.4.1", "6.8.2", "7.1.1").flatMap { gradleVersion ->
-                listOf(null, "1.3.72", "1.4.32", "1.5.20").flatMap { kotlinVersion ->
+            listOf("6.8.2", "7.4.2").flatMap { gradleVersion ->
+                listOf(null, "1.5.20", "1.6.20", "1.7.0").flatMap { kotlinVersion ->
                     listOf(true, false).map { withPackage ->
                         arrayOf(gradleVersion, kotlinVersion, withPackage)
                     }

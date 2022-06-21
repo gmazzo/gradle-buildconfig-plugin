@@ -4,27 +4,32 @@ import com.github.gmazzo.gradle.plugins.BuildConfigClassSpec
 import com.github.gmazzo.gradle.plugins.BuildConfigExtension
 import com.github.gmazzo.gradle.plugins.generators.BuildConfigKotlinGenerator
 import org.gradle.api.DomainObjectCollection
+import org.gradle.api.Named
 import org.gradle.api.Project
-import org.gradle.kotlin.dsl.the
-import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
-import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
+import org.gradle.api.file.SourceDirectorySet
 
 internal class KotlinHandler(
     private val project: Project,
     private val extension: BuildConfigExtension
-) : PluginBindingHandler<KotlinSourceSet> {
+) : PluginBindingHandler<Named> {
 
-    override val sourceSets: DomainObjectCollection<KotlinSourceSet>
-        get() = project.the<KotlinProjectExtension>().sourceSets
+    override val sourceSets: DomainObjectCollection<Named>
+        get() = with(project.extensions.getByName("kotlin")) {
+            @Suppress("UNCHECKED_CAST")
+            javaClass.getMethod("getSourceSets")
+                .invoke(this) as DomainObjectCollection<Named>
+        }
 
-    override fun nameOf(sourceSet: KotlinSourceSet): String = sourceSet.name
+    override fun nameOf(sourceSet: Named): String = sourceSet.name
 
     override fun onBind() {
         extension.generator.convention(BuildConfigKotlinGenerator())
     }
 
-    override fun onSourceSetAdded(sourceSet: KotlinSourceSet, spec: BuildConfigClassSpec) {
-        sourceSet.kotlin.srcDir(spec.generateTask)
+    override fun onSourceSetAdded(sourceSet: Named, spec: BuildConfigClassSpec) {
+        (sourceSet.javaClass.getMethod("getKotlin")
+            .invoke(sourceSet) as SourceDirectorySet)
+            .srcDir(spec.generateTask)
     }
 
 }
