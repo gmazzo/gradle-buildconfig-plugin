@@ -13,6 +13,7 @@ public class BuildConfigTest {
         assertEquals("example-groovy", BuildConfig.APP_NAME);
         assertEquals("0.1.0-custom", BuildConfig.APP_VERSION);
         assertEquals("Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu", BuildConfig.APP_SECRET);
+        assertEquals(null, BuildConfig.OPTIONAL);
         assertTrue(System.currentTimeMillis() >= BuildConfig.BUILD_TIME);
         assertTrue(BuildConfig.FEATURE_ENABLED);
         assertArrayEquals(new int[]{1, 2, 3, 4}, BuildConfig.MAGIC_NUMBERS);

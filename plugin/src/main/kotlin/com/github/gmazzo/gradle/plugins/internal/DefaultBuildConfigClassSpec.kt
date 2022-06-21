@@ -36,7 +36,12 @@ internal open class DefaultBuildConfigClassSpec @Inject constructor(
         buildConfigField(type, name, provider { value })
 
     override fun buildConfigField(type: String, name: String, value: Provider<String>) {
-        buildConfigField(BuildConfigField(type = type, name = name, value = value))
+        buildConfigField(BuildConfigField(
+            type = type.removeSuffix("?"),
+            name = name,
+            value = value,
+            optional = type.endsWith("?")
+        ))
     }
 
 }
