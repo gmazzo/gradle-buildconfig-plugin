@@ -170,9 +170,7 @@ If you add in your `build.gradle.kts`:
 ```kotlin
 buildConfig {
     sourceSets.getByName("test") {
-        buildConfig {
-            buildConfigField("String", "TEST_CONSTANT", "\"aTestValue\"")
-        }
+        buildConfigField("String", "TEST_CONSTANT", "\"aTestValue\"")
     }
 }
 ```
