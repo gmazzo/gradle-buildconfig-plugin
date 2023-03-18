@@ -14,6 +14,15 @@ plugins {
     id("com.github.gmazzo.buildconfig") version <current version>
 }
 
+// Make IDE recognize the generated BuildConfig file
+kotlin.sourceSets {
+    main {
+        kotlin.srcDirs(
+            file("$buildDir/generated/source/buildConfig"),
+        )
+    }
+}
+
 buildConfig {
     buildConfigField("String", "APP_NAME", "\"${project.name}\"")
     buildConfigField("String", "APP_VERSION", provider { "\"${project.version}\"" })
@@ -58,6 +67,13 @@ On your `build.gradle` add:
 plugins {
     id 'java'
     id 'com.github.gmazzo.buildconfig' version <current version>
+}
+
+// Make IDE recognize the generated BuildConfig file
+kotlin {
+    sourceSets {
+        main.kotlin.srcDirs += "$buildDir/generated/source/buildConfig"
+    }
 }
 
 buildConfig {
