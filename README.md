@@ -18,7 +18,7 @@ plugins {
 kotlin.sourceSets {
     main {
         kotlin.srcDirs(
-            file("$buildDir/generated/source/buildConfig"),
+            file("$buildDir/generated/source/buildConfig/main"),
         )
     }
 }
@@ -72,7 +72,7 @@ plugins {
 // Make IDE recognize the generated BuildConfig file
 kotlin {
     sourceSets {
-        main.kotlin.srcDirs += "$buildDir/generated/source/buildConfig"
+        main.kotlin.srcDirs += "$buildDir/generated/source/buildConfig/main"
     }
 }
 
