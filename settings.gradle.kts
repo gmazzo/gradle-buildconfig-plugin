@@ -4,9 +4,9 @@ rootProject.name = "gradle-buildconfig-plugin"
 
 includeBuild("plugin")
 include(
-    "example-generic",
-    "example-groovy",
-    "example-kts",
-    "example-kts-js",
-    "example-kts-multiplatform",
+    "demo-project:generic",
+    "demo-project:groovy",
+    "demo-project:kts",
+    "demo-project:kts-js",
+    "demo-project:kts-multiplatform",
 )
