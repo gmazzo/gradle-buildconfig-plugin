@@ -1,0 +1,57 @@
+plugins {
+    id 'java'
+    id 'com.github.gmazzo.buildconfig'
+}
+
+dependencies {
+    testImplementation "junit:junit:4.13.1"
+}
+
+buildConfig {
+    packageName("com.github.gmazzo.buildconfig.demos.groovy")
+
+    buildConfigField('String', 'APP_NAME', "\"${project.name}\"")
+    buildConfigField("String", "APP_VERSION", provider { "\"${project.version}\"" })
+    buildConfigField('String', 'APP_SECRET', "\"Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu\"")
+    buildConfigField('long', 'BUILD_TIME', "${System.currentTimeMillis()}L")
+    buildConfigField('String?', 'OPTIONAL', "null")
+    buildConfigField('boolean', 'FEATURE_ENABLED', "${true}")
+    buildConfigField('int[]', 'MAGIC_NUMBERS', '{1, 2, 3, 4}')
+    buildConfigField("com.github.gmazzo.buildconfig.demos.groovy.SomeData", "MY_DATA", "new SomeData(\"a\",1)")
+
+    forClass('Custom') {
+        useJavaOutput {
+            defaultVisibility = true
+
+            buildConfigField('String', 'CUSTOM_VALUE', "\"aValue\"")
+        }
+    }
+}
+
+sourceSets {
+    test {
+        buildConfig {
+            buildConfigField('String', 'TEST_CONSTANT', '"aTestValue"')
+        }
+    }
+}
+
+/**
+ *  A task that iterates over your classpath resources and generate constants for them
+ */
+def buildResources = buildConfig.forClass("BuildResources") {
+    buildConfigField('String', 'A_CONSTANT', '"aConstant"')
+}
+def generateResourcesConstants = tasks.register("generateResourcesConstants") {
+    doFirst {
+        sourceSets["main"].resources.asFileTree.visit { file ->
+            def name = file.path.toUpperCase().replaceAll("\\W", "_")
+
+            buildResources.buildConfigField("java.io.File", name, "new File(\"$file.path\")")
+        }
+    }
+}
+
+tasks.generateBuildConfig {
+    dependsOn(generateResourcesConstants)
+}

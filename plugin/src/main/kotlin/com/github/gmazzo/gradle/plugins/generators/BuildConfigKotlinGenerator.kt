@@ -7,7 +7,7 @@ import org.gradle.api.logging.Logging
 
 data class BuildConfigKotlinGenerator(
     var topLevelConstants: Boolean = false,
-    var internalVisibility: Boolean = false
+    var internalVisibility: Boolean = true
 ) : BuildConfigGenerator {
 
     private val constTypes = setOf(String::class.asClassName(), BOOLEAN, BYTE, SHORT, INT, LONG, CHAR, FLOAT, DOUBLE)

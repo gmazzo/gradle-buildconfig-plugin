@@ -40,7 +40,7 @@ dependencies {
     implementation(libs.apache.commons.lang)
 
     testImplementation(gradleTestKit())
-    testImplementation(libs.junit)
+    testImplementation(libs.kotlin.test)
 }
 
 gradlePlugin {
