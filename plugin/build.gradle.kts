@@ -1,90 +1,68 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import java.lang.Thread.sleep
+import org.gradle.api.internal.catalog.ExternalModuleDependencyFactory
 
 plugins {
-    `java-gradle-plugin`
-    `maven-publish`
+    alias(libs.plugins.kotlin)
+    alias(libs.plugins.gitVersioning)
+    alias(libs.plugins.gradle.pluginPublish)
+    alias(libs.plugins.jacoco.testkit)
     jacoco
-    kotlin("jvm") version embeddedKotlinVersion
-    id("com.glovoapp.semantic-versioning") version "1.1.0"
-    id("com.gradle.plugin-publish") version "0.15.0"
-    id("pl.droidsonroids.jacoco.testkit") version "1.0.9"
 }
 
-apply(from = "../build.shared.gradle.kts")
+group = "com.github.gmazzo.buildconfig"
+description = "Gradle BuildConfig Plugin"
 
-base.archivesName.set("gradle-buildconfig-plugin")
-
-semanticVersion {
-    propertiesFile.set(file("../version.properties"))
+gitVersioning.apply {
+    refs {
+        branch(".+") {
+            describeTagPattern = "v(?<version>.*)"
+            version = "\${describe.tag.version}-SNAPSHOT"
+        }
+        tag("v(?<version>.*)") {
+            version = "\${ref.version}"
+        }
+    }
 }
+
+java.toolchain.languageVersion.set(JavaLanguageVersion.of(8))
 
 dependencies {
-    compileOnly(kotlin("gradle-plugin-api"))
+    fun DependencyHandler.plugin(dependency: Provider<PluginDependency>) =
+        dependency.get().run { create("$pluginId:$pluginId.gradle.plugin:$version") }
 
-    implementation(gradleKotlinDsl())
-    implementation("com.squareup:javapoet:1.13.0")
-    implementation("com.squareup:kotlinpoet:1.10.2")
-    implementation("org.apache.commons:commons-lang3:3.12.0")
+    fun DependencyHandler.plugin(dependency: ExternalModuleDependencyFactory.PluginNotationSupplier) =
+        plugin(dependency.asProvider())
+
+    compileOnly(gradleKotlinDsl())
+    compileOnly(plugin(libs.plugins.kotlin))
+
+    implementation(libs.javapoet)
+    implementation(libs.kotlinpoet)
+    implementation(libs.apache.commons.lang)
 
     testImplementation(gradleTestKit())
+    testImplementation(libs.junit)
 }
 
-val pluginId = "com.github.gmazzo.buildconfig"
-val repoName = "gradle-buildconfig-plugin"
-val repoDesc =
-    "A plugin for generating BuildConstants for any kind of Gradle projects: Java, Kotlin, Groovy, etc. Designed for KTS scripts."
-val repoUrl = "https://github.com/gmazzo/$repoName"
-val repoTags = listOf("buildconfig", "java", "kotlin", "gradle", "gradle-plugin", "gradle-kotlin-dsl")
-
 gradlePlugin {
+    vcsUrl.set("https://github.com/gmazzo/gradle-buildconfig-plugin")
+    website.set(vcsUrl)
+
     plugins {
         create("buildconfig") {
             id = "com.github.gmazzo.buildconfig"
-            displayName = "Gradle BuildConfig Plugin"
+            displayName = name
             implementationClass = "com.github.gmazzo.gradle.plugins.BuildConfigPlugin"
+            description =
+                "A plugin for generating BuildConstants for any kind of Gradle projects: Java, Kotlin, Groovy, etc. Designed for KTS scripts."
+            tags.addAll("buildconfig", "java", "kotlin", "gradle", "gradle-plugin", "gradle-kotlin-dsl")
         }
     }
 }
 
-pluginBundle {
-    website = repoUrl
-    vcsUrl = repoUrl
-    description = repoDesc
-    tags = repoTags
-
-    mavenCoordinates {
-        groupId = project.group.toString()
-        artifactId = base.archivesName.get()
-    }
+tasks.withType<Test> {
+    workingDir = temporaryDir
 }
 
-tasks {
-
-    withType<KotlinCompile> {
-        kotlinOptions {
-            jvmTarget = "1.8"
-            apiVersion = "1.3"
-        }
-    }
-
-    withType<Test> {
-        environment("test.tmpDir", temporaryDir)
-    }
-
-    withType<JacocoReport> {
-        reports {
-            xml.required.set(true)
-            html.required.set(true)
-        }
-        doFirst {
-            // sometimes fails with "Unable to read execution data file build/jacoco/test.exec"
-            sleep(1000)
-        }
-    }
-
-    named("check") {
-        dependsOn("jacocoTestReport")
-    }
-
+tasks.check {
+    dependsOn("jacocoTestReport")
 }

@@ -1,7 +1,7 @@
 import com.github.gmazzo.gradle.plugins.BuildConfigTask
 
 plugins {
-    id("com.github.gmazzo.buildconfig") version "<latest>"
+    id("com.github.gmazzo.buildconfig")
 }
 
 buildConfig {

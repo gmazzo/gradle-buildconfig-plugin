@@ -1,7 +1,12 @@
-includeBuild("plugin") {
-    dependencySubstitution {
-        substitute(module("com.github.gmazzo.buildconfig:com.github.gmazzo.buildconfig.gradle.plugin")).with(project(":"))
-    }
-}
+apply(from = "gradle/shared.settings.gradle.kts")
 
-include("example-generic", "example-groovy", "example-kts", "example-kts-js", "example-kts-multiplatform")
+rootProject.name = "gradle-buildconfig-plugin"
+
+includeBuild("plugin")
+include(
+    "example-generic",
+    "example-groovy",
+    "example-kts",
+    "example-kts-js",
+    "example-kts-multiplatform",
+)

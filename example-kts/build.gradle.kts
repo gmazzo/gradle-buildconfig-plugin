@@ -5,25 +5,21 @@ import java.util.*
 
 plugins {
     kotlin("jvm")
-    id("com.github.gmazzo.buildconfig") version "<latest>"
+    id("com.github.gmazzo.buildconfig")
 }
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
 }
 
-task<Test>("integrationTest") {
-    val sourceSet = sourceSets.create("integrationTest") {
-        compileClasspath += sourceSets.main.get().output + configurations.testRuntimeClasspath
-        runtimeClasspath += output + compileClasspath
+val integrationTest by testing.suites.registering(JvmTestSuite::class) {
+    dependencies {
+        implementation(project())
     }
+}
 
-    testClassesDirs = sourceSet.output.classesDirs
-    classpath = sourceSet.runtimeClasspath
-
-    tasks.named("check") {
-        dependsOn(this@task)
-    }
+tasks.check {
+    dependsOn(integrationTest)
 }
 
 buildConfig {
