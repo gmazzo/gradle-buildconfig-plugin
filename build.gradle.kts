@@ -1,26 +1,22 @@
 plugins {
-    kotlin("jvm") version embeddedKotlinVersion apply false
+    base
+    alias(libs.plugins.kotlin) apply false
 }
 
-apply(from = "build.shared.gradle.kts")
+val pluginBuild = gradle.includedBuild("plugin")
 
-val plugin = gradle.includedBuild("plugin")
-
-evaluationDependsOn(":example-kts-js") // it adds some tasks to the root project
-
-tasks.named<Delete>("clean") {
-    dependsOn(plugin.task(":clean"))
-    delete(buildDir)
+tasks.build {
+    dependsOn(pluginBuild.task(":$name"))
 }
 
-task("test") {
-    dependsOn(plugin.task(":test"))
+tasks.check {
+    dependsOn(pluginBuild.task(":$name"))
 }
 
-tasks.named("build") {
-    dependsOn(plugin.task(":build"))
+tasks.register(PublishingPlugin.PUBLISH_LIFECYCLE_TASK_NAME) {
+    dependsOn(pluginBuild.task(":$name"))
 }
 
-task("publish") {
-    dependsOn(plugin.task(":publishPlugins"))
+tasks.register(MavenPublishPlugin.PUBLISH_LOCAL_LIFECYCLE_TASK_NAME) {
+    dependsOn(pluginBuild.task(":$name"))
 }

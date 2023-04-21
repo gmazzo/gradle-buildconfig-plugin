@@ -1,10 +1,10 @@
 plugins {
     kotlin("js")
-    id("com.github.gmazzo.buildconfig") version "<latest>"
+    id("com.github.gmazzo.buildconfig")
 }
 
 kotlin {
-    js {
+    js(IR) {
         nodejs()
     }
 }

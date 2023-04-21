@@ -4,9 +4,7 @@ import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Assert.assertEquals
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import java.io.File
@@ -19,14 +17,10 @@ class BuildConfigPluginTest(
     private val withPackage: Boolean
 ) {
 
-    @get:Rule
-    val temporaryFolder = TemporaryFolder()
-
     private val projectDir by lazy {
-        val tmpDir = System.getenv()["test.tmpDir"]?.let(::File) ?: temporaryFolder.newFolder(PROJECT_NAME)
         val testPath = "gradle-$gradleVersion/kotlin-${kotlinVersion ?: "none" }/${if (withPackage) "withPackage" else "withoutPackage"}"
 
-        File(tmpDir, testPath).apply { deleteRecursively(); mkdirs() }
+        File(PROJECT_NAME, testPath).apply { deleteRecursively(); mkdirs() }
     }
 
     private val runner by lazy {
@@ -39,8 +33,6 @@ class BuildConfigPluginTest(
 
     @Before
     fun setUp() {
-        temporaryFolder.create()
-
         writeGradleProperties()
         writeBuildGradle()
         writeTest()
@@ -167,8 +159,8 @@ class BuildConfigPluginTest(
         @JvmStatic
         @Parameterized.Parameters(name = "gradle={0}, kotlin={1}, withPackage={2}")
         fun versions() =
-            listOf("6.8.2", "7.4.2").flatMap { gradleVersion ->
-                listOf(null, "1.5.20", "1.6.20", "1.7.0").flatMap { kotlinVersion ->
+            listOf("6.8.2", "7.4.2", "8.0.2").flatMap { gradleVersion ->
+                listOf(null, "1.6.20", "1.7.20", "1.8.20").flatMap { kotlinVersion ->
                     listOf(true, false).map { withPackage ->
                         arrayOf(gradleVersion, kotlinVersion, withPackage)
                     }

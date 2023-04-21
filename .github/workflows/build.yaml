@@ -1,39 +1,38 @@
 name: build
 on:
+  workflow_call:
   push:
     branches:
-      - master
+      - main
   pull_request:
     branches:
-      - master
+      - main
+
+permissions:
+  checks: write
+  pull-requests: write
 
 jobs:
-  Build:
+  build:
+    name: Build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
-          fetch-depth: 0 # disables shallow clone, required by SonarQube
-      - name: Verify branch name
-        uses: ./.github/actions/compute-release-type
-        if: github.event.pull_request
+          fetch-depth: 0
       - name: Setup JDK11
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v3
         with:
+          distribution: 'temurin'
           java-version: '11'
-          distribution: 'adopt'
-      - name: Setup cache
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.sonar/cache
-          key: ${{ runner.os }}-cache-${{ hashFiles('**/*.gradle.kts') }}
-          restore-keys: ${{ runner.os }}-cache
+          cache: 'gradle'
       - name: Test & Build
-        run: |
-          ./gradlew -s -p plugin build
-          ./gradlew -s build
+        run: ./gradlew -s build
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v3
+        if: always()
+        with:
+          report_paths: '**/build/test-results/*/TEST-*.xml'
       - name: Coverage report
-        uses: codecov/codecov-action@v2
+        uses: codecov/codecov-action@v3
