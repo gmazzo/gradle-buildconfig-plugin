@@ -17,9 +17,7 @@ plugins {
 // Make IDE recognize the generated BuildConfig file
 kotlin.sourceSets {
     main {
-        kotlin.srcDirs(
-            file("$buildDir/generated/source/buildConfig/main"),
-        )
+        kotlin.srcDirs(tasks.named<BuildConfigTask>("generateBuildConfig").get().outputDir)
     }
 }
 
@@ -72,7 +70,7 @@ plugins {
 // Make IDE recognize the generated BuildConfig file
 kotlin {
     sourceSets {
-        main.kotlin.srcDirs += "$buildDir/generated/source/buildConfig/main"
+        main.kotlin.srcDirs += tasks.named("generateBuildConfig").get().outputDir
     }
 }
 
