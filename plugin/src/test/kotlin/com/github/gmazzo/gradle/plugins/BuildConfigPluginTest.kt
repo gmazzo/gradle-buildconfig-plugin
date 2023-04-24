@@ -9,7 +9,6 @@ import org.junit.jupiter.api.parallel.ExecutionMode
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.io.File
-import java.io.FileOutputStream
 import java.util.stream.Stream
 import kotlin.streams.asStream
 
@@ -146,13 +145,7 @@ class BuildConfigPluginTest {
         }
     }
 
-    // This allows to coverage data to be collected from GradleRunner instance
-    // https://github.com/koral--/jacoco-gradle-testkit-plugin
     private fun Args.writeGradleProperties() = File(projectDir, "gradle.properties").also { file ->
-        javaClass.classLoader.getResourceAsStream("testkit-gradle.properties")!!.use {
-            FileOutputStream(file, true).use(it::copyTo)
-        }
-
         file.appendText(
             """
             org.gradle.caching=true
