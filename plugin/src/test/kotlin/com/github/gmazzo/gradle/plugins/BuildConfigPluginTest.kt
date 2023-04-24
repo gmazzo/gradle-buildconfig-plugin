@@ -2,55 +2,57 @@ package com.github.gmazzo.gradle.plugins
 
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
-import org.junit.Assert.assertEquals
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.parallel.Execution
+import org.junit.jupiter.api.parallel.ExecutionMode
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.MethodSource
 import java.io.File
 import java.io.FileOutputStream
+import java.util.stream.Stream
+import kotlin.streams.asStream
 
-@RunWith(Parameterized::class)
-class BuildConfigPluginTest(
-    private val gradleVersion: String,
-    private val kotlinVersion: String?,
-    private val withPackage: Boolean,
-) {
+@Execution(ExecutionMode.CONCURRENT)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+class BuildConfigPluginTest {
 
-    private val projectDir by lazy {
-        val testPath = "gradle-$gradleVersion/kotlin-${kotlinVersion ?: "none" }/${if (withPackage) "withPackage" else "withoutPackage"}"
+    fun testBuild(): Stream<Args> =
+        sequenceOf("6.9.4", "7.6", "8.1.1").flatMap { gradleVersion ->
+            sequenceOf(null, "1.6.20", "1.7.20", "1.8.20").flatMap { kotlinVersion ->
+                sequenceOf(true, false).map { withPackage ->
+                    Args(gradleVersion, kotlinVersion, withPackage)
+                }
+            }
+        }.asStream()
 
-        File(PROJECT_NAME, testPath).apply { deleteRecursively(); mkdirs() }
-    }
+    @ParameterizedTest(name = "{0}")
+    @MethodSource
+    fun Args.testBuild() {
+        projectDir.deleteRecursively()
+        projectDir.mkdirs()
 
-    private val runner by lazy {
-        GradleRunner.create()
+        writeGradleProperties()
+        writeBuildGradle()
+        writeTest()
+
+        val result = GradleRunner.create()
             .forwardOutput()
             .withPluginClasspath()
             .withProjectDir(projectDir)
             .withGradleVersion(gradleVersion)
-    }
-
-    @Before
-    fun setUp() {
-        writeGradleProperties()
-        writeBuildGradle()
-        writeTest()
-    }
-
-    @Test
-    fun testBuild() {
-        val result = runner
             .withArguments("build", "-s")
             .build()
 
         assertEquals(TaskOutcome.SUCCESS, result.task(":build")?.outcome)
     }
 
-    private fun writeBuildGradle() {
-        projectDir.resolve("settings.gradle").writeText("""
+    private fun Args.writeBuildGradle() {
+        projectDir.resolve("settings.gradle").writeText(
+            """
             rootProject.name = "$PROJECT_NAME"
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         projectDir.resolve("build.gradle").writeText("""
         plugins {
@@ -101,7 +103,7 @@ class BuildConfigPluginTest(
         """.trimIndent())
     }
 
-    private fun writeTest() {
+    private fun Args.writeTest() {
         projectDir.resolve("src/test/java/gs/test/BuildConfigTest.java").apply {
             parentFile.mkdirs()
             writeText(
@@ -146,32 +148,34 @@ class BuildConfigPluginTest(
 
     // This allows to coverage data to be collected from GradleRunner instance
     // https://github.com/koral--/jacoco-gradle-testkit-plugin
-    private fun writeGradleProperties() = File(projectDir, "gradle.properties").also { file ->
-        file.appendText("""
-            org.gradle.caching=true
-            org.gradle.configuration-cache=true
-        """.trimIndent())
-
+    private fun Args.writeGradleProperties() = File(projectDir, "gradle.properties").also { file ->
         javaClass.classLoader.getResourceAsStream("testkit-gradle.properties")!!.use {
             FileOutputStream(file, true).use(it::copyTo)
         }
+
+        file.appendText(
+            """
+            org.gradle.caching=true
+            org.gradle.configuration-cache=true
+        """.trimIndent()
+        )
+    }
+
+    data class Args(
+        val gradleVersion: String,
+        val kotlinVersion: String?,
+        val withPackage: Boolean,
+    ) {
+
+        val projectDir = File(
+            PROJECT_NAME,
+            "gradle-$gradleVersion/kotlin-${kotlinVersion ?: "none"}/${if (withPackage) "withPackage" else "withoutPackage"}"
+        )
+
     }
 
     companion object {
-
         private const val PROJECT_NAME = "test-project"
-
-        @JvmStatic
-        @Parameterized.Parameters(name = "gradle={0}, kotlin={1}, withPackage={2}")
-        fun versions() =
-            listOf("6.9.4", "7.6", "8.1.1").flatMap { gradleVersion ->
-                listOf(null, "1.6.20", "1.7.20", "1.8.20").flatMap { kotlinVersion ->
-                    listOf(true, false).map { withPackage ->
-                        arrayOf(gradleVersion, kotlinVersion, withPackage)
-                    }
-                }
-            }
-
     }
 
 }
