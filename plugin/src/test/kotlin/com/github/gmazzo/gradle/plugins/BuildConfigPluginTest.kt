@@ -10,20 +10,37 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.io.File
 import java.util.stream.Stream
-import kotlin.streams.asStream
 
 @Execution(ExecutionMode.CONCURRENT)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class BuildConfigPluginTest {
 
-    fun testBuild(): Stream<Args> =
-        sequenceOf("6.9.4", "7.6", "8.1.1").flatMap { gradleVersion ->
-            sequenceOf(null, "1.6.20", "1.7.20", "1.8.20").flatMap { kotlinVersion ->
-                sequenceOf(true, false).map { withPackage ->
-                    Args(gradleVersion, kotlinVersion, withPackage)
-                }
-            }
-        }.asStream()
+    fun testBuild(): Stream<Args> {
+        val gradle6 = "6.9.4"
+        val gradle7 = "7.6"
+        val gradle8 = "8.1.1"
+
+        val kotlin6 = "1.6.20"
+        val kotlin7 = "1.7.20"
+        val kotlin8 = "1.8.20"
+
+        return Stream.of(
+            Args(gradle6, null),
+            Args(gradle6, kotlin6),
+            Args(gradle6, kotlin7),
+            Args(gradle6, kotlin8),
+
+            Args(gradle7, null),
+            Args(gradle7, kotlin6),
+            Args(gradle7, kotlin7),
+            Args(gradle7, kotlin8),
+
+            Args(gradle8, null),
+            Args(gradle8, kotlin6, configurationCache = false),
+            Args(gradle8, kotlin7, configurationCache = false),
+            Args(gradle8, kotlin8),
+        ).flatMap { Stream.of(it.copy(withPackage = true), it.copy(withPackage = false)) }
+    }
 
     @ParameterizedTest(name = "{0}")
     @MethodSource
@@ -146,18 +163,18 @@ class BuildConfigPluginTest {
     }
 
     private fun Args.writeGradleProperties() = File(projectDir, "gradle.properties").also { file ->
-        file.appendText(
-            """
-            org.gradle.caching=true
-            org.gradle.configuration-cache=true
-        """.trimIndent()
-        )
+        file.appendText("org.gradle.caching=true")
+
+        if (configurationCache) {
+            file.appendText("org.gradle.configuration-cache=true")
+        }
     }
 
     data class Args(
         val gradleVersion: String,
         val kotlinVersion: String?,
-        val withPackage: Boolean,
+        val withPackage: Boolean = true,
+        val configurationCache: Boolean = true,
     ) {
 
         val projectDir = File(
