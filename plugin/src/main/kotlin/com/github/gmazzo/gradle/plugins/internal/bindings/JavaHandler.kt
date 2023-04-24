@@ -1,7 +1,7 @@
 package com.github.gmazzo.gradle.plugins.internal.bindings
 
-import com.github.gmazzo.gradle.plugins.BuildConfigClassSpec
 import com.github.gmazzo.gradle.plugins.BuildConfigExtension
+import com.github.gmazzo.gradle.plugins.BuildConfigSourceSet
 import com.github.gmazzo.gradle.plugins.generators.BuildConfigJavaGenerator
 import org.gradle.api.Project
 import org.gradle.api.tasks.SourceSet
@@ -21,8 +21,8 @@ internal class JavaHandler(
         extension.generator.convention(BuildConfigJavaGenerator())
     }
 
-    override fun onSourceSetAdded(sourceSet: SourceSet, spec: BuildConfigClassSpec) {
-        sourceSet.java.srcDir(spec.generateTask)
+    override fun onSourceSetAdded(sourceSet: SourceSet, spec: BuildConfigSourceSet) {
+        sourceSet.java.srcDir(spec)
     }
 
 }

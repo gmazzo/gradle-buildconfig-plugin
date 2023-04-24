@@ -15,11 +15,11 @@ data class BuildConfigKotlinGenerator(
     private val logger = Logging.getLogger(javaClass)
 
     private fun Iterable<BuildConfigField>.asPropertiesSpec() = map {
-        val typeName = when (it.type) {
+        val typeName = when (it.type.get()) {
             "String" -> String::class.asClassName()
-            else -> runCatching { ClassName.bestGuess(it.type) }
-                .getOrElse { _ -> ClassUtils.getClass(it.type, false).asTypeName() }
-        }.copy(nullable = it.optional)
+            else -> runCatching { ClassName.bestGuess(it.type.get()) }
+                .getOrElse { _ -> ClassUtils.getClass(it.type.get(), false).asTypeName() }
+        }.copy(nullable = it.optional.get())
 
         return@map PropertySpec.builder(it.name, typeName, kModifiers)
             .apply { if (typeName in constTypes) addModifiers(KModifier.CONST) }
@@ -28,7 +28,7 @@ data class BuildConfigKotlinGenerator(
     }
 
     override fun execute(spec: BuildConfigGeneratorSpec) {
-        logger.debug("Generating ${spec.className} for fields ${spec.fields}")
+        logger.debug("Generating {} for fields {}", spec.className, spec.fields)
 
         val fields = spec.fields.asPropertiesSpec()
 

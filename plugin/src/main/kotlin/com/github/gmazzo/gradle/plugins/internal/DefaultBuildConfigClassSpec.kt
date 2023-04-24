@@ -1,36 +1,32 @@
 package com.github.gmazzo.gradle.plugins.internal
 
+import com.github.gmazzo.gradle.plugins.BuildConfigClassSpec
 import com.github.gmazzo.gradle.plugins.BuildConfigField
-import com.github.gmazzo.gradle.plugins.BuildConfigTask
+import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.provider.Provider
-import org.gradle.api.provider.ProviderFactory
-import org.gradle.api.tasks.TaskProvider
 import javax.inject.Inject
 
 internal abstract class DefaultBuildConfigClassSpec @Inject constructor(
-    private val providerFactory: ProviderFactory,
     private val name: String
-) : BuildConfigClassSpecInternal {
+) : BuildConfigClassSpec {
 
     override fun getName() = name
 
-    override val fields = linkedMapOf<String, BuildConfigField>()
-
-    override lateinit var generateTask: TaskProvider<BuildConfigTask>
-
-    override fun buildConfigField(field: BuildConfigField) =
-        field.also { fields[it.name] = it }
+    private fun buildConfigField(
+        type: String,
+        name: String,
+        action: (BuildConfigField) -> Unit,
+    ) : NamedDomainObjectProvider<BuildConfigField> =
+        buildConfigFields.register(name) {
+            it.type.value(type.removeSuffix("?")).disallowChanges()
+            it.optional.value(type.endsWith("?")).disallowChanges()
+            action(it)
+        }
 
     override fun buildConfigField(type: String, name: String, value: String) =
-        buildConfigField(type, name, providerFactory.provider { value })
+        buildConfigField(type, name) { it.value.value(value).disallowChanges() }
 
-    override fun buildConfigField(type: String, name: String, value: Provider<String>) {
-        buildConfigField(BuildConfigField(
-            type = type.removeSuffix("?"),
-            name = name,
-            value = value,
-            optional = type.endsWith("?")
-        ))
-    }
+    override fun buildConfigField(type: String, name: String, value: Provider<String>) =
+        buildConfigField(type, name) { it.value.value(value).disallowChanges() }
 
 }

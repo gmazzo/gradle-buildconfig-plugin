@@ -34,12 +34,12 @@ buildConfig {
 
     sourceSets["test"].buildConfigField("String", "TEST_CONSTANT", "\"aTestValue\"")
     sourceSets["integrationTest"].buildConfigField("String", "INTEGRATION_TEST_CONSTANT", "\"aIntTestValue\"")
+}
 
-    forClass("Versions") {
-        useKotlinOutput { topLevelConstants = true }
+val versionsSS = buildConfig.sourceSets.register ("Versions") {
+    useKotlinOutput { topLevelConstants = true }
 
-        buildConfigField("String", "myDependencyVersion", "\"1.0.1\"")
-    }
+    buildConfigField("String", "myDependencyVersion", "\"1.0.1\"")
 }
 
 val buildResources = buildConfig.forClass("BuildResources") {
@@ -60,7 +60,7 @@ tasks.generateBuildConfig {
 }
 
 // example of a custom generator that builds into XML
-buildConfig.forClass("properties") {
+val propertiesSS = buildConfig.sourceSets.register("properties") {
     buildConfigField("String", "value1", "AAA")
     buildConfigField("String", "value2", "BBB")
     buildConfigField("String", "value3", "CCC")
@@ -77,5 +77,9 @@ buildConfig.forClass("properties") {
         }
 
     })
-    sourceSets["main"].resources.srcDir(generateTask) // FIXME this should bot be required
+}
+
+sourceSets.main {
+    kotlin.srcDir(versionsSS)
+    resources.srcDir(propertiesSS)
 }
