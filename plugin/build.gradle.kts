@@ -41,6 +41,7 @@ dependencies {
 
     testImplementation(gradleTestKit())
     testImplementation(libs.kotlin.test)
+    testImplementation("org.junit.jupiter:junit-jupiter-params")
 }
 
 gradlePlugin {
@@ -61,6 +62,7 @@ gradlePlugin {
 
 tasks.withType<Test> {
     workingDir = temporaryDir
+    useJUnitPlatform()
 }
 
 tasks.jacocoTestReport {
