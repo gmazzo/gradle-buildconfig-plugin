@@ -16,7 +16,7 @@ import java.util.stream.Stream
 class BuildConfigPluginTest {
 
     fun testBuild(): Stream<Args> {
-        val gradle6 = "6.9.4"
+        val gradleMin = "7.0"
         val gradle7 = "7.6"
         val gradle8 = "8.1.1"
 
@@ -25,10 +25,10 @@ class BuildConfigPluginTest {
         val kotlin8 = "1.8.20"
 
         return Stream.of(
-            Args(gradle6, null),
-            Args(gradle6, kotlin6),
-            Args(gradle6, kotlin7),
-            Args(gradle6, kotlin8),
+            Args(gradleMin, null),
+            Args(gradleMin, kotlin6),
+            Args(gradleMin, kotlin7),
+            Args(gradleMin, kotlin8),
 
             Args(gradle7, null),
             Args(gradle7, kotlin6),

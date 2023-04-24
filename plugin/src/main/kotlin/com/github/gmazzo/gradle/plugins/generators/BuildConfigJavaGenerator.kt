@@ -1,11 +1,6 @@
 package com.github.gmazzo.gradle.plugins.generators
 
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.FieldSpec
-import com.squareup.javapoet.JavaFile
-import com.squareup.javapoet.MethodSpec
-import com.squareup.javapoet.TypeName
-import com.squareup.javapoet.TypeSpec
+import com.squareup.javapoet.*
 import org.apache.commons.lang3.ClassUtils
 import org.gradle.api.logging.Logging
 import javax.lang.model.element.Modifier
@@ -27,12 +22,12 @@ data class BuildConfigJavaGenerator(
         }
 
         spec.fields.forEach {
-            val typeName = when (it.type) {
+            val typeName = when (it.type.get()) {
                 "String" -> TypeName.get(String::class.java)
                 else -> try {
-                    ClassName.bestGuess(it.type)
+                    ClassName.bestGuess(it.type.get())
                 } catch (_: IllegalArgumentException) {
-                    TypeName.get(ClassUtils.getClass(it.type, false))
+                    TypeName.get(ClassUtils.getClass(it.type.get(), false))
                 }
             }
 

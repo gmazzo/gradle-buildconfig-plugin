@@ -1,5 +1,3 @@
-import com.github.gmazzo.gradle.plugins.BuildConfigTask
-
 plugins {
     base
     id("com.github.gmazzo.buildconfig")
@@ -18,15 +16,10 @@ buildConfig {
 
 // everything below here are just helper code to allow testing the plugin as we can't rely on any framework like JUnit
 
-val generateBuildConfig: BuildConfigTask by tasks
-val generateBuildResourcesBuildConfig: BuildConfigTask by tasks
-
 val generateBuildConfigTest = task<AssertGeneratedFile>("generateBuildConfigTest") {
-    dependsOn(generateBuildConfig)
-
-    task = generateBuildConfig
-    filePath = "com/github/gmazzo/example_generic/BuildConfig.java"
-    expectedContent = """
+    generatedDir.set(tasks.generateBuildConfig.flatMap { it.outputDir })
+    filePath.set("com/github/gmazzo/example_generic/BuildConfig.java")
+    expectedContent.set("""
         package com.github.gmazzo.buildconfig.demos.generic;
         
         import java.lang.String;
@@ -43,15 +36,13 @@ val generateBuildConfigTest = task<AssertGeneratedFile>("generateBuildConfigTest
           private BuildConfig() {
           }
         }
-        """
+        """)
 }
 
 val generateBuildResourcesBuildConfigTest = task<AssertGeneratedFile>("generateBuildResourcesBuildConfigTest") {
-    dependsOn(generateBuildResourcesBuildConfig)
-
-    task = generateBuildResourcesBuildConfig
-    filePath = "com/github/gmazzo/example_generic/BuildResources.java"
-    expectedContent = """
+    generatedDir.set(tasks.generateBuildConfig.flatMap { it.outputDir })
+    filePath.set("com/github/gmazzo/example_generic/BuildResources.java")
+    expectedContent.set("""
         package com.github.gmazzo.buildconfig.demos.generic;
         
         import java.lang.String;
@@ -62,29 +53,32 @@ val generateBuildResourcesBuildConfigTest = task<AssertGeneratedFile>("generateB
           private BuildResources() {
           }
         }
-        """
+        """)
 }
 
-task("test") {
+tasks.register("test") {
     dependsOn(generateBuildConfigTest, generateBuildResourcesBuildConfigTest)
 }
 
-open class AssertGeneratedFile : DefaultTask() {
-    @Internal
-    lateinit var task: BuildConfigTask
-    @Input
-    lateinit var filePath: String
-    @Input
-    lateinit var expectedContent: String
+abstract class AssertGeneratedFile : DefaultTask() {
+
+    @get:InputFiles
+    abstract val generatedDir: DirectoryProperty
+
+    @get:Input
+    abstract val filePath: Property<String>
+
+    @get:Input
+    abstract val expectedContent: Property<String>
 
     @TaskAction
     fun performAssert() {
-        val actualFile = File(task.outputDir.asFile.get(), filePath)
+        val actualFile = File(generatedDir.asFile.get(), filePath.get())
         if (!actualFile.isFile) {
             throw AssertionError("Expected file doesn't exist: $actualFile")
         }
 
-        val content = expectedContent.trimIndent().trim()
+        val content = expectedContent.get().trimIndent().trim()
         val actualContent = actualFile.readText().trim()
         if (actualContent != content) {
             throw AssertionError("Expected:\n$content\n\n but was:\n$actualContent")

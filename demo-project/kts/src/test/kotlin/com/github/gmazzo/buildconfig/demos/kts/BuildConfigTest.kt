@@ -39,7 +39,7 @@ class BuildConfigTest {
 
     @Test
     fun testCustomXMLGeneratorProperties() {
-        val props = javaClass.getResourceAsStream("/properties.xml").use {
+        val props = javaClass.getResourceAsStream("/PropertiesBuildConfig.xml").use {
             Properties().apply { loadFromXML(it) }
         }
 

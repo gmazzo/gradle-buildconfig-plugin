@@ -1,6 +1,6 @@
 package com.github.gmazzo.gradle.plugins.internal.bindings
 
-import com.github.gmazzo.gradle.plugins.BuildConfigClassSpec
+import com.github.gmazzo.gradle.plugins.BuildConfigSourceSet
 import org.gradle.api.NamedDomainObjectContainer
 
 internal interface PluginBindingHandler<SourceSet> {
@@ -11,6 +11,6 @@ internal interface PluginBindingHandler<SourceSet> {
 
     fun onBind()
 
-    fun onSourceSetAdded(sourceSet: SourceSet, spec: BuildConfigClassSpec)
+    fun onSourceSetAdded(sourceSet: SourceSet, spec: BuildConfigSourceSet)
 
 }

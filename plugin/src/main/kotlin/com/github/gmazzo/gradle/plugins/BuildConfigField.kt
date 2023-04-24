@@ -1,11 +1,18 @@
 package com.github.gmazzo.gradle.plugins
 
-import org.gradle.api.provider.Provider
-import java.io.Serializable
+import org.gradle.api.Named
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Input
 
-data class BuildConfigField(
-    val type: String,
-    val name: String,
-    val value: Provider<String>,
-    val optional: Boolean,
-) : Serializable
+interface BuildConfigField : Named {
+
+    @get:Input
+    val type: Property<String>
+
+    @get:Input
+    val value: Property<String>
+
+    @get:Input
+    val optional: Property<Boolean>
+
+}

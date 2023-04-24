@@ -1,7 +1,7 @@
 package com.github.gmazzo.gradle.plugins.internal.bindings
 
-import com.github.gmazzo.gradle.plugins.BuildConfigClassSpec
 import com.github.gmazzo.gradle.plugins.BuildConfigExtension
+import com.github.gmazzo.gradle.plugins.BuildConfigSourceSet
 import com.github.gmazzo.gradle.plugins.generators.BuildConfigKotlinGenerator
 import org.gradle.api.Named
 import org.gradle.api.NamedDomainObjectContainer
@@ -26,11 +26,11 @@ internal class KotlinHandler(
         extension.generator.convention(BuildConfigKotlinGenerator())
     }
 
-    // sourceSet.kotlin.srcDir(spec.generateTask)
-    override fun onSourceSetAdded(sourceSet: Named, spec: BuildConfigClassSpec) {
+    // sourceSet.kotlin.srcDir(spec)
+    override fun onSourceSetAdded(sourceSet: Named, spec: BuildConfigSourceSet) {
         (sourceSet.javaClass.getMethod("getKotlin")
             .invoke(sourceSet) as SourceDirectorySet)
-            .srcDir(spec.generateTask)
+            .srcDir(spec)
     }
 
 }

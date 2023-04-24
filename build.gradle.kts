@@ -19,7 +19,7 @@ tasks.build {
 }
 
 tasks.check {
-    dependsOn(jacocoTestReport, pluginBuild.task(":$name"))
+    dependsOn(jacocoTestReport.reportTask, pluginBuild.task(":$name"))
 }
 
 tasks.register(PublishingPlugin.PUBLISH_LIFECYCLE_TASK_NAME) {

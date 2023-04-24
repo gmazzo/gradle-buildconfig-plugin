@@ -1,7 +1,9 @@
 package com.github.gmazzo.gradle.plugins
 
 import com.github.gmazzo.gradle.plugins.generators.BuildConfigJavaGenerator
-import com.github.gmazzo.gradle.plugins.internal.*
+import com.github.gmazzo.gradle.plugins.internal.BuildConfigSourceSetInternal
+import com.github.gmazzo.gradle.plugins.internal.DefaultBuildConfigExtension
+import com.github.gmazzo.gradle.plugins.internal.DefaultBuildConfigSourceSet
 import com.github.gmazzo.gradle.plugins.internal.bindings.JavaHandler
 import com.github.gmazzo.gradle.plugins.internal.bindings.KotlinHandler
 import com.github.gmazzo.gradle.plugins.internal.bindings.KotlinMultiplatformHandler
@@ -13,21 +15,14 @@ import org.gradle.api.Project
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.PluginContainer
 import org.gradle.api.tasks.SourceSet
+import org.gradle.kotlin.dsl.add
 import org.gradle.kotlin.dsl.domainObjectContainer
-import org.gradle.kotlin.dsl.newInstance
 import org.gradle.kotlin.dsl.register
 
 class BuildConfigPlugin : Plugin<Project> {
 
     override fun apply(project: Project) = with(project) {
-        val sourceSets = objects.domainObjectContainer(BuildConfigSourceSetInternal::class) { name ->
-            DefaultBuildConfigSourceSet(
-                classSpec = objects.newInstance<DefaultBuildConfigClassSpec>(name),
-                extraSpecs = project.container(BuildConfigClassSpecInternal::class.java) { extraName ->
-                    objects.newInstance<DefaultBuildConfigClassSpec>(extraName)
-                }
-            )
-        }
+        val sourceSets = objects.domainObjectContainer(DefaultBuildConfigSourceSet::class)
 
         val defaultSS = sourceSets.create(SourceSet.MAIN_SOURCE_SET_NAME)
 
@@ -39,9 +34,7 @@ class BuildConfigPlugin : Plugin<Project> {
             defaultSS,
         )
 
-        sourceSets.configureEach {
-            configureSourceSet(project, it, defaultSS.classSpec)
-        }
+        sourceSets.configureEach { configureSourceSet(it, defaultSS) }
 
         plugins.withId("java") {
             JavaHandler(project, extension).configure(sourceSets)
@@ -60,7 +53,7 @@ class BuildConfigPlugin : Plugin<Project> {
     }
 
     private fun <SourceSet> PluginBindingHandler<SourceSet>.configure(
-        specs: NamedDomainObjectContainer<BuildConfigSourceSetInternal>
+        specs: NamedDomainObjectContainer<out BuildConfigSourceSetInternal>
     ) {
         onBind()
 
@@ -68,67 +61,40 @@ class BuildConfigPlugin : Plugin<Project> {
             val spec = specs.maybeCreate(nameOf(ss))
 
             onSourceSetAdded(ss, spec)
-            spec.extraSpecs.configureEach { onSourceSetAdded(ss, it) }
+            spec.extraSpecs.configureEach { onSourceSetAdded(ss, spec) }
 
-            (ss as? ExtensionAware)?.extensions?.add("buildConfig", spec)
+            (ss as? ExtensionAware)?.extensions?.add(BuildConfigClassSpec::class, "buildConfig", spec)
         }
     }
 
-    private fun configureSourceSet(
-        project: Project,
+    private fun Project.configureSourceSet(
         sourceSet: BuildConfigSourceSetInternal,
-        defaultSpec: BuildConfigClassSpecInternal
-    ) {
-        val prefix = when (val name = sourceSet.name.replaceFirstChar { it.titlecaseChar() }) {
-            "Main" -> ""
-            else -> name
+        defaultSS: BuildConfigSourceSetInternal,
+        ) {
+        val prefix = when (sourceSet) {
+            defaultSS -> ""
+            else -> sourceSet.name.replaceFirstChar { it.titlecaseChar() }
         }
 
-        createGenerateTask(
-            project, prefix, sourceSet, sourceSet.classSpec, defaultSpec,
-            descriptionSuffix = "'${sourceSet.name}' source"
-        )
+        sourceSet.className.convention("${prefix}BuildConfig")
+        sourceSet.packageName.convention(when(sourceSet) {
+            defaultSS -> defaultPackage.map { it.replace("[^a-zA-Z._$]".toRegex(), "_") }
+            else -> defaultSS.packageName
+        })
+        sourceSet.generator.convention(when(sourceSet) {
+            defaultSS -> provider(::BuildConfigJavaGenerator)
+            else -> defaultSS.generator
+        })
+        sourceSet.generateTask = tasks.register<BuildConfigTask>("generate${prefix}BuildConfig") {
+            group = "BuildConfig"
+            description = "Generates the build constants class for '${sourceSet.name}' source"
 
-        sourceSet.extraSpecs.configureEach { subSpec ->
-            val childPrefix = prefix + subSpec.name.replaceFirstChar { it.titlecaseChar() }
-
-            createGenerateTask(
-                project, childPrefix, sourceSet, subSpec, defaultSpec,
-                descriptionSuffix = "'${subSpec.name}' spec on '${sourceSet.name}' source"
-            )
+            specs.add(sourceSet.classSpec)
+            specs.addAll(sourceSet.extraSpecs)
+            generator.set(sourceSet.generator)
+            outputDir.set(layout.buildDirectory.dir("generated/sources/buildConfig/${sourceSet.name}"))
         }
     }
-
-    private fun createGenerateTask(
-        project: Project,
-        prefix: String,
-        sourceSet: BuildConfigSourceSet,
-        spec: BuildConfigClassSpecInternal,
-        defaultSpec: BuildConfigClassSpecInternal,
-        descriptionSuffix: String
-    ) = project.tasks.register<BuildConfigTask>("generate${prefix}BuildConfig") {
-        group = "BuildConfig"
-        description = "Generates the build constants class for $descriptionSuffix"
-
-        fields.set(spec.fields.values)
-        outputDir.set(project.file("${project.buildDir}/generated/sources/buildConfig/${sourceSet.name}/${spec.name}"))
-        className.set(
-            spec.className
-                .orElse(defaultSpec.className)
-                .orElse("${prefix}BuildConfig")
-        )
-        packageName.set(
-            spec.packageName
-                .orElse(defaultSpec.packageName)
-                .orElse(project.defaultPackage.map { it.replace("[^a-zA-Z._$]".toRegex(), "_") })
-        )
-        generator.set(
-            spec.generator
-                .orElse(defaultSpec.generator)
-                .orElse(BuildConfigJavaGenerator())
-        )
-
-    }.also { spec.generateTask = it }
 
     private val Project.defaultPackage
         get() = provider {
