@@ -14,7 +14,7 @@ import java.io.FileOutputStream
 class BuildConfigPluginTest(
     private val gradleVersion: String,
     private val kotlinVersion: String?,
-    private val withPackage: Boolean
+    private val withPackage: Boolean,
 ) {
 
     private val projectDir by lazy {
@@ -142,14 +142,19 @@ class BuildConfigPluginTest(
             """.trimIndent()
             )
         }
-
     }
 
     // This allows to coverage data to be collected from GradleRunner instance
     // https://github.com/koral--/jacoco-gradle-testkit-plugin
-    private fun writeGradleProperties() {
-        javaClass.classLoader.getResourceAsStream("testkit-gradle.properties")!!
-            .copyTo(FileOutputStream(File(projectDir, "gradle.properties")))
+    private fun writeGradleProperties() = File(projectDir, "gradle.properties").also { file ->
+        file.appendText("""
+            org.gradle.caching=true
+            org.gradle.configuration-cache=true
+        """.trimIndent())
+
+        javaClass.classLoader.getResourceAsStream("testkit-gradle.properties")!!.use {
+            FileOutputStream(file, true).use(it::copyTo)
+        }
     }
 
     companion object {
@@ -159,7 +164,7 @@ class BuildConfigPluginTest(
         @JvmStatic
         @Parameterized.Parameters(name = "gradle={0}, kotlin={1}, withPackage={2}")
         fun versions() =
-            listOf("6.8.2", "7.4.2", "8.0.2").flatMap { gradleVersion ->
+            listOf("6.9.4", "7.6", "8.1.1").flatMap { gradleVersion ->
                 listOf(null, "1.6.20", "1.7.20", "1.8.20").flatMap { kotlinVersion ->
                     listOf(true, false).map { withPackage ->
                         arrayOf(gradleVersion, kotlinVersion, withPackage)

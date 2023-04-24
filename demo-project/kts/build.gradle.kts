@@ -48,7 +48,7 @@ val buildResources = buildConfig.forClass("BuildResources") {
 val generateResourcesConstants by tasks.registering {
     doFirst {
         sourceSets["main"].resources.asFileTree.visit {
-            val name = path.toUpperCase().replace("\\W".toRegex(), "_")
+            val name = path.uppercase().replace("\\W".toRegex(), "_")
 
             buildResources.buildConfigField("java.io.File", name, "File(\"$path\")")
         }

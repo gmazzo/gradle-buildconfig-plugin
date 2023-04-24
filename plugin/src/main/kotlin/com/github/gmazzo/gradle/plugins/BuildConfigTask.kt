@@ -7,33 +7,25 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
-import org.gradle.api.tasks.CacheableTask
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.OutputDirectory
-import org.gradle.api.tasks.TaskAction
-import org.gradle.kotlin.dsl.listProperty
-import org.gradle.kotlin.dsl.property
+import org.gradle.api.tasks.*
 
 @CacheableTask
-@Suppress("UnstableApiUsage", "LeakingThis")
-open class BuildConfigTask : DefaultTask() {
+@Suppress("LeakingThis")
+abstract class BuildConfigTask : DefaultTask() {
 
-    @Input
-    val className: Property<String> =
-        project.objects.property<String>().convention("BuildConfig")
+    @get:Input
+    @get:Optional
+    abstract val className: Property<String>
 
-    @Input
-    val packageName: Property<String> =
-        project.objects.property<String>().convention("")
+    @get:Input
+    @get:Optional
+    abstract val packageName: Property<String>
 
-    @Internal
-    val fields: ListProperty<BuildConfigField> =
-        project.objects.listProperty<BuildConfigField>().convention(emptyList())
+    @get:Internal
+    abstract val fields: ListProperty<BuildConfigField>
 
-    @Internal
-    val generator: Property<BuildConfigGenerator> =
-        project.objects.property<BuildConfigGenerator>().convention(BuildConfigJavaGenerator())
+    @get:Internal
+    abstract val generator: Property<BuildConfigGenerator>
 
     @get:Input
     @Suppress("unused")
@@ -49,11 +41,13 @@ open class BuildConfigTask : DefaultTask() {
             }
         }
 
-    @OutputDirectory
-    val outputDir: DirectoryProperty =
-        project.objects.directoryProperty()
+    @get:OutputDirectory
+    abstract val outputDir: DirectoryProperty
 
     init {
+        className.convention("BuildConfig")
+        packageName.convention("")
+        generator.convention(BuildConfigJavaGenerator())
         onlyIf { fields.get().isNotEmpty() }
     }
 
