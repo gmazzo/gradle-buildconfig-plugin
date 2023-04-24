@@ -1,6 +1,15 @@
 plugins {
     base
     alias(libs.plugins.kotlin) apply false
+    `jacoco-report-aggregation`
+}
+
+dependencies {
+    jacocoAggregation("com.github.gmazzo.buildconfig:plugin")
+}
+
+val jacocoTestReport by reporting.reports.creating(JacocoCoverageReport::class) {
+    testType.set(TestSuiteType.UNIT_TEST)
 }
 
 val pluginBuild = gradle.includedBuild("plugin")
@@ -10,7 +19,7 @@ tasks.build {
 }
 
 tasks.check {
-    dependsOn(pluginBuild.task(":$name"))
+    dependsOn(jacocoTestReport, pluginBuild.task(":$name"))
 }
 
 tasks.register(PublishingPlugin.PUBLISH_LIFECYCLE_TASK_NAME) {

@@ -4,7 +4,6 @@ plugins {
     alias(libs.plugins.kotlin)
     alias(libs.plugins.gitVersioning)
     alias(libs.plugins.gradle.pluginPublish)
-    alias(libs.plugins.jacoco.testkit)
     jacoco
 }
 
@@ -63,13 +62,6 @@ gradlePlugin {
 tasks.withType<Test> {
     workingDir = temporaryDir
     useJUnitPlatform()
-}
-
-tasks.jacocoTestReport {
-    doFirst {
-        // sometimes fails with "Unable to read execution data file build/jacoco/test.exec"
-        Thread.sleep(1000)
-    }
 }
 
 tasks.check {
