@@ -88,9 +88,6 @@ class BuildConfigPluginTest {
         }
         
         dependencies {
-        """ + (if (kotlinVersion != null) """
-            implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion'
-        """ else "") + """
             testImplementation 'junit:junit:4.12'
         }
         
@@ -177,10 +174,13 @@ class BuildConfigPluginTest {
         val configurationCache: Boolean = true,
     ) {
 
-        val projectDir = File(
-            PROJECT_NAME,
-            "gradle-$gradleVersion/kotlin-${kotlinVersion ?: "none"}/${if (withPackage) "withPackage" else "withoutPackage"}"
-        )
+        val projectDir =
+            File("test-project/" +
+                    "gradle-$gradleVersion/" +
+                    "kotlin-${kotlinVersion ?: "none"}/"  +
+                    (if (withPackage) "withPackage/" else "withoutPackage/")+
+                    (if (configurationCache) "withCC" else "withoutCC")
+            )
 
     }
 

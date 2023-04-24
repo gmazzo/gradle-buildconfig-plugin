@@ -2,12 +2,16 @@ package com.github.gmazzo.gradle.plugins
 
 import com.github.gmazzo.gradle.plugins.generators.BuildConfigJavaGenerator
 import com.github.gmazzo.gradle.plugins.internal.*
+import com.github.gmazzo.gradle.plugins.internal.bindings.JavaHandler
+import com.github.gmazzo.gradle.plugins.internal.bindings.KotlinHandler
+import com.github.gmazzo.gradle.plugins.internal.bindings.KotlinMultiplatformHandler
 import com.github.gmazzo.gradle.plugins.internal.bindings.PluginBindingHandler
-import com.github.gmazzo.gradle.plugins.internal.bindings.PluginBindings
+import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.ExtensionAware
+import org.gradle.api.plugins.PluginContainer
 import org.gradle.api.tasks.SourceSet
 import org.gradle.kotlin.dsl.domainObjectContainer
 import org.gradle.kotlin.dsl.newInstance
@@ -16,7 +20,7 @@ import org.gradle.kotlin.dsl.register
 class BuildConfigPlugin : Plugin<Project> {
 
     override fun apply(project: Project) = with(project) {
-        val sourceSets =  objects.domainObjectContainer(BuildConfigSourceSetInternal::class) { name ->
+        val sourceSets = objects.domainObjectContainer(BuildConfigSourceSetInternal::class) { name ->
             DefaultBuildConfigSourceSet(
                 classSpec = objects.newInstance<DefaultBuildConfigClassSpec>(name),
                 extraSpecs = project.container(BuildConfigClassSpecInternal::class.java) { extraName ->
@@ -39,12 +43,19 @@ class BuildConfigPlugin : Plugin<Project> {
             configureSourceSet(project, it, defaultSS.classSpec)
         }
 
-        PluginBindings.values().forEach { binding ->
-            pluginManager.withPlugin(binding.pluginId) {
-                binding
-                    .handler(project, extension)
-                    .configure(sourceSets)
-            }
+        plugins.withId("java") {
+            JavaHandler(project, extension).configure(sourceSets)
+        }
+        plugins.withAnyId(
+            "org.jetbrains.kotlin.android",
+            "org.jetbrains.kotlin.jvm",
+            "org.jetbrains.kotlin.js",
+            "kotlin2js",
+            ) {
+            KotlinHandler(project, extension).configure(sourceSets)
+        }
+        plugins.withId("org.jetbrains.kotlin.multiplatform") {
+            KotlinMultiplatformHandler(KotlinHandler(project, extension)).configure(sourceSets)
         }
     }
 
@@ -68,7 +79,7 @@ class BuildConfigPlugin : Plugin<Project> {
         sourceSet: BuildConfigSourceSetInternal,
         defaultSpec: BuildConfigClassSpecInternal
     ) {
-        val prefix = when (val name = sourceSet.name.capitalize()) {
+        val prefix = when (val name = sourceSet.name.replaceFirstChar { it.titlecaseChar() }) {
             "Main" -> ""
             else -> name
         }
@@ -79,7 +90,7 @@ class BuildConfigPlugin : Plugin<Project> {
         )
 
         sourceSet.extraSpecs.configureEach { subSpec ->
-            val childPrefix = prefix + subSpec.name.capitalize()
+            val childPrefix = prefix + subSpec.name.replaceFirstChar { it.titlecaseChar() }
 
             createGenerateTask(
                 project, childPrefix, sourceSet, subSpec, defaultSpec,
@@ -100,7 +111,7 @@ class BuildConfigPlugin : Plugin<Project> {
         description = "Generates the build constants class for $descriptionSuffix"
 
         fields.set(spec.fields.values)
-        outputDir.set(project.file("${project.buildDir}/generated/source/buildConfig/${sourceSet.name}/${spec.name.decapitalize()}"))
+        outputDir.set(project.file("${project.buildDir}/generated/sources/buildConfig/${sourceSet.name}/${spec.name}"))
         className.set(
             spec.className
                 .orElse(defaultSpec.className)
@@ -127,5 +138,10 @@ class BuildConfigPlugin : Plugin<Project> {
                 ?.let { "$it.${project.name}" }
                 ?: project.name
         }
+
+    @Suppress("SameParameterValue")
+    private fun PluginContainer.withAnyId(vararg ids: String, action: Action<in Plugin<*>>) {
+        ids.forEach { withId(it, action) }
+    }
 
 }
