@@ -7,18 +7,16 @@ import com.github.gmazzo.gradle.plugins.internal.bindings.PluginBindings
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.logging.Logging
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.tasks.SourceSet
+import org.gradle.kotlin.dsl.domainObjectContainer
 import org.gradle.kotlin.dsl.newInstance
 import org.gradle.kotlin.dsl.register
 
 class BuildConfigPlugin : Plugin<Project> {
 
-    private val logger = Logging.getLogger(javaClass)
-
     override fun apply(project: Project) = with(project) {
-        val sourceSets = container(BuildConfigSourceSetInternal::class.java) { name ->
+        val sourceSets =  objects.domainObjectContainer(BuildConfigSourceSetInternal::class) { name ->
             DefaultBuildConfigSourceSet(
                 classSpec = objects.newInstance<DefaultBuildConfigClassSpec>(name),
                 extraSpecs = project.container(BuildConfigClassSpecInternal::class.java) { extraName ->
@@ -34,7 +32,7 @@ class BuildConfigPlugin : Plugin<Project> {
             "buildConfig",
             DefaultBuildConfigExtension::class.java,
             sourceSets,
-            defaultSS
+            defaultSS,
         )
 
         sourceSets.configureEach {
@@ -70,8 +68,6 @@ class BuildConfigPlugin : Plugin<Project> {
         sourceSet: BuildConfigSourceSetInternal,
         defaultSpec: BuildConfigClassSpecInternal
     ) {
-        logger.debug("Creating buildConfig sourceSet '${sourceSet.name}' for $project")
-
         val prefix = when (val name = sourceSet.name.capitalize()) {
             "Main" -> ""
             else -> name
