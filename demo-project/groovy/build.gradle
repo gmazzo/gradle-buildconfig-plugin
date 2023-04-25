@@ -1,5 +1,5 @@
 plugins {
-    id 'java'
+    id 'groovy'
     id 'com.github.gmazzo.buildconfig'
 }
 

@@ -32,7 +32,7 @@ abstract class BuildConfigTask : DefaultTask() {
 
         val generator = generator.get()
 
-        specs.get().forEach {
+        specs.get().asSequence().filter { it.buildConfigFields.isNotEmpty() }.forEach {
             val rawClassName = it.className.get()
             val (packageName, className) = when (val rawPackage = it.packageName.orNull) {
                 null -> when (val i = rawClassName.lastIndexOf('.')) {

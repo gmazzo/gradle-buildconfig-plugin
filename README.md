@@ -4,7 +4,7 @@
 [![codecov](https://codecov.io/gh/gmazzo/gradle-buildconfig-plugin/branch/master/graph/badge.svg)](https://codecov.io/gh/gmazzo/gradle-buildconfig-plugin)
 
 # gradle-buildconfig-plugin
-A plugin for generating BuildConstants for any kind of Gradle projects: Java, Kotlin, Groovy, etc.
+A plugin for generating BuildConstants for any kind of Gradle projects: Java, Kotlin, Android, Groovy, etc.
 Designed for KTS scripts, with *experimental* support for Kotlin's **multi-platform** plugin
 
 ## Usage in KTS
@@ -207,20 +207,22 @@ myproject
 ```
 If you add in your `build.gradle.kts`:
 ```kotlin
-val generateBuildConfig by tasks
-
-task("generateResourcesConstants") {
-    val buildResources = buildConfig.forClass("BuildResources")
-
+val buildResources = buildConfig.forClass("BuildResources")
+val generateResourcesConstants by tasks.regitering {
+    val resources = sourceSets["main"].resources.asFileTree
+    
+    inputs.files(resources)
     doFirst {
-        sourceSets["main"].resources.asFileTree.visit(Action<FileVisitDetails> {
+        resources.visit(Action<FileVisitDetails> {
             val name = path.toUpperCase().replace("\\W".toRegex(), "_")
 
             buildResources.buildConfigField("java.io.File", name, "File(\"$path\")")
         })
     }
+}
 
-    generateBuildConfig.dependsOn(this)
+tasks.generateBuildConfig {
+    dependsOn(generateResourcesConstants)
 }
 ```
 Will generate in `BuildResources.kt`:
@@ -237,18 +239,22 @@ object BuildResources {
 ```
 #### Or in Groovy:
 ```groovy
-task("generateResourcesConstants") {
-    def buildResources = buildConfig.forClass("BuildResources")
+def buildResources = buildConfig.forClass("BuildResources")
+def generateResourcesConstants = tasks.register("generateResourcesConstants") {
+    def resources = sourceSets["main"].resources.asFileTree
 
+    inputs.files(resources)
     doFirst {
-        sourceSets["main"].resources.asFileTree.visit { file ->
+        resources.visit { file ->
             def name = file.path.toUpperCase().replaceAll("\\W", "_")
 
             buildResources.buildConfigField("java.io.File", name, "new File(\"$file.path\")")
         }
     }
+}
 
-    generateBuildConfig.dependsOn(it)
+tasks.generateBuildConfig {
+    dependsOn(generateResourcesConstants)
 }
 ```
 Will generate in `BuildResources.java`:
