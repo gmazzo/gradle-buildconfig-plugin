@@ -2,6 +2,8 @@ package com.github.gmazzo.gradle.plugins
 
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
+import org.gradle.tooling.internal.consumer.DefaultGradleConnector
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.parallel.Execution
@@ -165,6 +167,16 @@ class BuildConfigPluginTest {
         javaClass.classLoader.getResourceAsStream("testkit-gradle.properties")!!.use {
             file.outputStream().use(it::copyTo)
         }
+
+        file.appendText("org.gradle.caching=true")
+        if (configurationCache) {
+            file.appendText("org.gradle.configuration-cache=true")
+        }
+    }
+
+    @AfterAll
+    fun tearDownGradleDaemon() {
+        DefaultGradleConnector.close()
     }
 
     data class Args(
@@ -175,11 +187,12 @@ class BuildConfigPluginTest {
     ) {
 
         val projectDir =
-            File("test-project/" +
-                    "gradle-$gradleVersion/" +
-                    "kotlin-${kotlinVersion ?: "none"}/"  +
-                    (if (withPackage) "withPackage/" else "withoutPackage/")+
-                    (if (configurationCache) "withCC" else "withoutCC")
+            File(
+                "test-project/" +
+                        "gradle-$gradleVersion/" +
+                        "kotlin-${kotlinVersion ?: "none"}/" +
+                        (if (withPackage) "withPackage/" else "withoutPackage/") +
+                        (if (configurationCache) "withCC" else "withoutCC")
             )
 
     }
