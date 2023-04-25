@@ -159,11 +159,11 @@ class BuildConfigPluginTest {
         }
     }
 
+    // This allows to coverage data to be collected from GradleRunner instance
+    // https://github.com/koral--/jacoco-gradle-testkit-plugin
     private fun Args.writeGradleProperties() = File(projectDir, "gradle.properties").also { file ->
-        file.appendText("org.gradle.caching=true")
-
-        if (configurationCache) {
-            file.appendText("org.gradle.configuration-cache=true")
+        javaClass.classLoader.getResourceAsStream("testkit-gradle.properties")!!.use {
+            file.outputStream().use(it::copyTo)
         }
     }
 
