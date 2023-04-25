@@ -39,14 +39,16 @@ class BuildConfigPlugin : Plugin<Project> {
         plugins.withId("java") {
             JavaHandler(project, extension).configure(sourceSets)
         }
+
         plugins.withAnyId(
             "org.jetbrains.kotlin.android",
             "org.jetbrains.kotlin.jvm",
             "org.jetbrains.kotlin.js",
             "kotlin2js",
-            ) {
+        ) {
             KotlinHandler(project, extension).configure(sourceSets)
         }
+
         plugins.withId("org.jetbrains.kotlin.multiplatform") {
             KotlinMultiplatformHandler(KotlinHandler(project, extension)).configure(sourceSets)
         }
@@ -70,21 +72,24 @@ class BuildConfigPlugin : Plugin<Project> {
     private fun Project.configureSourceSet(
         sourceSet: BuildConfigSourceSetInternal,
         defaultSS: BuildConfigSourceSetInternal,
-        ) {
-        val prefix = when (sourceSet) {
-            defaultSS -> ""
-            else -> sourceSet.name.replaceFirstChar { it.titlecaseChar() }
-        }
+    ) {
+        val prefix = (if (plugins.hasPlugin("com.android.base")) "NonAndroid" else "") +
+                when (sourceSet) {
+                    defaultSS -> ""
+                    else -> sourceSet.name.replaceFirstChar { it.titlecaseChar() }
+                }
 
         sourceSet.className.convention("${prefix}BuildConfig")
-        sourceSet.packageName.convention(when(sourceSet) {
+        sourceSet.packageName.convention(when (sourceSet) {
             defaultSS -> defaultPackage.map { it.replace("[^a-zA-Z._$]".toRegex(), "_") }
             else -> defaultSS.packageName
         })
-        sourceSet.generator.convention(when(sourceSet) {
-            defaultSS -> provider(::BuildConfigJavaGenerator)
-            else -> defaultSS.generator
-        })
+        sourceSet.generator.convention(
+            when (sourceSet) {
+                defaultSS -> provider(::BuildConfigJavaGenerator)
+                else -> defaultSS.generator
+            }
+        )
         sourceSet.generateTask = tasks.register<BuildConfigTask>("generate${prefix}BuildConfig") {
             group = "BuildConfig"
             description = "Generates the build constants class for '${sourceSet.name}' source"
