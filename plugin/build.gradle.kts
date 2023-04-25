@@ -4,7 +4,7 @@ plugins {
     alias(libs.plugins.kotlin)
     alias(libs.plugins.gitVersioning)
     alias(libs.plugins.gradle.pluginPublish)
-    jacoco
+    alias(libs.plugins.jacoco.testkit)
 }
 
 group = "com.github.gmazzo.buildconfig"
@@ -64,6 +64,12 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
+tasks.jacocoTestReport {
+    doFirst {
+        // sometimes fails with "Unable to read execution data file build/jacoco/test.exec"
+        Thread.sleep(1000)
+    }
+}
 tasks.check {
     dependsOn("jacocoTestReport")
 }
