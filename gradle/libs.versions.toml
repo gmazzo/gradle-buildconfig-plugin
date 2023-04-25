@@ -1,5 +1,5 @@
 [versions]
-kotlin = "1.8.20"
+kotlin = "1.8.21"
 
 [libraries]
 apache-commons-lang = { module = "org.apache.commons:commons-lang3", version = "3.12.0" }
