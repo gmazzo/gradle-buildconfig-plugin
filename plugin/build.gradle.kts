@@ -54,7 +54,7 @@ gradlePlugin {
             implementationClass = "com.github.gmazzo.gradle.plugins.BuildConfigPlugin"
             description =
                 "A plugin for generating BuildConstants for any kind of Gradle projects: Java, Kotlin, Groovy, etc. Designed for KTS scripts."
-            tags.addAll("buildconfig", "java", "kotlin", "gradle", "gradle-plugin", "gradle-kotlin-dsl")
+            tags.addAll("buildconfig", "java", "kotlin", "kotlin-multiplatform")
         }
     }
 }
