@@ -73,11 +73,11 @@ class BuildConfigPlugin : Plugin<Project> {
         sourceSet: BuildConfigSourceSetInternal,
         defaultSS: BuildConfigSourceSetInternal,
     ) {
-        val prefix = (if (plugins.hasPlugin("com.android.base")) "NonAndroid" else "") +
-                when (sourceSet) {
-                    defaultSS -> ""
-                    else -> sourceSet.name.replaceFirstChar { it.titlecaseChar() }
-                }
+        val prefix = when (sourceSet) {
+            defaultSS -> ""
+            else -> sourceSet.name.replaceFirstChar { it.titlecaseChar() }
+        }
+        val taskPrefix = if (plugins.hasPlugin("com.android.base")) "NonAndroid" else ""
 
         sourceSet.className.convention("${prefix}BuildConfig")
         sourceSet.packageName.convention(when (sourceSet) {
@@ -90,7 +90,7 @@ class BuildConfigPlugin : Plugin<Project> {
                 else -> defaultSS.generator
             }
         )
-        sourceSet.generateTask = tasks.register<BuildConfigTask>("generate${prefix}BuildConfig") {
+        sourceSet.generateTask = tasks.register<BuildConfigTask>("generate${prefix}${taskPrefix}BuildConfig") {
             group = "BuildConfig"
             description = "Generates the build constants class for '${sourceSet.name}' source"
 

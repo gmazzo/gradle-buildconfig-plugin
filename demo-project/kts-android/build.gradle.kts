@@ -25,7 +25,6 @@ dependencies {
 }
 
 buildConfig {
-    className("NonAndroidBuildConfig")
     buildConfigField("String", "APP_NAME", "\"${project.name}\"")
     buildConfigField("String", "APP_SECRET", "\"Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu\"")
     buildConfigField("long", "BUILD_TIME", "${System.currentTimeMillis()}L")
