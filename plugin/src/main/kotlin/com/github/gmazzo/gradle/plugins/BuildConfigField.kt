@@ -6,6 +6,9 @@ import org.gradle.api.tasks.Input
 
 interface BuildConfigField : Named {
 
+    @Input
+    override fun getName(): String
+
     @get:Input
     val type: Property<String>
 

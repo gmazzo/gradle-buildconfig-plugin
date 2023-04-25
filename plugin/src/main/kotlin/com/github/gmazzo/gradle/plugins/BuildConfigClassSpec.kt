@@ -6,6 +6,7 @@ import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
 
 interface BuildConfigClassSpec : Named {
@@ -20,7 +21,7 @@ interface BuildConfigClassSpec : Named {
     @get:Optional
     val packageName: Property<String>
 
-    @get:Input
+    @get:Nested
     val buildConfigFields: NamedDomainObjectContainer<BuildConfigField>
 
     fun className(className: String) = apply {

@@ -64,13 +64,6 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
-tasks.jacocoTestReport {
-    doFirst {
-        // sometimes fails with "Unable to read execution data file build/jacoco/test.exec"
-        Thread.sleep(1000)
-    }
-}
-
 tasks.check {
     dependsOn("jacocoTestReport")
 }
