@@ -70,6 +70,11 @@ tasks.jacocoTestReport {
         Thread.sleep(1000)
     }
 }
+
 tasks.check {
     dependsOn("jacocoTestReport")
+}
+
+tasks.publish {
+    dependsOn(tasks.publishPlugins)
 }
