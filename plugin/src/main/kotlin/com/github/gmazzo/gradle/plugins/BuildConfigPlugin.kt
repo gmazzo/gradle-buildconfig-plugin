@@ -63,7 +63,6 @@ class BuildConfigPlugin : Plugin<Project> {
             val spec = specs.maybeCreate(nameOf(ss))
 
             onSourceSetAdded(ss, spec)
-            spec.extraSpecs.configureEach { onSourceSetAdded(ss, spec) }
 
             (ss as? ExtensionAware)?.extensions?.add(BuildConfigClassSpec::class, "buildConfig", spec)
         }

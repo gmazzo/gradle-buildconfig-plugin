@@ -89,6 +89,11 @@ class BuildConfigPluginTest {
             mavenCentral()
         }
         
+        java {
+            withSourcesJar()
+            withJavadocJar()
+        }
+        
         dependencies {
             testImplementation 'junit:junit:4.12'
         }
