@@ -3,10 +3,11 @@ package com.github.gmazzo.gradle.plugins.generators
 import com.squareup.javapoet.*
 import org.apache.commons.lang3.ClassUtils
 import org.gradle.api.logging.Logging
+import org.gradle.api.tasks.Input
 import javax.lang.model.element.Modifier
 
 data class BuildConfigJavaGenerator(
-    var defaultVisibility: Boolean = false
+    @get:Input var defaultVisibility: Boolean = false
 ) : BuildConfigGenerator {
 
     private val logger = Logging.getLogger(javaClass)

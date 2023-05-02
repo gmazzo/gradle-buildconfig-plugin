@@ -188,7 +188,7 @@ class BuildConfigPluginTest {
 
         val projectDir =
             File(
-                "test-project/" +
+                "${BuildConfigPluginTest::class.simpleName}/" +
                         "gradle-$gradleVersion/" +
                         "kotlin-${kotlinVersion ?: "none"}/" +
                         (if (withPackage) "withPackage/" else "withoutPackage/") +
