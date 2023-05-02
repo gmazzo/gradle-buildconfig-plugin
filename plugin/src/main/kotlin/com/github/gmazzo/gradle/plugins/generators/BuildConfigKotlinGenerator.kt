@@ -4,10 +4,11 @@ import com.github.gmazzo.gradle.plugins.BuildConfigField
 import com.squareup.kotlinpoet.*
 import org.apache.commons.lang3.ClassUtils
 import org.gradle.api.logging.Logging
+import org.gradle.api.tasks.Input
 
 data class BuildConfigKotlinGenerator(
-    var topLevelConstants: Boolean = false,
-    var internalVisibility: Boolean = true
+    @get:Input var topLevelConstants: Boolean = false,
+    @get:Input var internalVisibility: Boolean = true
 ) : BuildConfigGenerator {
 
     private val constTypes = setOf(String::class.asClassName(), BOOLEAN, BYTE, SHORT, INT, LONG, CHAR, FLOAT, DOUBLE)

@@ -6,7 +6,10 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
-import org.gradle.api.tasks.*
+import org.gradle.api.tasks.CacheableTask
+import org.gradle.api.tasks.Nested
+import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.TaskAction
 
 @CacheableTask
 abstract class BuildConfigTask : DefaultTask() {
@@ -14,13 +17,8 @@ abstract class BuildConfigTask : DefaultTask() {
     @get:Nested
     abstract val specs: SetProperty<BuildConfigClassSpec>
 
-    @get:Internal
+    @get:Nested
     abstract val generator: Property<BuildConfigGenerator>
-
-    @get:Input
-    @Suppress("unused")
-    internal val generatorName
-        get() = generator.javaClass
 
     @get:OutputDirectory
     abstract val outputDir: DirectoryProperty
