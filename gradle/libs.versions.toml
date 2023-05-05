@@ -9,7 +9,7 @@ kotlinpoet = { module = "com.squareup:kotlinpoet", version = "1.13.2" }
 mockk = { module = "io.mockk:mockk", version = "1.13.5" }
 
 [plugins]
-android = { id = "com.android.application", version = "7.4.2" }
+android = { id = "com.android.application", version = "8.0.1" }
 gitVersioning = { id = "me.qoomon.git-versioning", version = "6.4.2" }
 gradle-pluginPublish = { id = "com.gradle.plugin-publish", version = "1.2.0" }
 jacoco-testkit = { id = "pl.droidsonroids.jacoco.testkit", version = "1.0.12" }
