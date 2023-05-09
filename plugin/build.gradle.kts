@@ -2,25 +2,15 @@ import org.gradle.api.internal.catalog.ExternalModuleDependencyFactory
 
 plugins {
     alias(libs.plugins.kotlin)
-    alias(libs.plugins.gitVersioning)
     alias(libs.plugins.gradle.pluginPublish)
     alias(libs.plugins.jacoco.testkit)
 }
 
 group = "com.github.gmazzo.buildconfig"
 description = "Gradle BuildConfig Plugin"
-
-gitVersioning.apply {
-    refs {
-        branch(".+") {
-            describeTagPattern = "v(?<version>.*)"
-            version = "\${describe.tag.version}-SNAPSHOT"
-        }
-        tag("v(?<version>.*)") {
-            version = "\${ref.version}"
-        }
-    }
-}
+version = providers
+    .exec { commandLine("git", "describe", "--tags", "--always") }
+    .standardOutput.asText.get().trim().removePrefix("v")
 
 java.toolchain.languageVersion.set(JavaLanguageVersion.of(8))
 
