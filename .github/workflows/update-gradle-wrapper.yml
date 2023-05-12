@@ -10,17 +10,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
-      - name: Setup JDK17
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-          cache: 'gradle'
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup host
+        uses: ./.github/workflows/setup-host
       - name: Update Gradle Wrapper
         uses: gradle-update/update-gradle-wrapper-action@v1
         with:
           repo-token: ${{ secrets.GRADLE_WRAPPER_UPDATER_TOKEN }}
           labels: dependencies
           merge-method: squash
-          
