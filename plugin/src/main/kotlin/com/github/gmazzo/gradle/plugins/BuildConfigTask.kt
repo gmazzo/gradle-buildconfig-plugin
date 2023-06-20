@@ -24,7 +24,7 @@ abstract class BuildConfigTask : DefaultTask() {
     abstract val outputDir: DirectoryProperty
 
     @TaskAction
-    protected fun generateBuildConfigFile() = outputDir.get().asFile.let { dir ->
+    fun generateBuildConfigFile() = outputDir.get().asFile.let { dir ->
         dir.deleteRecursively()
         dir.mkdirs()
 
@@ -45,7 +45,12 @@ abstract class BuildConfigTask : DefaultTask() {
                 BuildConfigGeneratorSpec(
                     className = className,
                     packageName = packageName,
-                    fields = it.buildConfigFields,
+                    fields = it.buildConfigFields.sortedWith { a, b ->
+                        when (val cmp = a.position.get().compareTo(b.position.get())) {
+                            0 -> a.name.compareTo(b.name)
+                            else -> cmp
+                        }
+                    },
                     outputDir = dir
                 )
             )

@@ -18,4 +18,7 @@ interface BuildConfigField : Named {
     @get:Input
     val optional: Property<Boolean>
 
+    @get:Input
+    val position: Property<Int>
+
 }
