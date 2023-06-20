@@ -16,12 +16,14 @@ internal abstract class DefaultBuildConfigClassSpec @Inject constructor(
         type: String,
         name: String,
         action: (BuildConfigField) -> Unit,
-    ) : NamedDomainObjectProvider<BuildConfigField> =
+    ): NamedDomainObjectProvider<BuildConfigField> = buildConfigFields.size.let { position ->
         buildConfigFields.register(name) {
             it.type.value(type.removeSuffix("?")).disallowChanges()
             it.optional.value(type.endsWith("?")).disallowChanges()
+            it.position.convention(position)
             action(it)
         }
+    }
 
     override fun buildConfigField(type: String, name: String, value: String) =
         buildConfigField(type, name) { it.value.value(value).disallowChanges() }

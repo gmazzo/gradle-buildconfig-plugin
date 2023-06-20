@@ -29,7 +29,9 @@ dependencies {
     implementation(libs.apache.commons.lang)
 
     testImplementation(gradleTestKit())
+    testImplementation(gradleKotlinDsl())
     testImplementation(libs.kotlin.test)
+    testImplementation(libs.mockk)
     testImplementation("org.junit.jupiter:junit-jupiter-params")
 }
 
