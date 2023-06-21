@@ -1,7 +1,9 @@
 [versions]
 kotlin = "1.8.22"
+foojay = "0.5.0"
 
 [libraries]
+foojay = { module = "org.gradle.toolchains:foojay-resolver", version.ref = "foojay" }
 apache-commons-lang = { module = "org.apache.commons:commons-lang3", version = "3.12.0" }
 javapoet = { module = "com.squareup:javapoet", version = "1.13.0" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
