@@ -3,5 +3,5 @@ plugins {
 }
 
 dependencies {
-    implementation(libs.foojay)
+    implementation(libs.foojay.jvmToolchain)
 }
