@@ -1,9 +1,4 @@
-pluginManagement {
-    includeBuild("../gradle/shared-settings")
-}
-plugins {
-    id("shared.settings")
-}
+apply(from = "../gradle/shared.settings.gradle.kts")
 
 dependencyResolutionManagement {
     versionCatalogs {
