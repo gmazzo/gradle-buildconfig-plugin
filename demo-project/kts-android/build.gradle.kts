@@ -1,3 +1,4 @@
+import com.android.build.gradle.internal.lint.AndroidLintAnalysisTask
 import com.github.gmazzo.gradle.plugins.BuildConfigTask
 
 plugins {
@@ -18,23 +19,37 @@ android {
         targetCompatibility(java.targetCompatibility)
         sourceCompatibility(java.sourceCompatibility)
     }
+
+    flavorDimensions += "brand"
+    productFlavors {
+        create("bar") { dimension = "brand" }
+        create("foo") { dimension = "brand" }
+    }
+
+    // mimics the variant-aware buildConfigField behavior from Android, by declaring fields on the final variant sourceSet
+    applicationVariants.all variant@{
+        buildConfig.sourceSets.named(this@variant.name) {
+            className.set("BuildConfig")
+
+            buildConfigField("String", "APP_NAME", "\"${project.name}\"")
+            buildConfigField("String", "APP_SECRET", "\"Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu\"")
+            buildConfigField("long", "BUILD_TIME", "${System.currentTimeMillis()}L")
+            buildConfigField("boolean", "FEATURE_ENABLED", "${true}")
+            buildConfigField("kotlin.IntArray", "MAGIC_NUMBERS", "intArrayOf(1, 2, 3, 4)")
+
+            buildConfigField("boolean", "IS_DEBUG", "${this@variant.buildType.isDebuggable}")
+            buildConfigField("String", "BRAND", "\"${this@variant.productFlavors.single().name}\"")
+        }
+    }
 }
 
 dependencies {
     testImplementation(libs.kotlin.test)
 }
 
-buildConfig {
-    buildConfigField("String", "APP_NAME", "\"${project.name}\"")
-    buildConfigField("String", "APP_SECRET", "\"Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu\"")
-    buildConfigField("long", "BUILD_TIME", "${System.currentTimeMillis()}L")
-    buildConfigField("boolean", "FEATURE_ENABLED", "${true}")
-    buildConfigField("kotlin.IntArray", "MAGIC_NUMBERS", "intArrayOf(1, 2, 3, 4)")
-}
-
 // workaround of AGP issue failing to pick test sources correctly
 afterEvaluate {
-    tasks.named("lintAnalyzeDebug") {
+    tasks.withType<AndroidLintAnalysisTask>().configureEach {
         mustRunAfter(tasks.withType<BuildConfigTask>())
     }
 }

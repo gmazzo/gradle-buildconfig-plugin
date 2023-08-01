@@ -18,4 +18,10 @@ class BuildConfigTest {
         assertEquals(listOf(1, 2, 3, 4), BuildConfig.MAGIC_NUMBERS.toList())
     }
 
+    @Test
+    fun testFlavoredBuildConfigProperties() {
+        assertEquals(AndroidBuildConfig.DEBUG, BuildConfig.IS_DEBUG)
+        assertEquals(AndroidBuildConfig.FLAVOR, BuildConfig.BRAND)
+    }
+
 }
