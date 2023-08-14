@@ -6,7 +6,7 @@ apache-commons-lang = { module = "org.apache.commons:commons-lang3", version = "
 javapoet = { module = "com.squareup:javapoet", version = "1.13.0" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlinpoet = { module = "com.squareup:kotlinpoet", version = "1.14.2" }
-mockk = { module = "io.mockk:mockk", version = "1.13.5" }
+mockk = { module = "io.mockk:mockk", version = "1.13.7" }
 
 [plugins]
 android = { id = "com.android.application", version = "8.1.0" }
