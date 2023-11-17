@@ -1,6 +1,6 @@
 ![GitHub](https://img.shields.io/github/license/gmazzo/gradle-buildconfig-plugin)
-![Gradle Plugin Portal](https://img.shields.io/gradle-plugin-portal/v/com.github.gmazzo.buildconfig)
-![Build Status](https://github.com/gmazzo/gradle-buildconfig-plugin/actions/workflows/build.yaml/badge.svg)
+[![Gradle Plugin Portal](https://img.shields.io/gradle-plugin-portal/v/com.github.gmazzo.buildconfig)](https://plugins.gradle.org/plugin/com.github.gmazzo.buildconfig)
+[![Build Status](https://github.com/gmazzo/gradle-buildconfig-plugin/actions/workflows/build.yaml/badge.svg)](https://github.com/gmazzo/gradle-buildconfig-plugin/actions/workflows/build.yaml)
 [![codecov](https://codecov.io/gh/gmazzo/gradle-buildconfig-plugin/branch/master/graph/badge.svg)](https://codecov.io/gh/gmazzo/gradle-buildconfig-plugin)
 
 # gradle-buildconfig-plugin
