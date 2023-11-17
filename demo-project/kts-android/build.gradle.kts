@@ -7,7 +7,7 @@ plugins {
     id("com.github.gmazzo.buildconfig")
 }
 
-java.toolchain.languageVersion.set(JavaLanguageVersion.of(11))
+java.toolchain.languageVersion.set(JavaLanguageVersion.of(libs.versions.java.get()))
 
 android {
     namespace = "com.github.gmazzo.buildconfig.demos.android"

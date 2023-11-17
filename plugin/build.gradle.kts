@@ -12,7 +12,7 @@ version = providers
     .exec { commandLine("git", "describe", "--tags", "--always") }
     .standardOutput.asText.get().trim().removePrefix("v")
 
-java.toolchain.languageVersion.set(JavaLanguageVersion.of(8))
+java.toolchain.languageVersion.set(JavaLanguageVersion.of(libs.versions.java.get()))
 
 dependencies {
     fun DependencyHandler.plugin(dependency: Provider<PluginDependency>) =
