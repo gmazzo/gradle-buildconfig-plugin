@@ -25,6 +25,10 @@ interface BuildConfigClassSpec : Named {
     @get:Nested
     val buildConfigFields: NamedDomainObjectContainer<BuildConfigField>
 
+    @get:Input
+    @get:Optional
+    val documentation: Property<String>
+
     fun className(className: String) = apply {
         this.className.set(className)
     }

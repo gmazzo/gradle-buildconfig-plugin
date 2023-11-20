@@ -1,6 +1,11 @@
 package com.github.gmazzo.gradle.plugins.generators
 
-import com.squareup.javapoet.*
+import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.FieldSpec
+import com.squareup.javapoet.JavaFile
+import com.squareup.javapoet.MethodSpec
+import com.squareup.javapoet.TypeName
+import com.squareup.javapoet.TypeSpec
 import org.apache.commons.lang3.ClassUtils
 import org.gradle.api.logging.Logging
 import org.gradle.api.tasks.Input
@@ -20,6 +25,10 @@ data class BuildConfigJavaGenerator(
 
         if (!defaultVisibility) {
             typeSpec.addModifiers(Modifier.PUBLIC)
+        }
+
+        if (spec.documentation != null) {
+            typeSpec.addJavadoc("\$L", spec.documentation)
         }
 
         spec.fields.forEach {

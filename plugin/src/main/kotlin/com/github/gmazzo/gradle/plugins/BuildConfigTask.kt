@@ -45,6 +45,7 @@ abstract class BuildConfigTask : DefaultTask() {
                 BuildConfigGeneratorSpec(
                     className = className,
                     packageName = packageName,
+                    documentation = it.documentation.orNull,
                     fields = it.buildConfigFields.sortedWith { a, b ->
                         when (val cmp = a.position.get().compareTo(b.position.get())) {
                             0 -> a.name.compareTo(b.name)

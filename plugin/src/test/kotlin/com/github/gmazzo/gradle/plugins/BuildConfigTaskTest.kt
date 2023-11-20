@@ -17,6 +17,7 @@ class BuildConfigTaskTest {
     private val spec: BuildConfigClassSpec = project.objects.newInstance<DefaultBuildConfigClassSpec>("spec").apply {
         className.set("aClassName")
         packageName.set("aPackage")
+        documentation.set("aJavaDoc")
     }
 
     private val outDir = project.layout.buildDirectory.dir("outDir")
@@ -45,6 +46,7 @@ class BuildConfigTaskTest {
                 BuildConfigGeneratorSpec(
                     className = "aClassName",
                     packageName = "aPackage",
+                    documentation = "aJavaDoc",
                     fields = fields,
                     outputDir = outDir.get().asFile.absoluteFile,
                 )
