@@ -8,6 +8,7 @@ dependencies {
 }
 
 buildConfig {
+    documentation = "This is a generated BuildConfig class"
     packageName("com.github.gmazzo.buildconfig.demos.groovy")
 
     buildConfigField('String', 'APP_NAME', "\"${project.name}\"")

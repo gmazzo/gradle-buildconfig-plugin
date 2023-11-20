@@ -1,7 +1,7 @@
 import com.github.gmazzo.gradle.plugins.generators.BuildConfigGenerator
 import com.github.gmazzo.gradle.plugins.generators.BuildConfigGeneratorSpec
 import java.io.FileOutputStream
-import java.util.*
+import java.util.Properties
 
 plugins {
     kotlin("jvm")
@@ -23,6 +23,8 @@ tasks.check {
 }
 
 buildConfig {
+    documentation = "This is a generated BuildConfig class"
+
     buildConfigField("String", "APP_NAME", "\"${project.name}\"")
     buildConfigField("String", "APP_VERSION", provider { "\"${project.version}\"" })
     buildConfigField("String", "APP_SECRET", "\"Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu\"")
@@ -39,6 +41,7 @@ buildConfig {
 val versionsSS = buildConfig.sourceSets.register ("Versions") {
     useKotlinOutput { topLevelConstants = true }
 
+    documentation = "My list of versions"
     buildConfigField("String", "myDependencyVersion", "\"1.0.1\"")
 }
 
