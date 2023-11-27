@@ -1,6 +1,6 @@
 [versions]
 java = "11"
-kotlin = "1.9.20"
+kotlin = "1.9.21"
 
 [libraries]
 apache-commons-lang = { module = "org.apache.commons:commons-lang3", version = "3.13.0" }
