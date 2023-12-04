@@ -6,7 +6,7 @@ kotlin = "1.9.20"
 apache-commons-lang = { module = "org.apache.commons:commons-lang3", version = "3.14.0" }
 javapoet = { module = "com.squareup:javapoet", version = "1.13.0" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
-kotlinpoet = { module = "com.squareup:kotlinpoet", version = "1.15.1" }
+kotlinpoet = { module = "com.squareup:kotlinpoet", version = "1.15.3" }
 mockk = { module = "io.mockk:mockk", version = "1.13.8" }
 
 [plugins]
