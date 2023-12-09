@@ -1,21 +1,8 @@
 package com.github.gmazzo.gradle.plugins.generators
 
 import com.github.gmazzo.gradle.plugins.BuildConfigField
-import com.squareup.kotlinpoet.BOOLEAN
-import com.squareup.kotlinpoet.BYTE
-import com.squareup.kotlinpoet.CHAR
-import com.squareup.kotlinpoet.ClassName
-import com.squareup.kotlinpoet.DOUBLE
-import com.squareup.kotlinpoet.FLOAT
-import com.squareup.kotlinpoet.FileSpec
-import com.squareup.kotlinpoet.INT
-import com.squareup.kotlinpoet.KModifier
-import com.squareup.kotlinpoet.LONG
-import com.squareup.kotlinpoet.PropertySpec
-import com.squareup.kotlinpoet.SHORT
-import com.squareup.kotlinpoet.TypeSpec
-import com.squareup.kotlinpoet.asClassName
-import com.squareup.kotlinpoet.asTypeName
+import com.squareup.kotlinpoet.*
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import org.apache.commons.lang3.ClassUtils
 import org.gradle.api.logging.Logging
 import org.gradle.api.tasks.Input
@@ -29,16 +16,24 @@ data class BuildConfigKotlinGenerator(
 
     private val logger = Logging.getLogger(javaClass)
 
-    private fun Iterable<BuildConfigField>.asPropertiesSpec() = map {
-        val typeName = when (it.type.get()) {
+    private fun Iterable<BuildConfigField>.asPropertiesSpec() = map { field ->
+        val typeName = when (field.type.get()) {
             "String" -> String::class.asClassName()
-            else -> runCatching { ClassName.bestGuess(it.type.get()) }
-                .getOrElse { _ -> ClassUtils.getClass(it.type.get(), false).asTypeName() }
-        }.copy(nullable = it.optional.get())
+            else -> runCatching { ClassName.bestGuess(field.type.get()) }
+                .getOrElse { _ -> ClassUtils.getClass(field.type.get(), false).asTypeName() }
+        }.copy(nullable = field.optional.get())
+            .let { typeName ->
+                when (field.collectionType.getOrElse(BuildConfigField.CollectionType.NONE)) {
+                    BuildConfigField.CollectionType.COLLECTION -> COLLECTION
+                    BuildConfigField.CollectionType.LIST -> LIST
+                    BuildConfigField.CollectionType.SET -> SET
+                    BuildConfigField.CollectionType.NONE -> null
+                }?.parameterizedBy(typeName) ?: typeName
+            }
 
-        return@map PropertySpec.builder(it.name, typeName, kModifiers)
+        return@map PropertySpec.builder(field.name, typeName, kModifiers)
             .apply { if (typeName in constTypes) addModifiers(KModifier.CONST) }
-            .initializer("%L", it.value.get())
+            .initializer("%L", field.value.get())
             .build()
     }
 

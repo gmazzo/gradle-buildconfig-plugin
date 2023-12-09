@@ -13,6 +13,9 @@ interface BuildConfigField : Named {
     val type: Property<String>
 
     @get:Input
+    val collectionType: Property<CollectionType>
+
+    @get:Input
     val value: Property<String>
 
     @get:Input
@@ -21,4 +24,19 @@ interface BuildConfigField : Named {
     @get:Input
     val position: Property<Int>
 
+    fun asList() = apply {
+        collectionType.set(CollectionType.LIST)
+    }
+
+    fun asSet() = apply {
+        collectionType.set(CollectionType.SET)
+    }
+
+    fun asCollection() = apply {
+        collectionType.set(CollectionType.COLLECTION)
+    }
+
+    enum class CollectionType {
+        NONE, COLLECTION, LIST, SET
+    }
 }
