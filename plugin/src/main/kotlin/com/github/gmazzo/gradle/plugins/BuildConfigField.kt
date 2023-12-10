@@ -3,6 +3,7 @@ package com.github.gmazzo.gradle.plugins
 import org.gradle.api.Named
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Optional
 
 interface BuildConfigField : Named {
 
@@ -12,6 +13,7 @@ interface BuildConfigField : Named {
     @get:Input
     val type: Property<String>
 
+    @get:Optional
     @get:Input
     val collectionType: Property<CollectionType>
 
