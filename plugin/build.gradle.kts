@@ -14,6 +14,12 @@ version = providers
 
 java.toolchain.languageVersion.set(JavaLanguageVersion.of(libs.versions.java.get()))
 
+kotlin {
+    compilerOptions {
+        freeCompilerArgs.add("-Xjvm-default=all",)
+    }
+}
+
 dependencies {
     fun DependencyHandler.plugin(dependency: Provider<PluginDependency>) =
         dependency.get().run { create("$pluginId:$pluginId.gradle.plugin:$version") }
