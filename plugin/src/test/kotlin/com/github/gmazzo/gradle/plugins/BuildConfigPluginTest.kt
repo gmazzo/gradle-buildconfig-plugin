@@ -3,6 +3,7 @@ package com.github.gmazzo.gradle.plugins
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.gradle.tooling.internal.consumer.DefaultGradleConnector
+import org.gradle.util.GradleVersion
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.TestInstance
@@ -38,8 +39,8 @@ class BuildConfigPluginTest {
             Args(gradle7, kotlin8),
 
             Args(gradle8, null),
-            Args(gradle8, kotlin6, configurationCache = false),
-            Args(gradle8, kotlin7, configurationCache = false),
+            Args(gradle8, kotlin6),
+            Args(gradle8, kotlin7),
             Args(gradle8, kotlin8),
         ).flatMap { Stream.of(it.copy(withPackage = true), it.copy(withPackage = false)) }
     }
@@ -188,8 +189,11 @@ class BuildConfigPluginTest {
         val gradleVersion: String,
         val kotlinVersion: String?,
         val withPackage: Boolean = true,
-        val configurationCache: Boolean = true,
     ) {
+
+        // TODO there is a check on Gradle 8 preventing agents (like JaCoCo) to be added with CC
+        //  https://docs.gradle.org/8.1.1/userguide/configuration_cache.html#config_cache:not_yet_implemented:testkit_build_with_java_agent
+        val configurationCache = GradleVersion.version(gradleVersion) < GradleVersion.version("8.0")
 
         val projectDir =
             File(

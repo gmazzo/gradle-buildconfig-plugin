@@ -18,14 +18,14 @@ buildConfig {
 
 val generateBuildConfigTest = task<AssertGeneratedFile>("generateBuildConfigTest") {
     generatedDir.set(tasks.generateBuildConfig.flatMap { it.outputDir })
-    filePath.set("com/github/gmazzo/example_generic/BuildConfig.java")
+    filePath.set("com/github/gmazzo/buildconfig/demos/generic/BuildConfig.java")
     expectedContent.set("""
         package com.github.gmazzo.buildconfig.demos.generic;
         
         import java.lang.String;
         
         public final class BuildConfig {
-          public static final String APP_NAME = "example-generic";
+          public static final String APP_NAME = "generic";
         
           public static final String APP_SECRET = "Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu";
         
@@ -41,7 +41,7 @@ val generateBuildConfigTest = task<AssertGeneratedFile>("generateBuildConfigTest
 
 val generateBuildResourcesBuildConfigTest = task<AssertGeneratedFile>("generateBuildResourcesBuildConfigTest") {
     generatedDir.set(tasks.generateBuildConfig.flatMap { it.outputDir })
-    filePath.set("com/github/gmazzo/example_generic/BuildResources.java")
+    filePath.set("com/github/gmazzo/buildconfig/demos/generic/BuildResources.java")
     expectedContent.set("""
         package com.github.gmazzo.buildconfig.demos.generic;
         
@@ -56,8 +56,16 @@ val generateBuildResourcesBuildConfigTest = task<AssertGeneratedFile>("generateB
         """)
 }
 
-tasks.register("test") {
-    dependsOn(generateBuildConfigTest, generateBuildResourcesBuildConfigTest)
+tasks {
+
+    val test by registering {
+        dependsOn(generateBuildConfigTest, generateBuildResourcesBuildConfigTest)
+    }
+
+    build {
+        dependsOn(test)
+    }
+
 }
 
 abstract class AssertGeneratedFile : DefaultTask() {
