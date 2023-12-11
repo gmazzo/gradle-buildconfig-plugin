@@ -1,10 +1,32 @@
 package com.github.gmazzo.gradle.plugins.generators
 
 import com.github.gmazzo.gradle.plugins.BuildConfigField
-import com.squareup.javapoet.TypeName as JTypeName
-import com.squareup.kotlinpoet.*
+import com.squareup.kotlinpoet.BOOLEAN
+import com.squareup.kotlinpoet.BOOLEAN_ARRAY
+import com.squareup.kotlinpoet.BYTE
+import com.squareup.kotlinpoet.BYTE_ARRAY
+import com.squareup.kotlinpoet.CHAR
+import com.squareup.kotlinpoet.CHAR_ARRAY
+import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.DOUBLE
+import com.squareup.kotlinpoet.DOUBLE_ARRAY
+import com.squareup.kotlinpoet.FLOAT
+import com.squareup.kotlinpoet.FLOAT_ARRAY
+import com.squareup.kotlinpoet.FileSpec
+import com.squareup.kotlinpoet.INT
+import com.squareup.kotlinpoet.INT_ARRAY
+import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.LONG
+import com.squareup.kotlinpoet.LONG_ARRAY
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
-import org.apache.commons.lang3.ClassUtils
+import com.squareup.kotlinpoet.PropertySpec
+import com.squareup.kotlinpoet.SHORT
+import com.squareup.kotlinpoet.SHORT_ARRAY
+import com.squareup.kotlinpoet.STRING
+import com.squareup.kotlinpoet.TypeName
+import com.squareup.kotlinpoet.TypeSpec
+import com.squareup.kotlinpoet.asClassName
+import com.squareup.kotlinpoet.asTypeName
 import org.gradle.api.logging.Logging
 import org.gradle.api.tasks.Input
 
@@ -18,43 +40,45 @@ data class BuildConfigKotlinGenerator(
     private val logger = Logging.getLogger(javaClass)
 
     private fun String.toTypeName(): TypeName {
-        val cleanedType = removeSuffix("?")
-        return when (cleanedType) {
-            JTypeName.BOOLEAN.toString(), BOOLEAN.toString() -> BOOLEAN
-            JTypeName.BYTE.toString(), BYTE.toString() -> BYTE
-            JTypeName.SHORT.toString(), SHORT.toString() -> SHORT
-            JTypeName.CHAR.toString(), CHAR.toString() -> CHAR
-            JTypeName.INT.toString(), INT.toString() -> INT
-            JTypeName.LONG.toString(), LONG.toString() -> LONG
-            JTypeName.FLOAT.toString(), FLOAT.toString() -> FLOAT
-            JTypeName.DOUBLE.toString(), DOUBLE.toString() -> DOUBLE
-            "String" -> STRING
-            else -> runCatching { ClassName.bestGuess(cleanedType) }
-                .getOrElse { ClassUtils.getClass(cleanedType, false).asTypeName() }
-        }.copy(nullable = endsWith('?')) as ClassName
-    }
-
-    private fun BuildConfigField.toTypeName(): TypeName {
-        return type.get().toTypeName()
-            .let { rawType ->
-                val typeArgs = typeArguments.getOrElse(emptyList())
-                if (typeArgs.isNotEmpty()) {
-                    check(rawType is ClassName) {
-                        "Cannot parameterize type '$rawType'"
-                    }
-                    rawType.parameterizedBy(typeArgs.map { it.toTypeName() }).copy(nullable = rawType.isNullable)
-                } else {
-                    rawType
-                }
-            }
+        val nonNullable = removeSuffix("?")
+        val isArray = nonNullable.endsWith("[]")
+        val type = when (nonNullable.removeSuffix("[]").lowercase()) {
+            "boolean" -> if (isArray) BOOLEAN_ARRAY else BOOLEAN
+            "byte" -> if (isArray) BYTE_ARRAY else BYTE
+            "short" -> if (isArray) SHORT_ARRAY else SHORT
+            "char" -> if (isArray) CHAR_ARRAY else CHAR
+            "int" -> if (isArray) INT_ARRAY else INT
+            "integer" -> if (isArray) INT_ARRAY else INT
+            "long" -> if (isArray) LONG_ARRAY else LONG
+            "float" -> if (isArray) FLOAT_ARRAY else FLOAT
+            "double" -> if (isArray) DOUBLE_ARRAY else DOUBLE
+            "string" -> STRING
+            else -> ClassName.bestGuess(this)
+        }
+        return if (this != nonNullable) type.copy(nullable = true) else type
     }
 
     private fun Iterable<BuildConfigField>.asPropertiesSpec() = map { field ->
-        val typeName = field.toTypeName()
+        val typeName = when (val type = field.type.get()) {
+            is BuildConfigField.TypeRef -> type.javaType.asTypeName()
+            is BuildConfigField.TypeByName -> type.name.toTypeName().let { resolved ->
+                if (type.typeParameters.isEmpty()) resolved
+                else checkNotNull(resolved as? ClassName).parameterizedBy(type.typeParameters.map { it.toTypeName() })
+            }
+        }
 
         return@map PropertySpec.builder(field.name, typeName, kModifiers)
             .apply { if (typeName in constTypes) addModifiers(KModifier.CONST) }
-            .initializer("%L", field.value.get())
+            .apply {
+                when (val value = field.value.get()) {
+                    is BuildConfigField.Literal -> initializer(
+                        if (value.value is CharSequence) "%S" else "%L",
+                        value.value
+                    )
+
+                    is BuildConfigField.Expression -> initializer("%L", value.value)
+                }
+            }
             .build()
     }
 

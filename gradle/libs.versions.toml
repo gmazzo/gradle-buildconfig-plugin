@@ -3,7 +3,6 @@ java = "11"
 kotlin = "1.9.21"
 
 [libraries]
-apache-commons-lang = { module = "org.apache.commons:commons-lang3", version = "3.14.0" }
 javapoet = { module = "com.squareup:javapoet", version = "1.13.0" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlinpoet = { module = "com.squareup:kotlinpoet", version = "1.15.3" }

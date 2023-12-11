@@ -1,13 +1,22 @@
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
+
+buildscript {
+    dependencies {
+        classpath(libs.kotlin.test)
+    }
+}
+
 plugins {
     base
     id("com.github.gmazzo.buildconfig")
 }
 
 buildConfig {
-    buildConfigField("String", "APP_NAME", "\"${project.name}\"")
+    buildConfigField( "APP_NAME", project.name)
     buildConfigField("String", "APP_SECRET", "\"Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu\"")
-    buildConfigField("long", "BUILD_TIME", "${TimeUnit.DAYS.toMillis(2)}L")
-    buildConfigField("boolean", "FEATURE_ENABLED", "${true}")
+    buildConfigField("BUILD_TIME", TimeUnit.DAYS.toMillis(2))
+    buildConfigField("FEATURE_ENABLED", true)
 
     forClass("BuildResources") {
         buildConfigField("String", "A_CONSTANT", "\"aConstant\"")
@@ -82,15 +91,12 @@ abstract class AssertGeneratedFile : DefaultTask() {
     @TaskAction
     fun performAssert() {
         val actualFile = File(generatedDir.asFile.get(), filePath.get())
-        if (!actualFile.isFile) {
-            throw AssertionError("Expected file doesn't exist: $actualFile")
-        }
 
-        val content = expectedContent.get().trimIndent().trim()
+        assertTrue(actualFile.isFile, "Expected file doesn't exist: $actualFile")
+
+        val expected = expectedContent.get().trimIndent().trim()
         val actualContent = actualFile.readText().trim()
-        if (actualContent != content) {
-            throw AssertionError("Expected:\n$content\n\n but was:\n$actualContent")
-        }
+        assertEquals(expected, actualContent)
     }
 
 }

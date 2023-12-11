@@ -1,6 +1,7 @@
 package com.github.gmazzo.gradle.plugins.generators
 
 import com.github.gmazzo.gradle.plugins.BuildConfigField
+import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.JavaFile
@@ -8,7 +9,6 @@ import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
-import org.apache.commons.lang3.ClassUtils
 import org.gradle.api.logging.Logging
 import org.gradle.api.tasks.Input
 import javax.lang.model.element.Modifier
@@ -20,38 +20,21 @@ data class BuildConfigJavaGenerator(
     private val logger = Logging.getLogger(javaClass)
 
     private fun String.toTypeName(): TypeName {
-        return when (val cleanedString = removeSuffix("?")) {
-            TypeName.BOOLEAN.toString() -> TypeName.BOOLEAN
-            TypeName.BYTE.toString() -> TypeName.BYTE
-            TypeName.SHORT.toString() -> TypeName.SHORT
-            TypeName.CHAR.toString() -> TypeName.CHAR
-            TypeName.INT.toString() -> TypeName.INT
-            TypeName.LONG.toString() -> TypeName.LONG
-            TypeName.FLOAT.toString() -> TypeName.FLOAT
-            TypeName.DOUBLE.toString() -> TypeName.DOUBLE
-            "String" -> ClassName.get(String::class.java)
-            else -> try {
-                ClassName.bestGuess(cleanedString)
-            } catch (_: IllegalArgumentException) {
-                TypeName.get(ClassUtils.getClass(cleanedString, false))
-            }
-        }
-    }
-
-    private fun BuildConfigField.toTypeName(): TypeName {
-        return type.get().toTypeName()
-            .let { rawType ->
-                val typeArgs = typeArguments.getOrElse(emptyList())
-                if (typeArgs.isNotEmpty()) {
-                    check(rawType is ClassName) {
-                        "Cannot parameterize type '$rawType'"
-                    }
-                    // Generic primitives must be boxed
-                    ParameterizedTypeName.get(rawType, *typeArgs.map { it.toTypeName().box() }.toTypedArray())
-                } else {
-                    rawType
-                }
-        }
+        val nonNullable = removeSuffix("?")
+        val type = when (nonNullable.removeSuffix("[]").lowercase()) {
+            "boolean" -> TypeName.BOOLEAN
+            "byte" -> TypeName.BYTE
+            "short" -> TypeName.SHORT
+            "char" -> TypeName.CHAR
+            "int" -> TypeName.INT
+            "integer" -> TypeName.INT
+            "long" -> TypeName.LONG
+            "float" -> TypeName.FLOAT
+            "double" -> TypeName.DOUBLE
+            "string" -> ClassName.get(String::class.java)
+            else -> ClassName.bestGuess(this)
+        }.let { if (this != nonNullable) it.box() else it }
+        return if (nonNullable.endsWith("[]")) ArrayTypeName.of(type) else type
     }
 
     override fun execute(spec: BuildConfigGeneratorSpec) {
@@ -69,11 +52,29 @@ data class BuildConfigJavaGenerator(
         }
 
         spec.fields.forEach { field ->
-            val typeName = field.toTypeName()
+            val typeName = when (val type = field.type.get()) {
+                is BuildConfigField.TypeRef -> TypeName.get(type.javaType)
+                is BuildConfigField.TypeByName -> type.name.toTypeName().let { resolved ->
+                    if (type.typeParameters.isEmpty()) resolved
+                    else ParameterizedTypeName.get(
+                        checkNotNull(resolved as? ClassName),
+                        *type.typeParameters.map { it.toTypeName() }.toTypedArray()
+                    )
+                }
+            }
 
             typeSpec.addField(
                 FieldSpec.builder(typeName, field.name, Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-                    .initializer("\$L", field.value.get())
+                    .apply {
+                        when (val value = field.value.get()) {
+                            is BuildConfigField.Literal -> initializer(
+                                if (value.value is CharSequence) "\$S" else "\$L",
+                                value.value
+                            )
+
+                            is BuildConfigField.Expression -> initializer("\$L", value.value)
+                        }
+                    }
                     .build()
             )
         }

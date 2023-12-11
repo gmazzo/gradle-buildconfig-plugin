@@ -8,8 +8,11 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
+import java.io.Serializable
+import java.lang.reflect.Type as JavaType
 
 @BuildConfigDsl
+@JvmDefaultWithoutCompatibility
 interface BuildConfigClassSpec : Named {
 
     @Input
@@ -41,27 +44,58 @@ interface BuildConfigClassSpec : Named {
         packageName("")
     }
 
+    @Deprecated("Kept for backward compatibility, use typesafe overloads instead",
+        ReplaceWith("buildConfigField(type(type), name, expression(value))")
+    )
     fun buildConfigField(
         type: String,
         name: String,
         value: String,
-    ): NamedDomainObjectProvider<BuildConfigField> = buildConfigField(FieldType(type, emptyList()), name, value)
+    ) = buildConfigField(type(type), name, expression(value))
 
+    @Deprecated("Kept for backward compatibility, use typesafe overloads instead",
+        ReplaceWith("buildConfigField(type(type), name, value.map(::expression))")
+    )
     fun buildConfigField(
         type: String,
         name: String,
-        value: Provider<String>,
-    ): NamedDomainObjectProvider<BuildConfigField> = buildConfigField(FieldType(type, emptyList()), name, value)
+        value: Provider<String>
+    ) = buildConfigField(type(type), name, value.map(::expression))
+
+    fun <Type : Serializable> BuildConfigClassSpec.buildConfigField(
+        type: Class<out Type>,
+        name: String,
+        value: Type,
+    ) = buildConfigField(type(type), name, literal(value))
+
+    fun <Type : Serializable> BuildConfigClassSpec.buildConfigField(
+        type: Class<out Type>,
+        name: String,
+        value: Provider<out Type>,
+    ) = buildConfigField(type(type), name, value.map(::literal))
 
     fun buildConfigField(
-        type: FieldType,
+        type: BuildConfigField.Type,
         name: String,
-        value: String,
+        value: BuildConfigField.Value,
     ): NamedDomainObjectProvider<BuildConfigField>
 
     fun buildConfigField(
-        type: FieldType,
+        type: BuildConfigField.Type,
         name: String,
-        value: Provider<String>,
+        value: Provider<BuildConfigField.Value>
     ): NamedDomainObjectProvider<BuildConfigField>
+
+    fun type(className: CharSequence, vararg typeParameters: String) =
+        BuildConfigField.TypeByName(className.toString(), typeParameters.toList())
+
+    fun type(javaType: JavaType) =
+        BuildConfigField.TypeRef(javaType)
+
+    fun literal(value: Serializable) =
+        BuildConfigField.Literal(value)
+
+    fun expression(expression: CharSequence) =
+        BuildConfigField.Expression(expression.toString())
+
 }

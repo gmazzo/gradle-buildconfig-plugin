@@ -2,7 +2,6 @@ package com.github.gmazzo.gradle.plugins.internal
 
 import com.github.gmazzo.gradle.plugins.BuildConfigClassSpec
 import com.github.gmazzo.gradle.plugins.BuildConfigField
-import com.github.gmazzo.gradle.plugins.FieldType
 import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.provider.Provider
 import javax.inject.Inject
@@ -14,22 +13,21 @@ internal abstract class DefaultBuildConfigClassSpec @Inject constructor(
     override fun getName() = name
 
     private fun buildConfigField(
-        type: FieldType,
+        type: BuildConfigField.Type,
         name: String,
         action: (BuildConfigField) -> Unit,
     ): NamedDomainObjectProvider<BuildConfigField> = buildConfigFields.size.let { position ->
         buildConfigFields.register(name) {
-            it.type.value(type.rawType).disallowChanges()
-            it.typeArguments.value(type.typeArguments).disallowChanges()
+            it.type.value(type).disallowChanges()
             it.position.convention(position)
             action(it)
         }
     }
 
-    override fun buildConfigField(type: FieldType, name: String, value: String) =
+    override fun buildConfigField(type: BuildConfigField.Type, name: String, value: BuildConfigField.Value) =
         buildConfigField(type, name) { it.value.value(value).disallowChanges() }
 
-    override fun buildConfigField(type: FieldType, name: String, value: Provider<String>) =
+    override fun buildConfigField(type: BuildConfigField.Type, name: String, value: Provider<BuildConfigField.Value>) =
         buildConfigField(type, name) { it.value.value(value).disallowChanges() }
 
 }

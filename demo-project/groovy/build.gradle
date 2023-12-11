@@ -18,6 +18,7 @@ buildConfig {
     buildConfigField('String?', 'OPTIONAL', "null")
     buildConfigField('boolean', 'FEATURE_ENABLED', "${true}")
     buildConfigField('int[]', 'MAGIC_NUMBERS', '{1, 2, 3, 4}')
+    buildConfigField('Integer[]', 'MAGIC_NUMBERS2', '{6, 7, 8}')
     buildConfigField("com.github.gmazzo.buildconfig.demos.groovy.SomeData", "MY_DATA", "new SomeData(\"a\",1)")
 
     forClass('Custom') {

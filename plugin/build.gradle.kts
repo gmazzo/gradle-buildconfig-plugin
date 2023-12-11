@@ -32,7 +32,6 @@ dependencies {
 
     implementation(libs.javapoet)
     implementation(libs.kotlinpoet)
-    implementation(libs.apache.commons.lang)
 
     testImplementation(gradleTestKit())
     testImplementation(gradleKotlinDsl())

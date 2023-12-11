@@ -74,8 +74,6 @@ class BuildConfigPluginTest {
         )
 
         projectDir.resolve("build.gradle").writeText("""
-        import com.github.gmazzo.gradle.plugins.FieldType
-
         plugins {
             id ${kotlinVersion?.let { "'org.jetbrains.kotlin.jvm' version '$kotlinVersion'" } ?: "'java'"}
             id 'com.github.gmazzo.buildconfig' version '<latest>'
