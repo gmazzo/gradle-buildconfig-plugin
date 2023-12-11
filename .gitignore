@@ -2,5 +2,6 @@
 .idea/
 build/
 out/
+kotlin-js-store/
 *.iml
 .DS_Store
