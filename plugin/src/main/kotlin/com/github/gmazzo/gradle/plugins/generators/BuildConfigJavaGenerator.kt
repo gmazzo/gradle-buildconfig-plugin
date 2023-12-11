@@ -1,6 +1,5 @@
 package com.github.gmazzo.gradle.plugins.generators
 
-import com.github.gmazzo.gradle.plugins.BuildConfigClassSpec
 import com.github.gmazzo.gradle.plugins.BuildConfigField
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.FieldSpec
@@ -21,7 +20,7 @@ data class BuildConfigJavaGenerator(
     private val logger = Logging.getLogger(javaClass)
 
     private fun String.toTypeName(): TypeName {
-        return when (this) {
+        return when (val cleanedString = removeSuffix("?")) {
             TypeName.BOOLEAN.toString() -> TypeName.BOOLEAN
             TypeName.BYTE.toString() -> TypeName.BYTE
             TypeName.SHORT.toString() -> TypeName.SHORT
@@ -32,9 +31,9 @@ data class BuildConfigJavaGenerator(
             TypeName.DOUBLE.toString() -> TypeName.DOUBLE
             "String" -> ClassName.get(String::class.java)
             else -> try {
-                ClassName.bestGuess(this)
+                ClassName.bestGuess(cleanedString)
             } catch (_: IllegalArgumentException) {
-                ClassName.get(ClassUtils.getClass(this, false))
+                TypeName.get(ClassUtils.getClass(cleanedString, false))
             }
         }
     }

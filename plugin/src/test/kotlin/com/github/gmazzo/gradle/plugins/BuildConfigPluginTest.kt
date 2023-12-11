@@ -107,6 +107,7 @@ class BuildConfigPluginTest {
         """ else "") + """
             buildConfigField('String', 'APP_NAME', "\"${'$'}{project.name}\"")
             buildConfigField('String', 'APP_SECRET', "\"Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu\"")
+            buildConfigField('String?', 'NULLABLE_STRING', "null")
             buildConfigField('long', 'BUILD_TIME', "${'$'}{System.currentTimeMillis()}L")
             buildConfigField('boolean', 'FEATURE_ENABLED', "${'$'}{true}")
             // Test collections
@@ -115,7 +116,10 @@ class BuildConfigPluginTest {
             buildConfigField(FieldType.create('${collectionsPackage}.Collection', 'String'), 'COLLECTION_OF_STRING', "java.util.Collections.emptyList()")
             // Test boxing of primitives
             buildConfigField(FieldType.create('${collectionsPackage}.List', 'boolean'), 'LIST_OF_BOOLS', "java.util.Collections.emptyList()")
-        
+
+            // Test nullable raw type
+            buildConfigField(FieldType.create('${collectionsPackage}.List?', 'String'), 'NULLABLE_LIST', "null")
+
             forClass("BuildResources") {
                 buildConfigField('String', 'A_CONSTANT', '"aConstant"')
             }
