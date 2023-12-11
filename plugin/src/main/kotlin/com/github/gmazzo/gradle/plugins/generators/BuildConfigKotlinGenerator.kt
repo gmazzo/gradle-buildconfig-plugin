@@ -17,8 +17,7 @@ data class BuildConfigKotlinGenerator(
 
     private val logger = Logging.getLogger(javaClass)
 
-    @OptIn(DelicateKotlinPoetApi::class)
-    private fun String.toClassName(): ClassName {
+    private fun String.toTypeName(): TypeName {
         val cleanedType = removeSuffix("?")
         return when (cleanedType) {
             JTypeName.BOOLEAN.toString(), BOOLEAN.toString() -> BOOLEAN
@@ -31,16 +30,19 @@ data class BuildConfigKotlinGenerator(
             JTypeName.DOUBLE.toString(), DOUBLE.toString() -> DOUBLE
             "String" -> STRING
             else -> runCatching { ClassName.bestGuess(cleanedType) }
-                .getOrElse { ClassUtils.getClass(cleanedType, false).asClassName() }
+                .getOrElse { ClassUtils.getClass(cleanedType, false).asTypeName() }
         }.copy(nullable = endsWith('?')) as ClassName
     }
 
     private fun BuildConfigField.toTypeName(): TypeName {
-        return type.get().toClassName()
+        return type.get().toTypeName()
             .let { rawType ->
                 val typeArgs = typeArguments.getOrElse(emptyList())
                 if (typeArgs.isNotEmpty()) {
-                    rawType.parameterizedBy(typeArgs.map { it.toClassName() })
+                    check(rawType is ClassName) {
+                        "Cannot parameterize type '$rawType'"
+                    }
+                    rawType.parameterizedBy(typeArgs.map { it.toTypeName() }).copy(nullable = rawType.isNullable)
                 } else {
                     rawType
                 }
