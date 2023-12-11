@@ -54,6 +54,7 @@ gradlePlugin {
 tasks.withType<Test> {
     workingDir = temporaryDir
     useJUnitPlatform()
+    doLast { Thread.sleep(2000) } // allows GradleRunner to store JaCoCo data before computing task outputs
 }
 
 tasks.check {

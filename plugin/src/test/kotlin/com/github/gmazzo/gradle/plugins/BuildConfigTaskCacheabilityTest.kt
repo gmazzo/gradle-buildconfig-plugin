@@ -8,6 +8,7 @@ import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import java.io.File
+import java.util.UUID
 import kotlin.test.assertEquals
 
 @Execution(ExecutionMode.SAME_THREAD)
@@ -23,6 +24,9 @@ class BuildConfigTaskCacheabilityTest {
         .withPluginClasspath()
         .withArguments("clean", "jar")
         .forwardOutput()
+
+    // to generate unique build cache entry per run
+    private val uuid = UUID.randomUUID()
 
     @BeforeAll
     fun setup() {
@@ -53,6 +57,7 @@ class BuildConfigTaskCacheabilityTest {
             
             buildConfig {
                 buildConfigField("String", "SOME_FIELD", "\"aValue\"")
+                buildConfigField("String", "UUID", "\"${uuid}\"")
             }
             
         """.trimIndent()
