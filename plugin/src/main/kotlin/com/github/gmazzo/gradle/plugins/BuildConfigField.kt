@@ -1,6 +1,7 @@
 package com.github.gmazzo.gradle.plugins
 
 import org.gradle.api.Named
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
@@ -15,30 +16,16 @@ interface BuildConfigField : Named {
 
     @get:Optional
     @get:Input
-    val collectionType: Property<CollectionType>
+    val typeArguments: ListProperty<String>
 
     @get:Input
     val value: Property<String>
 
+    @get:Deprecated("Indicate nullability directly on the type with a trailing '?'")
     @get:Input
+    @get:Optional
     val optional: Property<Boolean>
 
     @get:Input
     val position: Property<Int>
-
-    fun asList() = apply {
-        collectionType.set(CollectionType.LIST)
-    }
-
-    fun asSet() = apply {
-        collectionType.set(CollectionType.SET)
-    }
-
-    fun asCollection() = apply {
-        collectionType.set(CollectionType.COLLECTION)
-    }
-
-    enum class CollectionType {
-        NONE, COLLECTION, LIST, SET
-    }
 }

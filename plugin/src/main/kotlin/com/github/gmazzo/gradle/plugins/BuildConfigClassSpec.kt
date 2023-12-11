@@ -45,12 +45,23 @@ interface BuildConfigClassSpec : Named {
         type: String,
         name: String,
         value: String,
-    ): NamedDomainObjectProvider<BuildConfigField>
+    ): NamedDomainObjectProvider<BuildConfigField> = buildConfigField(FieldType(type, emptyList()), name, value)
 
     fun buildConfigField(
         type: String,
         name: String,
-        value: Provider<String>
+        value: Provider<String>,
+    ): NamedDomainObjectProvider<BuildConfigField> = buildConfigField(FieldType(type, emptyList()), name, value)
+
+    fun buildConfigField(
+        type: FieldType,
+        name: String,
+        value: String,
     ): NamedDomainObjectProvider<BuildConfigField>
 
+    fun buildConfigField(
+        type: FieldType,
+        name: String,
+        value: Provider<String>,
+    ): NamedDomainObjectProvider<BuildConfigField>
 }
