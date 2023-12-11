@@ -73,6 +73,8 @@ class BuildConfigPluginTest {
         )
 
         projectDir.resolve("build.gradle").writeText("""
+        import com.github.gmazzo.gradle.plugins.FieldType
+
         plugins {
             id ${kotlinVersion?.let { "'org.jetbrains.kotlin.jvm' version '$kotlinVersion'" } ?: "'java'"}
             id 'com.github.gmazzo.buildconfig' version '<latest>'
@@ -107,6 +109,12 @@ class BuildConfigPluginTest {
             buildConfigField('String', 'APP_SECRET', "\"Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu\"")
             buildConfigField('long', 'BUILD_TIME', "${'$'}{System.currentTimeMillis()}L")
             buildConfigField('boolean', 'FEATURE_ENABLED', "${'$'}{true}")
+            // Test collections
+            buildConfigField(FieldType.create('${collectionsPackage}.List', 'String'), 'LIST_OF_STRING', "java.util.Collections.emptyList()")
+            buildConfigField(FieldType.create('${collectionsPackage}.Set', 'String'), 'SET_OF_STRING', "java.util.Collections.emptySet()")
+            buildConfigField(FieldType.create('${collectionsPackage}.Collection', 'String'), 'COLLECTION_OF_STRING', "java.util.Collections.emptyList()")
+            // Test boxing of primitives
+            buildConfigField(FieldType.create('${collectionsPackage}.List', 'boolean'), 'LIST_OF_BOOLS', "java.util.Collections.emptyList()")
         
             forClass("BuildResources") {
                 buildConfigField('String', 'A_CONSTANT', '"aConstant"')
@@ -199,6 +207,8 @@ class BuildConfigPluginTest {
                         (if (withPackage) "withPackage/" else "withoutPackage/") +
                         (if (configurationCache) "withCC" else "withoutCC")
             )
+
+        val collectionsPackage = if (kotlinVersion == null) "java.util" else "kotlin.collections"
 
     }
 

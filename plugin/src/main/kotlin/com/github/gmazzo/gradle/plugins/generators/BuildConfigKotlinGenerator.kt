@@ -1,6 +1,7 @@
 package com.github.gmazzo.gradle.plugins.generators
 
 import com.github.gmazzo.gradle.plugins.BuildConfigField
+import com.squareup.javapoet.TypeName as JTypeName
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import org.apache.commons.lang3.ClassUtils
@@ -16,20 +17,38 @@ data class BuildConfigKotlinGenerator(
 
     private val logger = Logging.getLogger(javaClass)
 
-    private fun Iterable<BuildConfigField>.asPropertiesSpec() = map { field ->
-        val typeName = when (field.type.get()) {
-            "String" -> String::class.asClassName()
-            else -> runCatching { ClassName.bestGuess(field.type.get()) }
-                .getOrElse { _ -> ClassUtils.getClass(field.type.get(), false).asTypeName() }
-        }.copy(nullable = field.optional.get())
-            .let { typeName ->
-                when (field.collectionType.getOrElse(BuildConfigField.CollectionType.NONE)) {
-                    BuildConfigField.CollectionType.COLLECTION -> COLLECTION
-                    BuildConfigField.CollectionType.LIST -> LIST
-                    BuildConfigField.CollectionType.SET -> SET
-                    BuildConfigField.CollectionType.NONE -> null
-                }?.parameterizedBy(typeName) ?: typeName
+    @OptIn(DelicateKotlinPoetApi::class)
+    private fun String.toClassName(): ClassName {
+        val cleanedType = removeSuffix("?")
+        return when (cleanedType) {
+            JTypeName.BOOLEAN.toString(), BOOLEAN.toString() -> BOOLEAN
+            JTypeName.BYTE.toString(), BYTE.toString() -> BYTE
+            JTypeName.SHORT.toString(), SHORT.toString() -> SHORT
+            JTypeName.CHAR.toString(), CHAR.toString() -> CHAR
+            JTypeName.INT.toString(), INT.toString() -> INT
+            JTypeName.LONG.toString(), LONG.toString() -> LONG
+            JTypeName.FLOAT.toString(), FLOAT.toString() -> FLOAT
+            JTypeName.DOUBLE.toString(), DOUBLE.toString() -> DOUBLE
+            "String" -> STRING
+            else -> runCatching { ClassName.bestGuess(cleanedType) }
+                .getOrElse { ClassUtils.getClass(cleanedType, false).asClassName() }
+        }.copy(nullable = endsWith('?')) as ClassName
+    }
+
+    private fun BuildConfigField.toTypeName(): TypeName {
+        return type.get().toClassName()
+            .let { rawType ->
+                val typeArgs = typeArguments.getOrElse(emptyList())
+                if (typeArgs.isNotEmpty()) {
+                    rawType.parameterizedBy(typeArgs.map { it.toClassName() })
+                } else {
+                    rawType
+                }
             }
+    }
+
+    private fun Iterable<BuildConfigField>.asPropertiesSpec() = map { field ->
+        val typeName = field.toTypeName()
 
         return@map PropertySpec.builder(field.name, typeName, kModifiers)
             .apply { if (typeName in constTypes) addModifiers(KModifier.CONST) }
