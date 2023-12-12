@@ -48,7 +48,7 @@ interface BuildConfigClassSpec : Named {
 
     @Deprecated(
         "Kept for backward compatibility, use typesafe overloads instead",
-        ReplaceWith("buildConfigField(type(type), name, expression(value))")
+        ReplaceWith("buildConfigField(typeOf(type), name, expression(value))")
     )
     fun buildConfigField(
         type: String,
@@ -58,7 +58,7 @@ interface BuildConfigClassSpec : Named {
 
     @Deprecated(
         "Kept for backward compatibility, use typesafe overloads instead",
-        ReplaceWith("buildConfigField(type(type), name, value.map(::expression))")
+        ReplaceWith("buildConfigField(typeOf(type), name, value.map(::expression))")
     )
     fun buildConfigField(
         type: String,
