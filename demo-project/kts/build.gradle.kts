@@ -5,9 +5,11 @@ import java.io.FileOutputStream
 import java.util.Properties
 
 plugins {
-    kotlin("jvm")
+    alias(libs.plugins.kotlin.jvm)
     id("com.github.gmazzo.buildconfig")
 }
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(libs.versions.java.get())
 
 val integrationTest by testing.suites.registering(JvmTestSuite::class) {
     useJUnit()
@@ -26,40 +28,52 @@ tasks.check {
 buildConfig {
     documentation = "This is a generated BuildConfig class"
 
-    buildConfigField("String", "APP_NAME", "\"${project.name}\"")
-    buildConfigField("String", "APP_VERSION", provider { "\"${project.version}\"" })
-    buildConfigField("String", "APP_SECRET", "\"Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu\"")
-    buildConfigField("String?", "OPTIONAL", "null")
-    buildConfigField("long", "BUILD_TIME", "${System.currentTimeMillis()}L")
-    buildConfigField("boolean", "FEATURE_ENABLED", "${true}")
-    buildConfigField("int[]", "MAGIC_NUMBERS", "intArrayOf(1, 2, 3, 4)")
-    buildConfigField("MAGIC_NUMBERS2", intArrayOf(1, 2, 3, 4))
-    buildConfigField("Integer[]", "MAGIC_NUMBERS3", "intArrayOf(1, 2, 3, 4)")
-    buildConfigField("MAGIC_NUMBERS4", setOf(1, 2, 3, 4))
-    buildConfigField("kotlin.IntArray", "MAGIC_NUMBERS5", "intArrayOf(9, 10)")
-    buildConfigField("com.github.gmazzo.buildconfig.demos.kts.SomeData", "MY_DATA", "SomeData(\"a\",1)")
-    buildConfigField(typeOf("com.github.gmazzo.buildconfig.demos.kts.SomeData"), "MY_DATA2", expression("SomeData(\"a\",1)"))
+    buildConfigField("APP_NAME", project.name)
+    buildConfigField<String>("APP_VERSION", provider { "\"${project.version}\"" })
+    buildConfigField<String>("APP_SECRET", "Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu")
+    buildConfigField<String>("OPTIONAL", null)
+    buildConfigField("BUILD_TIME", System.currentTimeMillis())
+    buildConfigField("FEATURE_ENABLED", true)
+    buildConfigField("MAGIC_NUMBERS", intArrayOf(1, 2, 3, 4))
+    buildConfigField("MAGIC_NUMBERS2", arrayOf(1, 2, null, 4))
+    buildConfigField("MAGIC_NUMBERS3", listOf(1, 2, null, 4))
+    buildConfigField("MAGIC_NUMBERS4", setOf(1, 2, null, 4))
+    buildConfigField(typeOf("kotlin.IntArray"), "MAGIC_NUMBERS5", expression("intArrayOf(9, 10)"))
+    buildConfigField<Map<String, Int>>("MAPPINGS", expression("mapOf(\"a\" to 1, \"b\" to 2)"))
+    buildConfigField<Map<String, Int>>("PROVIDED_MAPPINGS", provider { expression("mapOf(\"a\" to 1, \"b\" to 2)") })
+    buildConfigField(
+        typeOf("com.github.gmazzo.buildconfig.demos.kts.SomeData"),
+        "MY_DATA",
+        expression("SomeData(\"a\",1)")
+    )
+    buildConfigField(
+        typeOf("com.github.gmazzo.buildconfig.demos.kts.SomeData"),
+        "MY_DATA2",
+        expression("SomeData(\"a\",1)")
+    )
 
-    sourceSets["test"].buildConfigField("String", "TEST_CONSTANT", "\"aTestValue\"")
-    sourceSets["integrationTest"].buildConfigField("String", "INTEGRATION_TEST_CONSTANT", "\"aIntTestValue\"")
+    sourceSets["test"].buildConfigField( "TEST_CONSTANT", "aTestValue")
+    sourceSets["integrationTest"].buildConfigField("INTEGRATION_TEST_CONSTANT", "aIntTestValue")
 }
 
-val versionsSS = buildConfig.sourceSets.register ("Versions") {
+val versionsSS = buildConfig.sourceSets.register("Versions") {
     useKotlinOutput { topLevelConstants = true }
 
     documentation = "My list of versions"
-    buildConfigField("String", "myDependencyVersion", "\"1.0.1\"")
+    buildConfigField("myDependencyVersion", "1.0.1")
 }
 
 val buildResources = buildConfig.forClass("BuildResources") {
-    buildConfigField("String", "A_CONSTANT", "\"aConstant\"")
+    buildConfigField("A_CONSTANT", "aConstant")
 }
 val generateResourcesConstants by tasks.registering {
     doFirst {
         sourceSets["main"].resources.asFileTree.visit {
             val name = path.uppercase().replace("\\W".toRegex(), "_")
 
-            buildResources.buildConfigField("java.io.File", name, "File(\"$path\")")
+            with(buildResources) {
+                buildConfigField(File::class, name, expression("File(\"$path\")"))
+            }
         }
     }
 }
@@ -70,9 +84,9 @@ tasks.generateBuildConfig {
 
 // example of a custom generator that builds into XML
 val propertiesSS = buildConfig.sourceSets.register("properties") {
-    buildConfigField("String", "value1", "AAA")
-    buildConfigField("String", "value2", "BBB")
-    buildConfigField("String", "value3", "CCC")
+    buildConfigField("value1", "AAA")
+    buildConfigField("value2", "BBB")
+    buildConfigField("value3", "CCC")
 
     generator(object : BuildConfigGenerator {
 
@@ -80,7 +94,12 @@ val propertiesSS = buildConfig.sourceSets.register("properties") {
             spec.outputDir.mkdirs()
 
             Properties().also { props ->
-                spec.fields.forEach { props.setProperty(it.name, (it.value.get() as BuildConfigField.Expression).value) }
+                spec.fields.forEach {
+                    props.setProperty(
+                        it.name,
+                        (it.value.get() as BuildConfigField.Literal).value.toString()
+                    )
+                }
                 props.storeToXML(FileOutputStream(File(spec.outputDir, "${spec.className}.xml")), null)
             }
         }

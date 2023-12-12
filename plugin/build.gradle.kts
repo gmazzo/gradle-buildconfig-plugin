@@ -1,7 +1,7 @@
 import org.gradle.api.internal.catalog.ExternalModuleDependencyFactory
 
 plugins {
-    alias(libs.plugins.kotlin)
+    alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.gradle.pluginPublish)
     alias(libs.plugins.jacoco.testkit)
 }
@@ -12,7 +12,7 @@ version = providers
     .exec { commandLine("git", "describe", "--tags", "--always") }
     .standardOutput.asText.get().trim().removePrefix("v")
 
-java.toolchain.languageVersion.set(JavaLanguageVersion.of(libs.versions.java.get()))
+java.toolchain.languageVersion = JavaLanguageVersion.of(libs.versions.java.get())
 
 kotlin {
     compilerOptions {
@@ -28,10 +28,11 @@ dependencies {
         plugin(dependency.asProvider())
 
     compileOnly(gradleKotlinDsl())
-    compileOnly(plugin(libs.plugins.kotlin))
+    compileOnly(plugin(libs.plugins.kotlin.jvm))
 
     implementation(libs.javapoet)
     implementation(libs.kotlinpoet)
+    implementation(kotlin("reflect", version = libs.versions.kotlin.get()))
 
     testImplementation(gradleTestKit())
     testImplementation(gradleKotlinDsl())

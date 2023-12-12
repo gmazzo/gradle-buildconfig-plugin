@@ -8,6 +8,5 @@ include(
     "demo-project:groovy",
     "demo-project:kts",
     "demo-project:kts-android",
-    "demo-project:kts-js",
     "demo-project:kts-multiplatform",
 )

@@ -13,13 +13,13 @@ plugins {
 }
 
 buildConfig {
-    buildConfigField( "APP_NAME", project.name)
-    buildConfigField("String", "APP_SECRET", "\"Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu\"")
+    buildConfigField("APP_NAME", project.name)
+    buildConfigField<String>("APP_SECRET", "Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu")
     buildConfigField("BUILD_TIME", TimeUnit.DAYS.toMillis(2))
     buildConfigField("FEATURE_ENABLED", true)
 
     forClass("BuildResources") {
-        buildConfigField("String", "A_CONSTANT", "\"aConstant\"")
+        buildConfigField("A_CONSTANT", "aConstant")
     }
 }
 
@@ -28,7 +28,8 @@ buildConfig {
 val generateBuildConfigTest = task<AssertGeneratedFile>("generateBuildConfigTest") {
     generatedDir.set(tasks.generateBuildConfig.flatMap { it.outputDir })
     filePath.set("com/github/gmazzo/buildconfig/demos/generic/BuildConfig.java")
-    expectedContent.set("""
+    expectedContent.set(
+        """
         package com.github.gmazzo.buildconfig.demos.generic;
         
         import java.lang.String;
@@ -45,13 +46,15 @@ val generateBuildConfigTest = task<AssertGeneratedFile>("generateBuildConfigTest
           private BuildConfig() {
           }
         }
-        """)
+        """
+    )
 }
 
 val generateBuildResourcesBuildConfigTest = task<AssertGeneratedFile>("generateBuildResourcesBuildConfigTest") {
     generatedDir.set(tasks.generateBuildConfig.flatMap { it.outputDir })
     filePath.set("com/github/gmazzo/buildconfig/demos/generic/BuildResources.java")
-    expectedContent.set("""
+    expectedContent.set(
+        """
         package com.github.gmazzo.buildconfig.demos.generic;
         
         import java.lang.String;
@@ -62,7 +65,8 @@ val generateBuildResourcesBuildConfigTest = task<AssertGeneratedFile>("generateB
           private BuildResources() {
           }
         }
-        """)
+        """
+    )
 }
 
 tasks {

@@ -5,11 +5,11 @@ import com.github.gmazzo.gradle.plugins.BuildConfigTask
 
 plugins {
     alias(libs.plugins.android)
-    kotlin("android")
+    alias(libs.plugins.kotlin.android)
     id("com.github.gmazzo.buildconfig")
 }
 
-java.toolchain.languageVersion.set(JavaLanguageVersion.of(libs.versions.java.get()))
+java.toolchain.languageVersion = JavaLanguageVersion.of(libs.versions.java.get())
 
 android {
     namespace = "com.github.gmazzo.buildconfig.demos.android"
@@ -33,14 +33,14 @@ android {
         buildConfig.sourceSets.named(this@variant.name) {
             className.set("BuildConfig")
 
-            buildConfigField("String", "APP_NAME", "\"${project.name}\"")
-            buildConfigField("String", "APP_SECRET", "\"Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu\"")
-            buildConfigField("long", "BUILD_TIME", "${System.currentTimeMillis()}L")
-            buildConfigField("boolean", "FEATURE_ENABLED", "${true}")
-            buildConfigField("kotlin.IntArray", "MAGIC_NUMBERS", "intArrayOf(1, 2, 3, 4)")
+            buildConfigField("APP_NAME", project.name)
+            buildConfigField("APP_SECRET", "Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu")
+            buildConfigField("BUILD_TIME", System.currentTimeMillis())
+            buildConfigField("FEATURE_ENABLED", true)
+            buildConfigField("MAGIC_NUMBERS", intArrayOf(1, 2, 3, 4))
 
-            buildConfigField("boolean", "IS_DEBUG", "${this@variant.buildType.isDebuggable}")
-            buildConfigField("String", "BRAND", "\"${this@variant.productFlavors.single().name}\"")
+            buildConfigField<Boolean>("IS_DEBUG", this@variant.buildType.isDebuggable)
+            buildConfigField<String>("BRAND", this@variant.productFlavors.single().name)
         }
     }
 }
