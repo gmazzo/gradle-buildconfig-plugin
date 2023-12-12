@@ -41,32 +41,36 @@ data class BuildConfigKotlinGenerator(
 
     private val logger = Logging.getLogger(javaClass)
 
-    private fun String.toTypeName(): TypeName {
-        val (typeName, isArray, isNullable) = parseTypename()
+    private fun BuildConfigField.Type.toTypeName(): TypeName = when (this) {
+        is BuildConfigField.JavaRef -> javaType.asTypeName()
+        is BuildConfigField.NameRef -> {
+            val (typeName, isArray, isNullable) = className.parseTypename()
 
-        val type = when (typeName.lowercase()) {
-            "boolean" -> if (isArray) BOOLEAN_ARRAY else BOOLEAN
-            "byte" -> if (isArray) BYTE_ARRAY else BYTE
-            "short" -> if (isArray) SHORT_ARRAY else SHORT
-            "char" -> if (isArray) CHAR_ARRAY else CHAR
-            "int" -> if (isArray) INT_ARRAY else INT
-            "integer" -> if (isArray) INT_ARRAY else INT
-            "long" -> if (isArray) LONG_ARRAY else LONG
-            "float" -> if (isArray) FLOAT_ARRAY else FLOAT
-            "double" -> if (isArray) DOUBLE_ARRAY else DOUBLE
-            "string" -> STRING
-            else -> ClassName.bestGuess(this)
+            val type = when (typeName.lowercase()) {
+                "boolean" -> if (isArray) BOOLEAN_ARRAY else BOOLEAN
+                "byte" -> if (isArray) BYTE_ARRAY else BYTE
+                "short" -> if (isArray) SHORT_ARRAY else SHORT
+                "char" -> if (isArray) CHAR_ARRAY else CHAR
+                "int" -> if (isArray) INT_ARRAY else INT
+                "integer" -> if (isArray) INT_ARRAY else INT
+                "long" -> if (isArray) LONG_ARRAY else LONG
+                "float" -> if (isArray) FLOAT_ARRAY else FLOAT
+                "double" -> if (isArray) DOUBLE_ARRAY else DOUBLE
+                "string" -> STRING
+                else -> ClassName.bestGuess(className)
+            }
+            val genericType =
+                if (typeParameters.isEmpty()) type
+                else checkNotNull(type as? ClassName).parameterizedBy(typeParameters.map { it.toTypeName() })
+
+            if (isNullable) genericType.copy(nullable = true) else genericType
         }
-        return if (isNullable) type.copy(nullable = true) else type
     }
 
     private fun Iterable<BuildConfigField>.asPropertiesSpec() = map { field ->
         val typeName = when (val type = field.type.get()) {
-            is BuildConfigField.TypeRef -> type.javaType.asTypeName()
-            is BuildConfigField.TypeByName -> type.name.toTypeName().let { resolved ->
-                if (type.typeParameters.isEmpty()) resolved
-                else checkNotNull(resolved as? ClassName).parameterizedBy(type.typeParameters.map { it.toTypeName() })
-            }
+            is BuildConfigField.JavaRef -> type.javaType.asTypeName()
+            is BuildConfigField.NameRef -> type.toTypeName()
         }
 
         return@map PropertySpec.builder(field.name, typeName, kModifiers)
@@ -77,7 +81,6 @@ data class BuildConfigKotlinGenerator(
                         value.value.poetFormat,
                         *value.value.asVarArg(),
                     )
-
                     is BuildConfigField.Expression -> initializer("%L", value.value)
                 }
             }
