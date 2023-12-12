@@ -70,37 +70,49 @@ interface BuildConfigClassSpec : Named {
         type: JavaType,
         name: String,
         value: Serializable?,
-    ) = buildConfigField(typeOf(type), name, literal(value))
+    ) = buildConfigField(typeOf(type), name, value.value)
 
     fun buildConfigField(
         type: JavaType,
         name: String,
         value: Provider<out Serializable>,
-    ) = buildConfigField(typeOf(type), name, value.map(::literal))
+    ) = buildConfigField(typeOf(type), name, value.map { it.value })
 
-    fun buildConfigField(
-        type: KClass<*>,
+    fun <Type : Serializable> buildConfigField(
+        type: Class<out Type>,
         name: String,
-        value: Serializable?,
-    ) = buildConfigField(typeOf(type), name, literal(value))
+        value: Type?,
+    ) = buildConfigField(type as JavaType, name, value.value)
 
-    fun buildConfigField(
-        type: KClass<*>,
+    fun <Type : Serializable> buildConfigField(
+        type: Class<out Type>,
         name: String,
-        value: Provider<out Serializable>,
-    ) = buildConfigField(typeOf(type), name, value.map(::literal))
+        value: Provider<out Type>,
+    ) = buildConfigField(type as JavaType, name, value)
 
-    fun buildConfigField(
+    fun <Type : Serializable> buildConfigField(
+        type: KClass<out Type>,
+        name: String,
+        value: Type?,
+    ) = buildConfigField(typeOf(type), name, value.value)
+
+    fun <Type : Serializable> buildConfigField(
+        type: KClass<out Type>,
+        name: String,
+        value: Provider<out Type>,
+    ) = buildConfigField(typeOf(type), name, value.map { it.value })
+
+    fun <Type : Serializable> buildConfigField(
         type: KType,
         name: String,
-        value: Serializable?,
-    ) = buildConfigField(typeOf(type), name, literal(value))
+        value: Type?,
+    ) = buildConfigField(typeOf(type), name, value.value)
 
-    fun buildConfigField(
+    fun <Type : Serializable> buildConfigField(
         type: KType,
         name: String,
-        value: Provider<out Serializable>,
-    ) = buildConfigField(typeOf(type), name, value.map(::literal))
+        value: Provider<out Type>,
+    ) = buildConfigField(typeOf(type), name, value.map { it.value })
 
     fun buildConfigField(
         type: BuildConfigField.Type,
@@ -123,11 +135,12 @@ interface BuildConfigClassSpec : Named {
     fun typeOf(type: KClass<*>): BuildConfigField.Type =
         typeOf(type.qualifiedName!!)
 
-    fun typeOf(type: KType): BuildConfigField.Type =
+    fun typeOf(type: KType): BuildConfigField.Type = (type.classifier!! as KClass<*>).let { kClass ->
         BuildConfigField.NameRef(
-            (type.classifier!! as KClass<*>).qualifiedName!!,
-            type.arguments.map { typeOf(it.type!!) }
+            kClass.qualifiedName!! + if (type.isMarkedNullable) "?" else "",
+            if (kClass.typeParameters.isEmpty()) emptyList() else type.arguments.map { typeOf(it.type!!) }
         )
+    }
 
     fun literal(value: Serializable?) =
         BuildConfigField.Literal(value)

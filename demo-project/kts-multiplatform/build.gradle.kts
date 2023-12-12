@@ -1,9 +1,11 @@
 import com.github.gmazzo.gradle.plugins.BuildConfigSourceSet
 
 plugins {
-    kotlin("multiplatform")
+    alias(libs.plugins.kotlin.multiplatform)
     id("com.github.gmazzo.buildconfig")
 }
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(libs.versions.java.get())
 
 kotlin {
     jvm()
@@ -15,16 +17,16 @@ dependencies {
 }
 
 buildConfig {
-    buildConfigField("String", "COMMON_VALUE", "\"aCommonValue\"")
+    buildConfigField("COMMON_VALUE", "aCommonValue")
 
     sourceSets.named<BuildConfigSourceSet>("jvmMain") {
-        buildConfigField("String", "PLATFORM", "\"jvm\"")
-        buildConfigField("String", "JVM_VALUE", "\"aJvmValue\"")
+        buildConfigField("PLATFORM", "jvm")
+        buildConfigField( "JVM_VALUE", "aJvmValue")
     }
 
     sourceSets.named<BuildConfigSourceSet>("jsMain") {
-        buildConfigField("String", "PLATFORM", "\"js\"")
-        buildConfigField("String", "JS_VALUE", "\"aJsValue\"")
+        buildConfigField( "PLATFORM", "js")
+        buildConfigField( "JS_VALUE", "aJsValue")
     }
 }
 

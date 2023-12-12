@@ -24,10 +24,10 @@ interface BuildConfigField : Named {
     data class JavaRef(val javaType: JavaType) : Type
     data class NameRef(val className: String, val typeParameters: List<Type> = emptyList()) : Type
 
-    sealed interface Value : Serializable
-    data class Literal(val value: Serializable?) : Value {
-        init { check(value !is Literal) { "$value can not be a Literal" } }
+    sealed interface Value : Serializable { val value: Serializable? }
+    data class Literal(override val value: Serializable?) : Value {
+        init { check(value !is Value) { "$value is already a Value" } }
     }
-    data class Expression(val value: String) : Value
+    data class Expression(override val value: String) : Value
 
 }

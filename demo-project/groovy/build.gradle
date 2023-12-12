@@ -3,6 +3,8 @@ plugins {
     id 'com.github.gmazzo.buildconfig'
 }
 
+java.toolchain.languageVersion = JavaLanguageVersion.of(libs.versions.java.get())
+
 dependencies {
     testImplementation "junit:junit:4.13.1"
 }
@@ -13,16 +15,17 @@ buildConfig {
 
     buildConfigField(String, 'APP_NAME', project.name)
     buildConfigField(String, "APP_VERSION", provider { project.version })
-    buildConfigField('String', 'APP_SECRET', "\"Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu\"")
-    buildConfigField('long', 'BUILD_TIME', "${System.currentTimeMillis()}L")
+    buildConfigField(String, 'APP_SECRET', "Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu")
+    buildConfigField(long, 'BUILD_TIME', System.currentTimeMillis())
     buildConfigField(String, 'OPTIONAL', null)
     buildConfigField(boolean, 'FEATURE_ENABLED', true)
-    buildConfigField('int[]', 'MAGIC_NUMBERS', '{1, 2, 3, 4}')
-    buildConfigField(List<Integer>, 'MAGIC_NUMBERS2', [1, 2, 3])
-    buildConfigField('Integer[]', 'MAGIC_NUMBERS3', '{6, 7, 8}')
+    buildConfigField(int[], 'MAGIC_NUMBERS', [1, 2, 3, 4])
+    buildConfigField(List<String>, 'MAGIC_NUMBERS2', [1, 2, 3])
+    buildConfigField(Integer[], 'MAGIC_NUMBERS3', [6, 7, 8])
     buildConfigField(int[], 'MAGIC_NUMBERS4', [9, 10])
     buildConfigField(List<String>, 'LIST_OF_STRINGS', [9, 10])
-    buildConfigField("com.github.gmazzo.buildconfig.demos.groovy.SomeData", "MY_DATA", "new SomeData(\"a\",1)")
+    buildConfigField(Map<String, String>, "MAPPINGS", expression("Map.of(\"a\", 1, \"b\", 2)"))
+    buildConfigField(typeOf("com.github.gmazzo.buildconfig.demos.groovy.SomeData"), "MY_DATA", expression("new SomeData(\"a\",1)"))
     buildConfigField(typeOf("com.github.gmazzo.buildconfig.demos.groovy.SomeData"), "MY_DATA2", expression("new SomeData(\"a\",1)"))
 
     forClass('Custom') {

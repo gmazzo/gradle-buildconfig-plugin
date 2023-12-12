@@ -2,7 +2,9 @@ package com.github.gmazzo.gradle.plugins.generators
 
 import com.github.gmazzo.gradle.plugins.BuildConfigField
 import com.github.gmazzo.gradle.plugins.asVarArg
+import com.github.gmazzo.gradle.plugins.collectionSize
 import com.github.gmazzo.gradle.plugins.parseTypename
+import com.squareup.kotlinpoet.ARRAY
 import com.squareup.kotlinpoet.BOOLEAN
 import com.squareup.kotlinpoet.BOOLEAN_ARRAY
 import com.squareup.kotlinpoet.BYTE
@@ -18,10 +20,13 @@ import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.INT
 import com.squareup.kotlinpoet.INT_ARRAY
 import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.LIST
 import com.squareup.kotlinpoet.LONG
 import com.squareup.kotlinpoet.LONG_ARRAY
+import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.PropertySpec
+import com.squareup.kotlinpoet.SET
 import com.squareup.kotlinpoet.SHORT
 import com.squareup.kotlinpoet.SHORT_ARRAY
 import com.squareup.kotlinpoet.STRING
@@ -57,7 +62,7 @@ data class BuildConfigKotlinGenerator(
                 "float" -> if (isArray) FLOAT_ARRAY else FLOAT
                 "double" -> if (isArray) DOUBLE_ARRAY else DOUBLE
                 "string" -> STRING
-                else -> ClassName.bestGuess(className)
+                else -> ClassName.bestGuess(typeName)
             }
             val genericType =
                 if (typeParameters.isEmpty()) type
@@ -73,14 +78,23 @@ data class BuildConfigKotlinGenerator(
             is BuildConfigField.NameRef -> type.toTypeName()
         }
 
-        return@map PropertySpec.builder(field.name, typeName, kModifiers)
-            .apply { if (typeName in constTypes) addModifiers(KModifier.CONST) }
+        val value = field.value.get()
+        val nullableAwareType = if (value.value != null) typeName else typeName.copy(nullable = true)
+
+        return@map PropertySpec.builder(field.name, nullableAwareType, kModifiers)
+            .apply { if (value.value != null && typeName in constTypes) addModifiers(KModifier.CONST) }
             .apply {
-                when (val value = field.value.get()) {
-                    is BuildConfigField.Literal -> initializer(
-                        value.value.poetFormat,
-                        *value.value.asVarArg(),
-                    )
+                when (value) {
+                    is BuildConfigField.Literal ->{
+                        val (format, count) = nullableAwareType.format(value.value)
+                        val args = value.value.asVarArg()
+
+                        check(count == args.size) {
+                            "Invalid number of arguments for ${field.name} of type ${nullableAwareType}: " +
+                                    "expected $count, got ${args.size}: ${args.joinToString()}"
+                        }
+                        initializer(format, *args)
+                    }
                     is BuildConfigField.Expression -> initializer("%L", value.value)
                 }
             }
@@ -116,42 +130,43 @@ data class BuildConfigKotlinGenerator(
     private val kModifiers
         get() = if (internalVisibility) KModifier.INTERNAL else KModifier.PUBLIC
 
-    private val Any?.poetFormat: String
-        get() = when (this) {
-            is Array<*> -> joinToString(prefix = "arrayOf(", separator = ", ", postfix = ")") { it.poetFormat }
-            is ByteArray -> joinToString(prefix = "byteArrayOf(", separator = ", ", postfix = ")") { it.poetFormat }
-            is ShortArray -> joinToString(prefix = "shortArrayOf(", separator = ", ", postfix = ")") { it.poetFormat }
-            is CharArray -> joinToString(prefix = "charArrayOf(", separator = ", ", postfix = ")") { it.poetFormat }
-            is IntArray -> joinToString(prefix = "intArrayOf(", separator = ", ", postfix = ")") { it.poetFormat }
-            is LongArray -> joinToString(prefix = "longArrayOf(", separator = ", ", postfix = ")") { it.poetFormat }
-            is FloatArray -> joinToString(prefix = "floatArrayOf(", separator = ", ", postfix = ")") { it.poetFormat }
-            is DoubleArray -> joinToString(
-                prefix = "doubleArrayOf(",
-                separator = ", ",
-                postfix = ")"
-            ) { it.poetFormat }
 
-            is BooleanArray -> joinToString(
-                prefix = "booleanArrayOf(",
-                separator = ", ",
-                postfix = ")"
-            ) { it.poetFormat }
+    private fun TypeName.format(forValue: Any?): Pair<String, Int> {
+        val count by lazy { forValue.collectionSize }
+        val arrayFormat by lazy { format(count, "arrayOf") }
+        val listFormat by lazy { format(count, "listOf") }
+        val setFormat by lazy { format(count, "setOf") }
 
-            is Set<*> -> joinToString(
-                prefix = "kotlin.collections.setOf(",
-                separator = ", ",
-                postfix = ")"
-            ) { it.poetFormat }
+        return when (this) {
+            LONG -> "%LL" to 1
+            STRING -> "%S" to 1
+            ARRAY -> arrayFormat to count
+            BYTE_ARRAY -> format(count, "byteArrayOf") to count
+            SHORT_ARRAY -> format(count, "shortArrayOf") to count
+            CHAR_ARRAY -> format(count, "charArrayOf") to count
+            INT_ARRAY -> format(count, "intArrayOf") to count
+            LONG_ARRAY -> format(count, "longArrayOf") to count
+            FLOAT_ARRAY -> format(count, "floatArrayOf") to count
+            DOUBLE_ARRAY -> format(count, "doubleArrayOf") to count
+            BOOLEAN_ARRAY -> format(count, "booleanArrayOf") to count
+            LIST -> listFormat to count
+            SET -> setFormat to count
+            is ParameterizedTypeName -> when (rawType) {
+                ARRAY -> arrayFormat to count
+                LIST -> listFormat to count
+                SET -> setFormat to count
+                else -> "%L" to 1
+            }
 
-            is Iterable<*> -> joinToString(
-                prefix = "kotlin.collections.listOf(",
-                separator = ", ",
-                postfix = ")"
-            ) { it.poetFormat }
-
-            is CharSequence -> "%S"
-            is Long -> "%LL"
-            else -> "%L"
+            else -> "%L" to 1
         }
+    }
+
+    private fun format(count: Int, function: String) = (1..count).joinToString(
+        prefix = "$function(",
+        separator = ", ",
+        postfix = ")",
+        transform = { "%L" }
+    )
 
 }
