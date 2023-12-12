@@ -62,16 +62,28 @@ interface BuildConfigClassSpec : Named {
         value: Provider<String>
     ) = buildConfigField(type(type), name, value.map(::expression))
 
-    fun <Type : Serializable> BuildConfigClassSpec.buildConfigField(
-        type: Class<out Type>,
+    fun buildConfigField(
         name: String,
-        value: Type,
+        value: Serializable,
+    ) = buildConfigField(value.bestGuessType, name, value)
+
+    @Suppress("DeprecatedCallableAddReplaceWith")
+    @Deprecated("Inferring the value type is not possible without querying the Provider value, use other overloads instead")
+    fun buildConfigField(
+        name: String,
+        value: Provider<out Serializable>,
+    ): Nothing = error("Inferring the value type is not possible without querying the Provider value, use other overloads instead")
+
+    fun buildConfigField(
+        type: JavaType,
+        name: String,
+        value: Serializable?,
     ) = buildConfigField(type(type), name, literal(value))
 
-    fun <Type : Serializable> BuildConfigClassSpec.buildConfigField(
-        type: Class<out Type>,
+    fun buildConfigField(
+        type: JavaType,
         name: String,
-        value: Provider<out Type>,
+        value: Provider<out Serializable>,
     ) = buildConfigField(type(type), name, value.map(::literal))
 
     fun buildConfigField(
@@ -92,7 +104,7 @@ interface BuildConfigClassSpec : Named {
     fun type(javaType: JavaType) =
         BuildConfigField.TypeRef(javaType)
 
-    fun literal(value: Serializable) =
+    fun literal(value: Serializable?) =
         BuildConfigField.Literal(value)
 
     fun expression(expression: CharSequence) =

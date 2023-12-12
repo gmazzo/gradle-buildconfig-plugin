@@ -5,5 +5,5 @@ import java.io.Serializable
 
 inline fun <reified Type : Serializable> BuildConfigClassSpec.buildConfigField(
     name: String,
-    value: Type,
-) = buildConfigField(type(Type::class.java), name, literal(value))
+    value: Type?,
+) = buildConfigField(Type::class.java, name, literal(value))

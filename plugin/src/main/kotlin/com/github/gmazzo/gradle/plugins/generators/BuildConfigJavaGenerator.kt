@@ -1,6 +1,8 @@
 package com.github.gmazzo.gradle.plugins.generators
 
 import com.github.gmazzo.gradle.plugins.BuildConfigField
+import com.github.gmazzo.gradle.plugins.asVarArg
+import com.github.gmazzo.gradle.plugins.parseTypename
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.FieldSpec
@@ -20,8 +22,9 @@ data class BuildConfigJavaGenerator(
     private val logger = Logging.getLogger(javaClass)
 
     private fun String.toTypeName(): TypeName {
-        val nonNullable = removeSuffix("?")
-        val type = when (nonNullable.removeSuffix("[]").lowercase()) {
+        val (typeName, isArray, isNullable) = parseTypename()
+
+        val type = when (typeName.lowercase()) {
             "boolean" -> TypeName.BOOLEAN
             "byte" -> TypeName.BYTE
             "short" -> TypeName.SHORT
@@ -33,8 +36,8 @@ data class BuildConfigJavaGenerator(
             "double" -> TypeName.DOUBLE
             "string" -> ClassName.get(String::class.java)
             else -> ClassName.bestGuess(this)
-        }.let { if (this != nonNullable) it.box() else it }
-        return if (nonNullable.endsWith("[]")) ArrayTypeName.of(type) else type
+        }.let { if (isNullable && it.isPrimitive) it.box() else if (!isNullable && it.isBoxedPrimitive) it.unbox() else it }
+        return if (isArray) ArrayTypeName.of(type) else type
     }
 
     override fun execute(spec: BuildConfigGeneratorSpec) {
@@ -63,13 +66,23 @@ data class BuildConfigJavaGenerator(
                 }
             }
 
+            val value = field.value.get()
+            val valueIsNull = value is BuildConfigField.Literal && value.value == null
+            val sanitizedNullableTypeName = resolvePrimitiveArrayAwareType(typeName, valueIsNull)
+
             typeSpec.addField(
-                FieldSpec.builder(typeName, field.name, Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
+                FieldSpec.builder(
+                    sanitizedNullableTypeName,
+                    field.name,
+                    Modifier.PUBLIC,
+                    Modifier.STATIC,
+                    Modifier.FINAL
+                )
                     .apply {
-                        when (val value = field.value.get()) {
+                        when (value) {
                             is BuildConfigField.Literal -> initializer(
-                                if (value.value is CharSequence) "\$S" else "\$L",
-                                value.value
+                                value.value.poetFormat(sanitizedNullableTypeName.isPrimitive),
+                                *value.value.asVarArg(),
                             )
 
                             is BuildConfigField.Expression -> initializer("\$L", value.value)
@@ -91,6 +104,53 @@ data class BuildConfigJavaGenerator(
             )
             .build()
             .writeTo(spec.outputDir)
+    }
+
+    private fun Any?.poetFormat(asPrimitive: Boolean): String {
+        fun Iterable<*>.asArray(): String =
+            joinToString(prefix = "{", separator = ", ", postfix = "}") { it.poetFormat(asPrimitive) }
+
+        return when (this) {
+            is Array<*> -> asList().asArray()
+            is ByteArray -> asList().asArray()
+            is ShortArray -> asList().asArray()
+            is CharArray -> asList().asArray()
+            is IntArray -> asList().asArray()
+            is LongArray -> asList().asArray()
+            is FloatArray -> asList().asArray()
+            is DoubleArray -> asList().asArray()
+            is BooleanArray -> asList().asArray()
+            is Set<*> -> if (asPrimitive) asArray() else joinToString(
+                prefix = "new java.util.HashSet(java.util.Arrays.asList(",
+                separator = ", ",
+                postfix = "))"
+            ) { it.poetFormat(asPrimitive) }
+
+            is Iterable<*> -> if (asPrimitive) asArray() else joinToString(
+                prefix = "java.util.Arrays.asList(",
+                separator = ", ",
+                postfix = ")"
+            ) { it.poetFormat(asPrimitive) }
+
+            is CharSequence -> "\$S"
+            is Long -> "\$LL"
+            else -> "\$L"
+        }
+    }
+
+    private fun resolvePrimitiveArrayAwareType(typeName: TypeName, valueIsNull: Boolean): TypeName {
+        val innerType = when (typeName) {
+            is ArrayTypeName -> typeName.componentType
+            else -> typeName
+        }
+
+        val nullableAwareType =
+            if (valueIsNull && innerType.isPrimitive) innerType.box()
+            else if (!valueIsNull && innerType.isBoxedPrimitive) innerType.unbox()
+            else innerType
+
+        return if (innerType == typeName) nullableAwareType
+        else ArrayTypeName.of(nullableAwareType)
     }
 
 }

@@ -1,6 +1,8 @@
 package com.github.gmazzo.gradle.plugins.generators
 
 import com.github.gmazzo.gradle.plugins.BuildConfigField
+import com.github.gmazzo.gradle.plugins.asVarArg
+import com.github.gmazzo.gradle.plugins.parseTypename
 import com.squareup.kotlinpoet.BOOLEAN
 import com.squareup.kotlinpoet.BOOLEAN_ARRAY
 import com.squareup.kotlinpoet.BYTE
@@ -40,9 +42,9 @@ data class BuildConfigKotlinGenerator(
     private val logger = Logging.getLogger(javaClass)
 
     private fun String.toTypeName(): TypeName {
-        val nonNullable = removeSuffix("?")
-        val isArray = nonNullable.endsWith("[]")
-        val type = when (nonNullable.removeSuffix("[]").lowercase()) {
+        val (typeName, isArray, isNullable) = parseTypename()
+
+        val type = when (typeName.lowercase()) {
             "boolean" -> if (isArray) BOOLEAN_ARRAY else BOOLEAN
             "byte" -> if (isArray) BYTE_ARRAY else BYTE
             "short" -> if (isArray) SHORT_ARRAY else SHORT
@@ -55,7 +57,7 @@ data class BuildConfigKotlinGenerator(
             "string" -> STRING
             else -> ClassName.bestGuess(this)
         }
-        return if (this != nonNullable) type.copy(nullable = true) else type
+        return if (isNullable) type.copy(nullable = true) else type
     }
 
     private fun Iterable<BuildConfigField>.asPropertiesSpec() = map { field ->
@@ -72,8 +74,8 @@ data class BuildConfigKotlinGenerator(
             .apply {
                 when (val value = field.value.get()) {
                     is BuildConfigField.Literal -> initializer(
-                        if (value.value is CharSequence) "%S" else "%L",
-                        value.value
+                        value.value.poetFormat,
+                        *value.value.asVarArg(),
                     )
 
                     is BuildConfigField.Expression -> initializer("%L", value.value)
@@ -110,5 +112,43 @@ data class BuildConfigKotlinGenerator(
 
     private val kModifiers
         get() = if (internalVisibility) KModifier.INTERNAL else KModifier.PUBLIC
+
+    private val Any?.poetFormat: String
+        get() = when (this) {
+            is Array<*> -> joinToString(prefix = "arrayOf(", separator = ", ", postfix = ")") { it.poetFormat }
+            is ByteArray -> joinToString(prefix = "byteArrayOf(", separator = ", ", postfix = ")") { it.poetFormat }
+            is ShortArray -> joinToString(prefix = "shortArrayOf(", separator = ", ", postfix = ")") { it.poetFormat }
+            is CharArray -> joinToString(prefix = "charArrayOf(", separator = ", ", postfix = ")") { it.poetFormat }
+            is IntArray -> joinToString(prefix = "intArrayOf(", separator = ", ", postfix = ")") { it.poetFormat }
+            is LongArray -> joinToString(prefix = "longArrayOf(", separator = ", ", postfix = ")") { it.poetFormat }
+            is FloatArray -> joinToString(prefix = "floatArrayOf(", separator = ", ", postfix = ")") { it.poetFormat }
+            is DoubleArray -> joinToString(
+                prefix = "doubleArrayOf(",
+                separator = ", ",
+                postfix = ")"
+            ) { it.poetFormat }
+
+            is BooleanArray -> joinToString(
+                prefix = "booleanArrayOf(",
+                separator = ", ",
+                postfix = ")"
+            ) { it.poetFormat }
+
+            is Set<*> -> joinToString(
+                prefix = "kotlin.collections.setOf(",
+                separator = ", ",
+                postfix = ")"
+            ) { it.poetFormat }
+
+            is Iterable<*> -> joinToString(
+                prefix = "kotlin.collections.listOf(",
+                separator = ", ",
+                postfix = ")"
+            ) { it.poetFormat }
+
+            is CharSequence -> "%S"
+            is Long -> "%LL"
+            else -> "%L"
+        }
 
 }
