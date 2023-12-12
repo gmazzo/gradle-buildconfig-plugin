@@ -22,11 +22,3 @@ internal fun Any?.asVarArg(): Array<*> = when (this) {
     is Iterable<*> -> toList().toTypedArray()
     else -> arrayOf(this)
 }
-
-internal val Any.bestGuessType get() = when (this) {
-    is Map<*, *> -> Map::class.java
-    is Set<*> -> Set::class.java
-    is Iterable<*> -> List::class.java
-    is CharSequence -> String::class.java
-    else -> this::class.java
-}

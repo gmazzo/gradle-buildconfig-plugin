@@ -9,6 +9,8 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
 import java.io.Serializable
+import kotlin.reflect.KClass
+import kotlin.reflect.KType
 import java.lang.reflect.Type as JavaType
 
 @BuildConfigDsl
@@ -44,47 +46,61 @@ interface BuildConfigClassSpec : Named {
         packageName("")
     }
 
-    @Deprecated("Kept for backward compatibility, use typesafe overloads instead",
+    @Deprecated(
+        "Kept for backward compatibility, use typesafe overloads instead",
         ReplaceWith("buildConfigField(type(type), name, expression(value))")
     )
     fun buildConfigField(
         type: String,
         name: String,
         value: String,
-    ) = buildConfigField(type(type), name, expression(value))
+    ) = buildConfigField(typeOf(type), name, expression(value))
 
-    @Deprecated("Kept for backward compatibility, use typesafe overloads instead",
+    @Deprecated(
+        "Kept for backward compatibility, use typesafe overloads instead",
         ReplaceWith("buildConfigField(type(type), name, value.map(::expression))")
     )
     fun buildConfigField(
         type: String,
         name: String,
         value: Provider<String>
-    ) = buildConfigField(type(type), name, value.map(::expression))
-
-    fun buildConfigField(
-        name: String,
-        value: Serializable,
-    ) = buildConfigField(value.bestGuessType, name, value)
-
-    @Suppress("DeprecatedCallableAddReplaceWith")
-    @Deprecated("Inferring the value type is not possible without querying the Provider value, use other overloads instead")
-    fun buildConfigField(
-        name: String,
-        value: Provider<out Serializable>,
-    ): Nothing = error("Inferring the value type is not possible without querying the Provider value, use other overloads instead")
+    ) = buildConfigField(typeOf(type), name, value.map(::expression))
 
     fun buildConfigField(
         type: JavaType,
         name: String,
         value: Serializable?,
-    ) = buildConfigField(type(type), name, literal(value))
+    ) = buildConfigField(typeOf(type), name, literal(value))
 
     fun buildConfigField(
         type: JavaType,
         name: String,
         value: Provider<out Serializable>,
-    ) = buildConfigField(type(type), name, value.map(::literal))
+    ) = buildConfigField(typeOf(type), name, value.map(::literal))
+
+    fun buildConfigField(
+        type: KClass<*>,
+        name: String,
+        value: Serializable?,
+    ) = buildConfigField(typeOf(type), name, literal(value))
+
+    fun buildConfigField(
+        type: KClass<*>,
+        name: String,
+        value: Provider<out Serializable>,
+    ) = buildConfigField(typeOf(type), name, value.map(::literal))
+
+    fun buildConfigField(
+        type: KType,
+        name: String,
+        value: Serializable?,
+    ) = buildConfigField(typeOf(type), name, literal(value))
+
+    fun buildConfigField(
+        type: KType,
+        name: String,
+        value: Provider<out Serializable>,
+    ) = buildConfigField(typeOf(type), name, value.map(::literal))
 
     fun buildConfigField(
         type: BuildConfigField.Type,
@@ -98,11 +114,20 @@ interface BuildConfigClassSpec : Named {
         value: Provider<BuildConfigField.Value>
     ): NamedDomainObjectProvider<BuildConfigField>
 
-    fun type(className: CharSequence, vararg typeParameters: String) =
-        BuildConfigField.TypeByName(className.toString(), typeParameters.toList())
+    fun typeOf(className: CharSequence, vararg typeParameters: String): BuildConfigField.Type =
+        BuildConfigField.NameRef(className.toString(), typeParameters.map(::typeOf))
 
-    fun type(javaType: JavaType) =
-        BuildConfigField.TypeRef(javaType)
+    fun typeOf(type: JavaType) =
+        BuildConfigField.JavaRef(type)
+
+    fun typeOf(type: KClass<*>): BuildConfigField.Type =
+        typeOf(type.qualifiedName!!)
+
+    fun typeOf(type: KType): BuildConfigField.Type =
+        BuildConfigField.NameRef(
+            (type.classifier!! as KClass<*>).qualifiedName!!,
+            type.arguments.map { typeOf(it.type!!) }
+        )
 
     fun literal(value: Serializable?) =
         BuildConfigField.Literal(value)

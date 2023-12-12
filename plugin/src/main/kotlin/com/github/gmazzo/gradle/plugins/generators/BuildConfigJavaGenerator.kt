@@ -21,23 +21,34 @@ data class BuildConfigJavaGenerator(
 
     private val logger = Logging.getLogger(javaClass)
 
-    private fun String.toTypeName(): TypeName {
-        val (typeName, isArray, isNullable) = parseTypename()
+    private fun BuildConfigField.Type.toTypeName(): TypeName = when (this) {
+        is BuildConfigField.JavaRef -> TypeName.get(javaType)
+        is BuildConfigField.NameRef -> {
+            val (typeName, isArray, isNullable) = className.parseTypename()
 
-        val type = when (typeName.lowercase()) {
-            "boolean" -> TypeName.BOOLEAN
-            "byte" -> TypeName.BYTE
-            "short" -> TypeName.SHORT
-            "char" -> TypeName.CHAR
-            "int" -> TypeName.INT
-            "integer" -> TypeName.INT
-            "long" -> TypeName.LONG
-            "float" -> TypeName.FLOAT
-            "double" -> TypeName.DOUBLE
-            "string" -> ClassName.get(String::class.java)
-            else -> ClassName.bestGuess(this)
-        }.let { if (isNullable && it.isPrimitive) it.box() else if (!isNullable && it.isBoxedPrimitive) it.unbox() else it }
-        return if (isArray) ArrayTypeName.of(type) else type
+            val type = when (typeName.lowercase()) {
+                "boolean" -> TypeName.BOOLEAN
+                "byte" -> TypeName.BYTE
+                "short" -> TypeName.SHORT
+                "char" -> TypeName.CHAR
+                "int" -> TypeName.INT
+                "integer" -> TypeName.INT
+                "long" -> TypeName.LONG
+                "float" -> TypeName.FLOAT
+                "double" -> TypeName.DOUBLE
+                "string" -> ClassName.get(String::class.java)
+                else -> ClassName.bestGuess(className)
+            }.let { if (isNullable && it.isPrimitive) it.box() else if (!isNullable && it.isBoxedPrimitive) it.unbox() else it }
+
+            val genericType =
+                if (typeParameters.isEmpty()) type
+                else ParameterizedTypeName.get(
+                    checkNotNull(type as? ClassName),
+                    *typeParameters.map { it.toTypeName() }.toTypedArray()
+                )
+
+            if (isArray) ArrayTypeName.of(genericType) else genericType
+        }
     }
 
     override fun execute(spec: BuildConfigGeneratorSpec) {
@@ -56,14 +67,8 @@ data class BuildConfigJavaGenerator(
 
         spec.fields.forEach { field ->
             val typeName = when (val type = field.type.get()) {
-                is BuildConfigField.TypeRef -> TypeName.get(type.javaType)
-                is BuildConfigField.TypeByName -> type.name.toTypeName().let { resolved ->
-                    if (type.typeParameters.isEmpty()) resolved
-                    else ParameterizedTypeName.get(
-                        checkNotNull(resolved as? ClassName),
-                        *type.typeParameters.map { it.toTypeName() }.toTypedArray()
-                    )
-                }
+                is BuildConfigField.JavaRef -> TypeName.get(type.javaType)
+                is BuildConfigField.NameRef -> type.toTypeName()
             }
 
             val value = field.value.get()
@@ -77,18 +82,16 @@ data class BuildConfigJavaGenerator(
                     Modifier.PUBLIC,
                     Modifier.STATIC,
                     Modifier.FINAL
-                )
-                    .apply {
-                        when (value) {
-                            is BuildConfigField.Literal -> initializer(
-                                value.value.poetFormat(sanitizedNullableTypeName.isPrimitive),
-                                *value.value.asVarArg(),
-                            )
+                ).apply {
+                    when (value) {
+                        is BuildConfigField.Literal -> initializer(
+                            value.value.poetFormat(sanitizedNullableTypeName.isPrimitive),
+                            *value.value.asVarArg(),
+                        )
 
-                            is BuildConfigField.Expression -> initializer("\$L", value.value)
-                        }
+                        is BuildConfigField.Expression -> initializer("\$L", value.value)
                     }
-                    .build()
+                }.build()
             )
         }
 

@@ -21,11 +21,13 @@ interface BuildConfigField : Named {
     val position: Property<Int>
 
     sealed interface Type : Serializable
-    data class TypeRef(val javaType: JavaType) : Type
-    data class TypeByName(val name: String, val typeParameters: List<String> = emptyList()) : Type
+    data class JavaRef(val javaType: JavaType) : Type
+    data class NameRef(val className: String, val typeParameters: List<Type> = emptyList()) : Type
 
     sealed interface Value : Serializable
-    data class Literal(val value: Serializable?) : Value
+    data class Literal(val value: Serializable?) : Value {
+        init { check(value !is Literal) { "$value can not be a Literal" } }
+    }
     data class Expression(val value: String) : Value
 
 }
