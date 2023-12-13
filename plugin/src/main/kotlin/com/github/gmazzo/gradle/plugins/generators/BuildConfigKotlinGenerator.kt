@@ -2,7 +2,7 @@ package com.github.gmazzo.gradle.plugins.generators
 
 import com.github.gmazzo.gradle.plugins.BuildConfigField
 import com.github.gmazzo.gradle.plugins.asVarArg
-import com.github.gmazzo.gradle.plugins.collectionSize
+import com.github.gmazzo.gradle.plugins.elements
 import com.github.gmazzo.gradle.plugins.parseTypename
 import com.squareup.kotlinpoet.ARRAY
 import com.squareup.kotlinpoet.BOOLEAN
@@ -51,17 +51,16 @@ data class BuildConfigKotlinGenerator(
         is BuildConfigField.NameRef -> {
             val (typeName, isArray, isNullable) = className.parseTypename()
 
-            val type = when (typeName.lowercase()) {
-                "boolean" -> if (isArray) BOOLEAN_ARRAY else BOOLEAN
-                "byte" -> if (isArray) BYTE_ARRAY else BYTE
-                "short" -> if (isArray) SHORT_ARRAY else SHORT
-                "char" -> if (isArray) CHAR_ARRAY else CHAR
-                "int" -> if (isArray) INT_ARRAY else INT
-                "integer" -> if (isArray) INT_ARRAY else INT
-                "long" -> if (isArray) LONG_ARRAY else LONG
-                "float" -> if (isArray) FLOAT_ARRAY else FLOAT
-                "double" -> if (isArray) DOUBLE_ARRAY else DOUBLE
-                "string" -> STRING
+            val type = when (typeName) {
+                "Boolean" -> if (isArray) BOOLEAN_ARRAY else BOOLEAN
+                "Byte" -> if (isArray) BYTE_ARRAY else BYTE
+                "Short" -> if (isArray) SHORT_ARRAY else SHORT
+                "Char" -> if (isArray) CHAR_ARRAY else CHAR
+                "Int" -> if (isArray) INT_ARRAY else INT
+                "Long" -> if (isArray) LONG_ARRAY else LONG
+                "Float" -> if (isArray) FLOAT_ARRAY else FLOAT
+                "Double" -> if (isArray) DOUBLE_ARRAY else DOUBLE
+                "String" -> STRING
                 else -> ClassName.bestGuess(typeName)
             }
             val genericType =
@@ -85,7 +84,7 @@ data class BuildConfigKotlinGenerator(
             .apply { if (value.value != null && typeName in constTypes) addModifiers(KModifier.CONST) }
             .apply {
                 when (value) {
-                    is BuildConfigField.Literal ->{
+                    is BuildConfigField.Literal -> {
                         val (format, count) = nullableAwareType.format(value.value)
                         val args = value.value.asVarArg()
 
@@ -95,6 +94,7 @@ data class BuildConfigKotlinGenerator(
                         }
                         initializer(format, *args)
                     }
+
                     is BuildConfigField.Expression -> initializer("%L", value.value)
                 }
             }
@@ -132,41 +132,49 @@ data class BuildConfigKotlinGenerator(
 
 
     private fun TypeName.format(forValue: Any?): Pair<String, Int> {
-        val count by lazy { forValue.collectionSize }
-        val arrayFormat by lazy { format(count, "arrayOf") }
-        val listFormat by lazy { format(count, "listOf") }
-        val setFormat by lazy { format(count, "setOf") }
+        fun Any?.format() = when (this) {
+            is Char -> "'%L'"
+            is Long -> "%LL"
+            is Float -> "%Lf"
+            is String -> "%S"
+            else -> "%L"
+        }
+
+        fun List<Any?>.format(function: String) = joinToString(
+            prefix = "$function(",
+            separator = ", ",
+            postfix = ")",
+            transform = { it.format() }
+        ) to size
+
+        val elements = forValue.elements
+        val singleFormat by lazy { elements.single().format() to 1 }
+        val arrayFormat by lazy { elements.format("arrayOf") }
+        val listFormat by lazy { elements.format("listOf") }
+        val setFormat by lazy { elements.format("setOf") }
 
         return when (this) {
-            LONG -> "%LL" to 1
-            STRING -> "%S" to 1
-            ARRAY -> arrayFormat to count
-            BYTE_ARRAY -> format(count, "byteArrayOf") to count
-            SHORT_ARRAY -> format(count, "shortArrayOf") to count
-            CHAR_ARRAY -> format(count, "charArrayOf") to count
-            INT_ARRAY -> format(count, "intArrayOf") to count
-            LONG_ARRAY -> format(count, "longArrayOf") to count
-            FLOAT_ARRAY -> format(count, "floatArrayOf") to count
-            DOUBLE_ARRAY -> format(count, "doubleArrayOf") to count
-            BOOLEAN_ARRAY -> format(count, "booleanArrayOf") to count
-            LIST -> listFormat to count
-            SET -> setFormat to count
+            LONG, STRING -> singleFormat
+            ARRAY -> arrayFormat
+            BYTE_ARRAY -> elements.format("byteArrayOf")
+            SHORT_ARRAY -> elements.format("shortArrayOf")
+            CHAR_ARRAY -> elements.format("charArrayOf")
+            INT_ARRAY -> elements.format("intArrayOf")
+            LONG_ARRAY -> elements.format("longArrayOf")
+            FLOAT_ARRAY -> elements.format("floatArrayOf")
+            DOUBLE_ARRAY -> elements.format("doubleArrayOf")
+            BOOLEAN_ARRAY -> elements.format("booleanArrayOf")
+            LIST -> listFormat
+            SET -> setFormat
             is ParameterizedTypeName -> when (rawType) {
-                ARRAY -> arrayFormat to count
-                LIST -> listFormat to count
-                SET -> setFormat to count
-                else -> "%L" to 1
+                ARRAY -> arrayFormat
+                LIST -> listFormat
+                SET -> setFormat
+                else -> singleFormat
             }
 
-            else -> "%L" to 1
+            else -> singleFormat
         }
     }
-
-    private fun format(count: Int, function: String) = (1..count).joinToString(
-        prefix = "$function(",
-        separator = ", ",
-        postfix = ")",
-        transform = { "%L" }
-    )
 
 }

@@ -2,7 +2,6 @@ package com.github.gmazzo.gradle.plugins
 
 import com.github.gmazzo.gradle.plugins.generators.BuildConfigGenerator
 import com.github.gmazzo.gradle.plugins.generators.BuildConfigGeneratorSpec
-import com.github.gmazzo.gradle.plugins.internal.DefaultBuildConfigClassSpec
 import io.mockk.mockk
 import io.mockk.verify
 import org.gradle.kotlin.dsl.create
@@ -14,7 +13,7 @@ class BuildConfigTaskTest {
 
     private val project = ProjectBuilder.builder().build()
 
-    private val spec: BuildConfigClassSpec = project.objects.newInstance<DefaultBuildConfigClassSpec>("spec").apply {
+    private val spec: BuildConfigClassSpec = project.objects.newInstance<BuildConfigClassSpec>().apply {
         className.set("aClassName")
         packageName.set("aPackage")
         documentation.set("aJavaDoc")

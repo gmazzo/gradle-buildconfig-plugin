@@ -2,7 +2,6 @@ package com.github.gmazzo.gradle.plugins
 
 import org.gradle.api.Named
 import org.gradle.api.NamedDomainObjectContainer
-import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
@@ -46,106 +45,52 @@ interface BuildConfigClassSpec : Named {
         packageName("")
     }
 
-    @Deprecated(
-        "Kept for backward compatibility, use typesafe overloads instead",
-        ReplaceWith("buildConfigField(typeOf(type), name, expression(value))")
-    )
     fun buildConfigField(
         type: String,
         name: String,
         value: String,
-    ) = buildConfigField(typeOf(type), name, expression(value))
+    ) = addField(nameOf(type), name, expressionOf(value))
 
-    @Deprecated(
-        "Kept for backward compatibility, use typesafe overloads instead",
-        ReplaceWith("buildConfigField(typeOf(type), name, value.map(::expression))")
-    )
     fun buildConfigField(
         type: String,
         name: String,
         value: Provider<String>
-    ) = buildConfigField(typeOf(type), name, value.map(::expression))
+    ) = addField(nameOf(type), name, value.map(::expressionOf))
 
-    fun buildConfigField(
-        type: JavaType,
-        name: String,
-        value: Serializable?,
-    ) = buildConfigField(typeOf(type), name, value.value)
-
-    fun buildConfigField(
-        type: JavaType,
-        name: String,
-        value: Provider<out Serializable>,
-    ) = buildConfigField(typeOf(type), name, value.map { it.value })
-
-    fun <Type : Serializable> buildConfigField(
+    fun <Type : Any> buildConfigField(
         type: Class<out Type>,
         name: String,
         value: Type?,
-    ) = buildConfigField(type as JavaType, name, value.value)
+    ) = addField(typeOf(type as JavaType), name, valueOf(value))
 
     fun <Type : Serializable> buildConfigField(
         type: Class<out Type>,
         name: String,
         value: Provider<out Type>,
-    ) = buildConfigField(type as JavaType, name, value)
+    ) = addField(typeOf(type as JavaType), name, value.map(::valueOf))
 
     fun <Type : Serializable> buildConfigField(
         type: KClass<out Type>,
         name: String,
         value: Type?,
-    ) = buildConfigField(typeOf(type), name, value.value)
+    ) = addField(typeOf(type.java), name, valueOf(value))
 
     fun <Type : Serializable> buildConfigField(
         type: KClass<out Type>,
         name: String,
         value: Provider<out Type>,
-    ) = buildConfigField(typeOf(type), name, value.map { it.value })
+    ) = addField(typeOf(type.java), name, value.map(::valueOf))
 
     fun <Type : Serializable> buildConfigField(
         type: KType,
         name: String,
         value: Type?,
-    ) = buildConfigField(typeOf(type), name, value.value)
+    ) = addField(nameOf(type), name, valueOf(value))
 
     fun <Type : Serializable> buildConfigField(
         type: KType,
         name: String,
         value: Provider<out Type>,
-    ) = buildConfigField(typeOf(type), name, value.map { it.value })
-
-    fun buildConfigField(
-        type: BuildConfigField.Type,
-        name: String,
-        value: BuildConfigField.Value,
-    ): NamedDomainObjectProvider<BuildConfigField>
-
-    fun buildConfigField(
-        type: BuildConfigField.Type,
-        name: String,
-        value: Provider<BuildConfigField.Value>
-    ): NamedDomainObjectProvider<BuildConfigField>
-
-    fun typeOf(className: CharSequence, vararg typeParameters: String): BuildConfigField.Type =
-        BuildConfigField.NameRef(className.toString(), typeParameters.map(::typeOf))
-
-    fun typeOf(type: JavaType) =
-        BuildConfigField.JavaRef(type)
-
-    fun typeOf(type: KClass<*>): BuildConfigField.Type =
-        typeOf(type.qualifiedName!!)
-
-    fun typeOf(type: KType): BuildConfigField.Type = (type.classifier!! as KClass<*>).let { kClass ->
-        BuildConfigField.NameRef(
-            kClass.qualifiedName!! + if (type.isMarkedNullable) "?" else "",
-            if (kClass.typeParameters.isEmpty()) emptyList() else type.arguments.map { typeOf(it.type!!) }
-        )
-    }
-
-    fun literal(value: Serializable?) =
-        BuildConfigField.Literal(value)
-
-    fun expression(expression: CharSequence) =
-        BuildConfigField.Expression(expression.toString())
+    ) = addField(nameOf(type), name, value.map(::valueOf))
 
 }

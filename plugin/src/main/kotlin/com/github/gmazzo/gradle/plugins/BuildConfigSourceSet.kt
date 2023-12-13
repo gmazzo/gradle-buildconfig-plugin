@@ -7,6 +7,7 @@ import org.gradle.api.Action
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.TaskProvider
 
+@JvmDefaultWithoutCompatibility
 interface BuildConfigSourceSet : BuildConfigClassSpec {
 
     val generator: Property<BuildConfigGenerator>
