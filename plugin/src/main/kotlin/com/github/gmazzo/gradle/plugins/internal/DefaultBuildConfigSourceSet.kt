@@ -21,9 +21,9 @@ internal abstract class DefaultBuildConfigSourceSet(
         name: String,
         objects: ObjectFactory,
     ) : this(
-        classSpec = objects.newInstance<DefaultBuildConfigClassSpec>(name),
+        classSpec = objects.newInstance<BuildConfigClassSpec>(name),
         extraSpecs = objects.domainObjectContainer(BuildConfigClassSpec::class.java) { extraName ->
-            objects.newInstance<DefaultBuildConfigClassSpec>(extraName)
+            objects.newInstance<BuildConfigClassSpec>(extraName)
         }
     )
 

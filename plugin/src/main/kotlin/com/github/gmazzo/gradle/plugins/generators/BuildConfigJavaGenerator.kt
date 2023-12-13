@@ -2,7 +2,7 @@ package com.github.gmazzo.gradle.plugins.generators
 
 import com.github.gmazzo.gradle.plugins.BuildConfigField
 import com.github.gmazzo.gradle.plugins.asVarArg
-import com.github.gmazzo.gradle.plugins.collectionSize
+import com.github.gmazzo.gradle.plugins.elements
 import com.github.gmazzo.gradle.plugins.parseTypename
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.ClassName
@@ -27,24 +27,31 @@ data class BuildConfigJavaGenerator(
         is BuildConfigField.NameRef -> {
             val (typeName, isArray, isNullable) = className.parseTypename()
 
-            val type = when (typeName.lowercase()) {
+            val type = when (typeName) {
                 "boolean" -> TypeName.BOOLEAN
+                "Boolean" -> TypeName.BOOLEAN.box()
                 "byte" -> TypeName.BYTE
+                "Byte" -> TypeName.BYTE.box()
                 "short" -> TypeName.SHORT
+                "Short" -> TypeName.SHORT.box()
                 "char" -> TypeName.CHAR
+                "Char" -> TypeName.CHAR.box()
                 "int" -> TypeName.INT
-                "integer" -> TypeName.INT
+                "Integer" -> TypeName.INT.box()
                 "long" -> TypeName.LONG
+                "Long" -> TypeName.LONG.box()
                 "float" -> TypeName.FLOAT
+                "Float" -> TypeName.FLOAT.box()
                 "double" -> TypeName.DOUBLE
-                "string" -> ClassName.get(String::class.java)
+                "Double" -> TypeName.DOUBLE.box()
+                "String" -> ClassName.get(String::class.java)
                 else -> ClassName.bestGuess(typeName)
-            }.let { if (isNullable && it.isPrimitive) it.box() else if (!isNullable && it.isBoxedPrimitive) it.unbox() else it }
+            }.let { if (isNullable && it.isPrimitive) it.box() else it }
 
             val genericType =
                 if (typeParameters.isEmpty()) type
                 else ParameterizedTypeName.get(
-                    checkNotNull(type as? ClassName),
+                    type as ClassName,
                     *typeParameters.map { it.toTypeName() }.toTypedArray()
                 )
 
@@ -71,10 +78,8 @@ data class BuildConfigJavaGenerator(
                 is BuildConfigField.JavaRef -> TypeName.get(type.javaType)
                 is BuildConfigField.NameRef -> type.toTypeName()
             }
-
             val value = field.value.get()
-            val valueIsNull = value is BuildConfigField.Literal && value.value == null
-            val nullableAwareType = resolvePrimitiveArrayAwareType(typeName, valueIsNull)
+            val nullableAwareType = if (value.value == null && typeName.isPrimitive) typeName.box() else typeName
 
             typeSpec.addField(
                 FieldSpec.builder(
@@ -132,31 +137,41 @@ data class BuildConfigJavaGenerator(
     }
 
     private fun TypeName.format(forValue: Any?): Pair<String, Int> {
-        val count by lazy { forValue.collectionSize }
-        val listFormat by lazy { format(count, "java.util.List.of(", ")") }
-        val setFormat by lazy { format(count, "java.util.Set.of(", ")") }
+        fun Any?.format() = when (this) {
+            is Byte -> "(byte) \$L"
+            is Char -> "'\$L'"
+            is Long -> "\$LL"
+            is Float -> "\$Lf"
+            is String -> "\$S"
+            else -> "\$L"
+        }
+
+        fun List<Any?>.format(prefix: String, postfix: String) = joinToString(
+            prefix = prefix,
+            separator = ", ",
+            postfix = postfix,
+            transform = { it.format() }
+        ) to size
+
+        val elements = forValue.elements
+        val singleFormat by lazy { elements.single().format() to 1 }
+        val arrayFormat by lazy { elements.format("{", "}") }
+        val listFormat by lazy { elements.format("java.util.List.of(", ")") }
+        val setFormat by lazy { elements.format("java.util.Set.of(", ")") }
 
         return when (this) {
-            TypeName.LONG -> "\$LL" to 1
-            ClassName.get(String::class.java) -> "\$S" to 1
-            is ArrayTypeName -> format(count, "{", "}") to count
-            ClassName.get(List::class.java) -> listFormat to count
-            ClassName.get(Set::class.java) -> setFormat to count
+            TypeName.LONG, ClassName.get(String::class.java) -> singleFormat
+            is ArrayTypeName -> arrayFormat
+            ClassName.get(List::class.java) -> listFormat
+            ClassName.get(Set::class.java) -> setFormat
             is ParameterizedTypeName -> when (rawType) {
-                ClassName.get(List::class.java) -> listFormat to count
-                ClassName.get(Set::class.java) -> setFormat to count
-                else -> "\$L" to 1
+                ClassName.get(List::class.java) -> listFormat
+                ClassName.get(Set::class.java) -> setFormat
+                else -> singleFormat
             }
 
-            else -> "\$L" to 1
+            else -> singleFormat
         }
     }
-
-    private fun format(count: Int, prefix: String, postfix: String) = (1..count).joinToString(
-        prefix = prefix,
-        separator = ", ",
-        postfix = postfix,
-        transform = { "\$L" }
-    )
 
 }
