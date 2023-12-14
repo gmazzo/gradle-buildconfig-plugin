@@ -1,12 +1,13 @@
 plugins {
     id 'groovy'
     id 'com.github.gmazzo.buildconfig'
+    id 'java-test-fixtures'
 }
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(libs.versions.java.get())
 
 dependencies {
-    testImplementation "junit:junit:4.13.1"
+    testFixturesApi libs.junit
 }
 
 buildConfig {
@@ -28,15 +29,15 @@ buildConfig {
     buildConfigField(String[], "STRING_ARRAY_PROVIDER", provider { ["a", "b", "c"] })
     buildConfigField(String[], "STRING_ARRAY_NULLABLE", ["a", null, "c"])
     buildConfigField(String[], "STRING_ARRAY_NULLABLE_PROVIDER", provider { ["a", null, "c"] })
-    buildConfigField(List<String>.class, "STRING_LIST", ["a", "b", "c"])
-    buildConfigField(List<String>.class, "STRING_LIST_PROVIDER", provider { ["a", "b", "c"] })
-    buildConfigField(Set<String>.class, "STRING_SET", ["a", "b", "c"])
-    buildConfigField(Set<String>.class, "STRING_SET_PROVIDER", provider { ["a", "b", "c"] })
+    buildConfigField(List<String>.class, "STRING_LIST", ["a", null, "c"])
+    buildConfigField(List<String>.class, "STRING_LIST_PROVIDER", provider { ["a", null, "c"] })
+    buildConfigField(Set<String>.class, "STRING_SET", ["a", null, "c"])
+    buildConfigField(Set<String>.class, "STRING_SET_PROVIDER", provider { ["a", null, "c"] })
 
     // all possible kind for Byte
-    buildConfigField(byte, "BYTE", (byte) 128)
+    buildConfigField(byte, "BYTE", (byte) 64)
     buildConfigField(Byte, "BYTE_NULL", null)
-    buildConfigField(byte, "BYTE_PROVIDER", provider { (byte) 128 })
+    buildConfigField(byte, "BYTE_PROVIDER", provider { (byte) 64 })
     buildConfigField(byte[], "BYTE_NATIVE_ARRAY", [1, 2, 3])
     buildConfigField(byte[], "BYTE_NATIVE_ARRAY_PROVIDER", provider { [1, 2, 3] })
     buildConfigField(Byte[], "BYTE_ARRAY", [1, 2, 3])
@@ -49,9 +50,9 @@ buildConfig {
     buildConfigField(Set<Byte>, "BYTE_SET_PROVIDER", provider { [1, null, 3] })
 
     // all possible kind for Short
-    buildConfigField(short, "SHORT", 128)
+    buildConfigField(short, "SHORT", 64)
     buildConfigField(short, "SHORT_NULL", null)
-    buildConfigField(short, "SHORT_PROVIDER", provider { 128 })
+    buildConfigField(short, "SHORT_PROVIDER", provider { 64 })
     buildConfigField(short[], "SHORT_NATIVE_ARRAY", [1, 2, 3])
     buildConfigField(short[], "SHORT_NATIVE_ARRAY_PROVIDER", provider { [1, 2, 3] })
     buildConfigField(Short[], "SHORT_ARRAY", [1, 2, 3])
@@ -166,13 +167,13 @@ buildConfig {
     )
     buildConfigField(
             "com.github.gmazzo.buildconfig.demos.groovy.SomeData",
-            "MY_DATA",
+            "DATA",
             "new SomeData(\"a\", 1)"
     )
     buildConfigField(
             "com.github.gmazzo.buildconfig.demos.groovy.SomeData",
-            "MY_DATA2",
-            "new SomeData(\"a\", 1)"
+            "DATA_PROVIDER",
+            provider { "new SomeData(\"a\", 1)" }
     )
 
     forClass('Custom') {

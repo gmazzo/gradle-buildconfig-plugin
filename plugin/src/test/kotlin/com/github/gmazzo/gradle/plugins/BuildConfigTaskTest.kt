@@ -13,7 +13,7 @@ class BuildConfigTaskTest {
 
     private val project = ProjectBuilder.builder().build()
 
-    private val spec: BuildConfigClassSpec = project.objects.newInstance<BuildConfigClassSpec>().apply {
+    private val spec: BuildConfigClassSpec = project.objects.newInstance<BuildConfigClassSpec>("spec").apply {
         className.set("aClassName")
         packageName.set("aPackage")
         documentation.set("aJavaDoc")

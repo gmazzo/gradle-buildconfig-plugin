@@ -4,21 +4,10 @@ import org.junit.Test;
 
 import java.lang.reflect.Modifier;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
-public class BuildConfigTest {
-
-    @Test
-    public void testBuildConfigProperties() {
-        assertEquals("groovy", BuildConfig.APP_NAME);
-        assertEquals("0.1.0-demo", BuildConfig.APP_VERSION);
-        assertEquals("Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu", BuildConfig.APP_SECRET);
-        assertEquals(null, BuildConfig.OPTIONAL);
-        assertTrue(System.currentTimeMillis() >= BuildConfig.BUILD_TIME);
-        assertTrue(BuildConfig.FEATURE_ENABLED);
-        assertArrayEquals(new int[]{1, 2, 3, 4}, BuildConfig.MAGIC_NUMBERS);
-        assertEquals(new SomeData("a", 1), BuildConfig.MY_DATA);
-    }
+public class BuildConfigTest extends BuildConfigBaseTest {
 
     @Test
     public void testBuildConfigTestProperties() {

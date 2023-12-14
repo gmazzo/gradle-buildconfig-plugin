@@ -1,3 +1,5 @@
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
 apply(from = "gradle/shared.settings.gradle.kts")
 
 rootProject.name = "gradle-buildconfig-plugin"

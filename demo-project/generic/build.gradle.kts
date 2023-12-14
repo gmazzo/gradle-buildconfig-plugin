@@ -13,13 +13,13 @@ plugins {
 }
 
 buildConfig {
-    buildConfigField("APP_NAME", project.name)
-    buildConfigField<String>("APP_SECRET", "Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu")
-    buildConfigField("BUILD_TIME", TimeUnit.DAYS.toMillis(2))
-    buildConfigField("FEATURE_ENABLED", true)
+    buildConfigField("String", "APP_NAME", "\"${project.name}\"")
+    buildConfigField("String", "APP_SECRET", "\"Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu\"")
+    buildConfigField("long","BUILD_TIME", "${TimeUnit.DAYS.toMillis(2)}")
+    buildConfigField("boolean", "FEATURE_ENABLED", "${true}")
 
     forClass("BuildResources") {
-        buildConfigField("A_CONSTANT", "aConstant")
+        buildConfigField("String","A_CONSTANT", "\"aConstant\"")
     }
 }
 
@@ -39,7 +39,7 @@ val generateBuildConfigTest = task<AssertGeneratedFile>("generateBuildConfigTest
         
           public static final String APP_SECRET = "Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu";
         
-          public static final long BUILD_TIME = 172800000L;
+          public static final long BUILD_TIME = 172800000;
         
           public static final boolean FEATURE_ENABLED = true;
         

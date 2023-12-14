@@ -156,8 +156,8 @@ data class BuildConfigJavaGenerator(
         val elements = forValue.elements
         val singleFormat by lazy { elements.single().format() to 1 }
         val arrayFormat by lazy { elements.format("{", "}") }
-        val listFormat by lazy { elements.format("java.util.List.of(", ")") }
-        val setFormat by lazy { elements.format("java.util.Set.of(", ")") }
+        val listFormat by lazy { elements.format("java.util.Arrays.asList(", ")") }
+        val setFormat by lazy { elements.format("new java.util.LinkedHashSet(java.util.Arrays.asList(", "))") }
 
         return when (this) {
             TypeName.LONG, ClassName.get(String::class.java) -> singleFormat

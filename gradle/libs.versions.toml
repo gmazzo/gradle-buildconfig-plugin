@@ -4,6 +4,7 @@ kotlin = "1.9.21"
 
 [libraries]
 javapoet = { module = "com.squareup:javapoet", version = "1.13.0" }
+junit = { module = "junit:junit", version = "4.13.1" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlinpoet = { module = "com.squareup:kotlinpoet", version = "1.15.3" }
 mockk = { module = "io.mockk:mockk", version = "1.13.8" }

@@ -17,6 +17,7 @@ val integrationTest by testing.suites.registering(JvmTestSuite::class) {
 
 dependencies {
     testImplementation(libs.kotlin.test)
+    testImplementation(testFixtures(projects.demoProject.groovy))
     "integrationTestImplementation"(project)
     "integrationTestImplementation"(libs.kotlin.test)
 }
@@ -43,15 +44,15 @@ buildConfig {
     buildConfigField("STRING_ARRAY_PROVIDER", provider { arrayOf("a", "b", "c") })
     buildConfigField("STRING_ARRAY_NULLABLE", arrayOf("a", null, "c"))
     buildConfigField("STRING_ARRAY_NULLABLE_PROVIDER", provider { arrayOf("a", null, "c") })
-    buildConfigField("STRING_LIST", listOf("a", "b", "c"))
-    buildConfigField("STRING_LIST_PROVIDER", provider { listOf("a", "b", "c") })
-    buildConfigField("STRING_SET", setOf("a", "b", "c"))
-    buildConfigField("STRING_SET_PROVIDER", provider { setOf("a", "b", "c") })
+    buildConfigField("STRING_LIST", listOf("a", null, "c"))
+    buildConfigField("STRING_LIST_PROVIDER", provider { listOf("a", null, "c") })
+    buildConfigField("STRING_SET", setOf("a", null, "c"))
+    buildConfigField("STRING_SET_PROVIDER", provider { setOf("a", null, "c") })
 
     // all possible kind for Byte
-    buildConfigField("BYTE", 128.toByte())
+    buildConfigField("BYTE", 64.toByte())
     buildConfigField<Byte>("BYTE_NULL", null)
-    buildConfigField("BYTE_PROVIDER", provider { 128.toByte() })
+    buildConfigField("BYTE_PROVIDER", provider { 64.toByte() })
     buildConfigField("BYTE_NATIVE_ARRAY", byteArrayOf(1, 2, 3))
     buildConfigField("BYTE_NATIVE_ARRAY_PROVIDER", provider { byteArrayOf(1, 2, 3) })
     buildConfigField("BYTE_ARRAY", arrayOf(1.toByte(), 2.toByte(), 3.toByte()))
@@ -64,9 +65,9 @@ buildConfig {
     buildConfigField("BYTE_SET_PROVIDER", provider { setOf(1.toByte(), null, 3.toByte()) })
 
     // all possible kind for Short
-    buildConfigField("SHORT", 128.toShort())
+    buildConfigField("SHORT", 64.toShort())
     buildConfigField<Short>("SHORT_NULL", null)
-    buildConfigField("SHORT_PROVIDER", provider { 128.toShort() })
+    buildConfigField("SHORT_PROVIDER", provider { 64.toShort() })
     buildConfigField("SHORT_NATIVE_ARRAY", shortArrayOf(1, 2, 3))
     buildConfigField("SHORT_NATIVE_ARRAY_PROVIDER", provider { shortArrayOf(1, 2, 3) })
     buildConfigField("SHORT_ARRAY", arrayOf(1.toShort(), 2.toShort(), 3.toShort()))
@@ -181,13 +182,13 @@ buildConfig {
     )
     buildConfigField(
         "com.github.gmazzo.buildconfig.demos.kts.SomeData",
-        "MY_DATA",
+        "DATA",
         "SomeData(\"a\", 1)"
     )
     buildConfigField(
         "com.github.gmazzo.buildconfig.demos.kts.SomeData",
-        "MY_DATA2",
-        "SomeData(\"a\", 1)"
+        "DATA_PROVIDER",
+        provider { "SomeData(\"a\", 1)" }
     )
 
     sourceSets["test"].buildConfigField("TEST_CONSTANT", "aTestValue")

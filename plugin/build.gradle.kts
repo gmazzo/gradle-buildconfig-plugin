@@ -32,7 +32,6 @@ dependencies {
 
     implementation(libs.javapoet)
     implementation(libs.kotlinpoet)
-    implementation(kotlin("reflect", version = libs.versions.kotlin.get()))
 
     testImplementation(gradleTestKit())
     testImplementation(gradleKotlinDsl())
