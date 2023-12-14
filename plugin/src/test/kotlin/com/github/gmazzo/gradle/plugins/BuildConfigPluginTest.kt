@@ -20,28 +20,25 @@ class BuildConfigPluginTest {
 
     fun testBuild(): Stream<Args> {
         val gradleMin = "7.0"
-        val gradle7 = "7.6"
-        val gradle8 = "8.1.1"
+        val gradleLatest = "8.5"
 
-        val kotlin6 = "1.6.20"
-        val kotlin7 = "1.7.20"
-        val kotlin8 = "1.8.20"
+        val kotlin6 = "1.6.+"
+        val kotlin7 = "1.7.+"
+        val kotlin8 = "1.8.+"
+        val kotlin9 = "1.9.+"
 
         return Stream.of(
             Args(gradleMin, null),
             Args(gradleMin, kotlin6),
             Args(gradleMin, kotlin7),
             Args(gradleMin, kotlin8),
+            Args(gradleMin, kotlin9),
 
-            Args(gradle7, null),
-            Args(gradle7, kotlin6),
-            Args(gradle7, kotlin7),
-            Args(gradle7, kotlin8),
-
-            Args(gradle8, null),
-            Args(gradle8, kotlin6),
-            Args(gradle8, kotlin7),
-            Args(gradle8, kotlin8),
+            Args(gradleLatest, null),
+            Args(gradleLatest, kotlin6),
+            Args(gradleLatest, kotlin7),
+            Args(gradleLatest, kotlin8),
+            Args(gradleLatest, kotlin9),
         ).flatMap { Stream.of(it.copy(withPackage = true), it.copy(withPackage = false)) }
     }
 
@@ -83,7 +80,7 @@ class BuildConfigPluginTest {
         """ else "") + """
                 
         """ + (if (kotlinVersion != null) """
-        assert "$kotlinVersion" == org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapperKt.getKotlinPluginVersion(project)
+        assert "$kotlinVersion" == org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapperKt.getKotlinPluginVersion(project).replaceFirst(/\.\d+$/, '.+')
         
         """ else "") + """
         repositories {
