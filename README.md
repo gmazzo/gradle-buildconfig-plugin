@@ -16,40 +16,31 @@ plugins {
 }
 
 buildConfig {
-    buildConfigField("String", "APP_NAME", "\"${project.name}\"")
-    buildConfigField("String", "APP_VERSION", provider { "\"${project.version}\"" })
-    buildConfigField("String", "APP_SECRET", "\"Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu\"")
-    buildConfigField("long", "BUILD_TIME", "${System.currentTimeMillis()}L")
-    buildConfigField("boolean", "FEATURE_ENABLED", "${true}")
-    buildConfigField("IntArray", "MAGIC_NUMBERS", "intArrayOf(1, 2, 3, 4)")
-    buildConfigField("com.github.gmazzo.SomeData", "MY_DATA", "new SomeData(\"a\",1)")
+    buildConfigField("APP_NAME", project.name)
+    buildConfigField("APP_VERSION", provider { "\"${project.version}\"" })
+    buildConfigField("APP_SECRET", "Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu")
+    buildConfigField<String>("OPTIONAL", null)
+    buildConfigField("BUILD_TIME", System.currentTimeMillis())
+    buildConfigField("FEATURE_ENABLED", true)
+    buildConfigField("MAGIC_NUMBERS", intArrayOf(1, 2, 3, 4))
+    buildConfigField("kotlin.collections.Map<String, Int>", "MAP", "mapOf(\"a\" to 1, \"b\" to 2)")
+    buildConfigField("com.github.gmazzo.buildconfig.demos.kts.SomeData", "DATA", "SomeData(\"a\", 1)")
+
 }
 ```
 Will generate `BuildConfig.kt`:
 
 ```kotlin
-object BuildConfig {
-    const val APP_NAME: String = "example-kts"
-
-    const val APP_VERSION: String = "0.0.1"
-
-    const val APP_SECRET: String = "Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu"
-
-    const val BUILD_TIME: Long = 1551108377126L
-
-    const val FEATURE_ENABLED: Boolean = true
-
-    val MAGIC_NUMBERS: IntArray = intArrayOf(1, 2, 3, 4)
-
-    val MY_DATA: SomeData = SomeData("a",1)
-
-    val RESOURCE_CONFIG_LOCAL_PROPERTIES: File = File("config/local.properties")
-
-    val RESOURCE_CONFIG_PROD_PROPERTIES: File = File("config/prod.properties")
-
-    val RESOURCE_FILE2_JSON: File = File("file2.json")
-
-    val RESOURCE_FILE1_JSON: File = File("file1.json")
+internal object BuildConfig {
+    internal const val APP_NAME: String = "kts"
+    internal const val APP_VERSION: String = "\"0.1.0-demo\""
+    internal const val APP_SECRET: String = "Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu"
+    internal val OPTIONAL: String? = null
+    internal const val BUILD_TIME: Long = 1_702_559_872_137L
+    internal const val FEATURE_ENABLED: Boolean = true
+    internal val MAGIC_NUMBERS: IntArray = intArrayOf(1, 2, 3)
+    internal val MAP: Map<String, Int> = mapOf("a" to 1, "b" to 2)
+    internal val DATA: SomeData = SomeData("a", 1)
 }
 ```
 
@@ -62,35 +53,30 @@ plugins {
 }
 
 buildConfig {
-    buildConfigField('String', 'APP_NAME', "\"${project.name}\"")
-    buildConfigField('String', 'APP_VERSION', provider { "\"${project.version}\"" })
-    buildConfigField('String', 'APP_SECRET', "\"Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu\"")
-    buildConfigField('long', 'BUILD_TIME', "${System.currentTimeMillis()}L")
-    buildConfigField('boolean', 'FEATURE_ENABLED', "${true}")
-    buildConfigField('int[]', 'MAGIC_NUMBERS', '{1, 2, 3, 4}')
-    buildConfigField("com.github.gmazzo.SomeData", "MY_DATA", "new SomeData(\"a\",1)")
+    buildConfigField(String, 'APP_NAME', project.name)
+    buildConfigField(String, "APP_VERSION", provider { project.version })
+    buildConfigField(String, 'APP_SECRET', "Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu")
+    buildConfigField(String, 'OPTIONAL', null)
+    buildConfigField(long, 'BUILD_TIME', System.currentTimeMillis())
+    buildConfigField(boolean, 'FEATURE_ENABLED', true)
+    buildConfigField(int[], "MAGIC_NUMBERS", [1, 2, 3])
+    buildConfigField("java.util.Map<String, Integer>", "MAP", "java.util.Map.of(\"a\", 1, \"b\", 2)")
+    buildConfigField("com.github.gmazzo.buildconfig.demos.groovy.SomeData", "DATA", "new SomeData(\"a\", 1)")
 }
 ```
 Will generate `BuildConfig.java`:
 
 ```java
-public final class BuildConfig {
-    public static final String APP_NAME = "example-groovy";
-
-    public static final String APP_VERSION = "0.0.1";
-
+final class BuildConfig {
+    public static final String APP_NAME = "groovy";
+    public static final String APP_VERSION = "0.1.0-demo";
     public static final String APP_SECRET = "Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu";
-
-    public static final long BUILD_TIME = 1550999393550L;
-
+    public static final String OPTIONAL = null;
+    public static final long BUILD_TIME = 1702559872111L;
     public static final boolean FEATURE_ENABLED = true;
-
-    public static final int[] MAGIC_NUMBERS = {1, 2, 3, 4};
-
-    public static final SomeData MY_DATA = new SomeData("a", 1);
-
-  private BuildConfig() {
-  }
+    public static final int[] MAGIC_NUMBERS = {1, 2, 3};
+    public static final Map<String, Integer> MAP = java.util.Map.of("a", 1, "b", 2);
+    public static final SomeData DATA = new SomeData("a", 1);
 }
 ```
 
@@ -114,14 +100,14 @@ Sometimes one generated does not fits your needs or code style.
 You may add multiple classes with the following syntax:
 ```kotlin
 buildConfig {
-    buildConfigField("String", "FIELD1", "\"field1\"")
+    buildConfigField("FIELD1", "field1")
 
     forClass("OtherClass") {
-        buildConfigField("String", "FIELD2", "\"field2\"")
+        buildConfigField("FIELD2", "field2")
     }
 
     forClass(packageName = "", className = "RootConfig") {
-        buildConfigField("String", "FIELD3", "\"field3\"")
+        buildConfigField("FIELD3", "field3")
     }
 }
 ```
@@ -136,8 +122,8 @@ On your `build.gradle.kts` add:
 buildConfig {
     useKotlinOutput { topLevelConstants = true }
 
-    buildConfigField("String", "APP_NAME", "\"${project.name}\"")
-    buildConfigField("String", "APP_VERSION", "\"0.0.1\"")
+    buildConfigField("APP_NAME", project.name)
+    buildConfigField("APP_VERSION", provider { project.version })
 }
 ```
 Will generate `BuildConfig.kt`:
@@ -165,7 +151,7 @@ val alphabet = (65..90)
     .map { it.toChar() }
     .joinToString(separator = ",·")
 
-buildConfigField("String", "Example", "\"$alphabet\"")
+buildConfigField("Example", alphabet)
 ```
 
 will generate `BuildConfig.kt`:
@@ -182,7 +168,7 @@ If you add in your `build.gradle.kts`:
 ```kotlin
 buildConfig {
     sourceSets.getByName("test") {
-        buildConfigField("String", "TEST_CONSTANT", "\"aTestValue\"")
+        buildConfigField("TEST_CONSTANT", "aTestValue")
     }
 }
 ```
@@ -197,7 +183,7 @@ object TestBuildConfig {
 sourceSets {
     test {
         buildConfig {
-            buildConfigField('String', 'TEST_CONSTANT', '"aTestValue"')
+            buildConfigField(String, 'TEST_CONSTANT', 'aTestValue')
         }
     }
 }
