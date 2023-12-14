@@ -73,33 +73,39 @@ data class BuildConfigKotlinGenerator(
     }
 
     private fun Iterable<BuildConfigField>.asPropertiesSpec() = map { field ->
-        val typeName = when (val type = field.type.get()) {
-            is BuildConfigField.JavaRef -> type.javaType.asTypeName()
-            is BuildConfigField.NameRef -> type.toTypeName()
-        }
+        try {
+            val typeName = when (val type = field.type.get()) {
+                is BuildConfigField.JavaRef -> type.javaType.asTypeName()
+                is BuildConfigField.NameRef -> type.toTypeName()
+            }
 
-        val value = field.value.get()
-        val nullableAwareType = if (value.value != null) typeName else typeName.copy(nullable = true)
+            val value = field.value.get()
+            val nullableAwareType = if (value.value != null) typeName else typeName.copy(nullable = true)
 
-        return@map PropertySpec.builder(field.name, nullableAwareType, kModifiers)
-            .apply { if (value.value != null && typeName in constTypes) addModifiers(KModifier.CONST) }
-            .apply {
-                when (value) {
-                    is BuildConfigField.Literal -> {
-                        val (format, count) = nullableAwareType.format(value.value)
-                        val args = value.value.asVarArg()
+            return@map PropertySpec.builder(field.name, nullableAwareType, kModifiers)
+                .apply { if (value.value != null && typeName in constTypes) addModifiers(KModifier.CONST) }
+                .apply {
+                    when (value) {
+                        is BuildConfigField.Literal -> {
+                            val (format, count) = nullableAwareType.format(value.value)
+                            val args = value.value.asVarArg()
 
-                        check(count == args.size) {
-                            "Invalid number of arguments for ${field.name} of type ${nullableAwareType}: " +
-                                    "expected $count, got ${args.size}: ${args.joinToString()}"
+                            check(count == args.size) {
+                                "Invalid number of arguments for ${field.name} of type ${nullableAwareType}: " +
+                                        "expected $count, got ${args.size}: ${args.joinToString()}"
+                            }
+                            initializer(format, *args)
                         }
-                        initializer(format, *args)
+
+                        is BuildConfigField.Expression -> initializer("%L", value.value)
                     }
 
-                    is BuildConfigField.Expression -> initializer("%L", value.value)
                 }
-            }
-            .build()
+                .build()
+        } catch (e: Exception) {
+            throw IllegalArgumentException("Failed to generate field ${field.name} of type ${field.value.get()}, " +
+                    "with value: ${field.value.get().value}", e)
+        }
     }
 
     override fun execute(spec: BuildConfigGeneratorSpec) {
