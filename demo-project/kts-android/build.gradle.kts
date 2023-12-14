@@ -1,4 +1,6 @@
 import com.android.build.gradle.internal.lint.AndroidLintAnalysisTask
+import com.android.build.gradle.internal.lint.AndroidLintTask
+import com.android.build.gradle.internal.lint.LintModelWriterTask
 import com.github.gmazzo.gradle.plugins.BuildConfigTask
 
 plugins {
@@ -48,8 +50,9 @@ dependencies {
 }
 
 // workaround of AGP issue failing to pick test sources correctly
-afterEvaluate {
-    tasks.withType<AndroidLintAnalysisTask>().configureEach {
-        mustRunAfter(tasks.withType<BuildConfigTask>())
-    }
+tasks.withType<AndroidLintAnalysisTask>().configureEach {
+    mustRunAfter(tasks.withType<BuildConfigTask>())
+}
+tasks.withType<LintModelWriterTask>().configureEach {
+    mustRunAfter(tasks.withType<BuildConfigTask>())
 }
