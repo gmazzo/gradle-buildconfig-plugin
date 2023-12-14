@@ -30,8 +30,8 @@ buildConfig {
     documentation = "This is a generated BuildConfig class"
 
     buildConfigField("APP_NAME", project.name)
-    buildConfigField<String>("APP_VERSION", provider { "\"${project.version}\"" })
-    buildConfigField<String>("APP_SECRET", "Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu")
+    buildConfigField("APP_VERSION", provider { "\"${project.version}\"" })
+    buildConfigField("APP_SECRET", "Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu")
     buildConfigField<String>("OPTIONAL", null)
     buildConfigField("BUILD_TIME", System.currentTimeMillis())
     buildConfigField("FEATURE_ENABLED", true)
