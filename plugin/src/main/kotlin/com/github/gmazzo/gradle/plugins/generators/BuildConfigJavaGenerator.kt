@@ -74,37 +74,44 @@ data class BuildConfigJavaGenerator(
         }
 
         spec.fields.forEach { field ->
-            val typeName = when (val type = field.type.get()) {
-                is BuildConfigField.JavaRef -> TypeName.get(type.javaType)
-                is BuildConfigField.NameRef -> type.toTypeName()
-            }
-            val value = field.value.get()
-            val nullableAwareType = if (value.value == null && typeName.isPrimitive) typeName.box() else typeName
+            try {
+                val typeName = when (val type = field.type.get()) {
+                    is BuildConfigField.JavaRef -> TypeName.get(type.javaType)
+                    is BuildConfigField.NameRef -> type.toTypeName()
+                }
+                val value = field.value.get()
+                val nullableAwareType = if (value.value == null && typeName.isPrimitive) typeName.box() else typeName
 
-            typeSpec.addField(
-                FieldSpec.builder(
-                    nullableAwareType,
-                    field.name,
-                    Modifier.PUBLIC,
-                    Modifier.STATIC,
-                    Modifier.FINAL
-                ).apply {
-                    when (value) {
-                        is BuildConfigField.Literal -> {
-                            val (format, count) = nullableAwareType.format(value.value)
-                            val args = value.value.asVarArg()
+                typeSpec.addField(
+                    FieldSpec.builder(
+                        nullableAwareType,
+                        field.name,
+                        Modifier.PUBLIC,
+                        Modifier.STATIC,
+                        Modifier.FINAL
+                    ).apply {
+                        when (value) {
+                            is BuildConfigField.Literal -> {
+                                val (format, count) = nullableAwareType.format(value.value)
+                                val args = value.value.asVarArg()
 
-                            check(count == args.size) {
-                                "Invalid number of arguments for ${field.name} of type ${nullableAwareType}: " +
-                                        "expected $count, got ${args.size}: ${args.joinToString()}"
+                                check(count == args.size) {
+                                    "Invalid number of arguments for ${field.name} of type ${nullableAwareType}: " +
+                                            "expected $count, got ${args.size}: ${args.joinToString()}"
+                                }
+                                initializer(format, *args)
                             }
-                            initializer(format, *args)
-                        }
 
-                        is BuildConfigField.Expression -> initializer("\$L", value.value)
-                    }
-                }.build()
-            )
+                            is BuildConfigField.Expression -> initializer("\$L", value.value)
+                        }
+                    }.build()
+                )
+            } catch (e: Exception) {
+                throw IllegalArgumentException(
+                    "Failed to generate field ${field.name} of type ${field.value.get()}, " +
+                            "with value: ${field.value.get().value}", e
+                )
+            }
         }
 
         JavaFile
