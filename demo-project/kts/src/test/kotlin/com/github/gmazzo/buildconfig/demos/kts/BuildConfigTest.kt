@@ -1,22 +1,11 @@
 package com.github.gmazzo.buildconfig.demos.kts
 
-import org.junit.Assert.*
+import com.github.gmazzo.buildconfig.demos.groovy.BuildConfigBaseTest
+import org.junit.Assert.assertEquals
 import org.junit.Test
-import java.util.*
+import java.util.Properties
 
-class BuildConfigTest {
-
-    @Test
-    fun testBuildConfigProperties() {
-        assertEquals("kts", BuildConfig.APP_NAME)
-        assertEquals("0.1.0-demo", BuildConfig.APP_VERSION)
-        assertEquals("Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu", BuildConfig.APP_SECRET)
-        assertEquals(null, BuildConfig.OPTIONAL)
-        assertTrue(System.currentTimeMillis() >= BuildConfig.BUILD_TIME)
-        assertTrue(BuildConfig.FEATURE_ENABLED)
-        assertArrayEquals(intArrayOf(1, 2, 3, 4), BuildConfig.MAGIC_NUMBERS)
-        assertEquals(SomeData("a", 1), BuildConfig.MY_DATA)
-    }
+class BuildConfigTest : BuildConfigBaseTest() {
 
     @Test
     fun testBuildConfigTestProperties() {
