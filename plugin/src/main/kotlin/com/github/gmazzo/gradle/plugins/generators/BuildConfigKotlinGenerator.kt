@@ -51,16 +51,17 @@ data class BuildConfigKotlinGenerator(
         is BuildConfigField.NameRef -> {
             val (typeName, isArray, isNullable) = className.parseTypename()
 
-            val type = when (typeName) {
-                "Boolean" -> if (isArray) BOOLEAN_ARRAY else BOOLEAN
-                "Byte" -> if (isArray) BYTE_ARRAY else BYTE
-                "Short" -> if (isArray) SHORT_ARRAY else SHORT
-                "Char" -> if (isArray) CHAR_ARRAY else CHAR
-                "Int" -> if (isArray) INT_ARRAY else INT
-                "Long" -> if (isArray) LONG_ARRAY else LONG
-                "Float" -> if (isArray) FLOAT_ARRAY else FLOAT
-                "Double" -> if (isArray) DOUBLE_ARRAY else DOUBLE
-                "String" -> STRING
+            val type = when (typeName.lowercase()) {
+                "boolean" -> if (isArray) BOOLEAN_ARRAY else BOOLEAN
+                "byte" -> if (isArray) BYTE_ARRAY else BYTE
+                "short" -> if (isArray) SHORT_ARRAY else SHORT
+                "char" -> if (isArray) CHAR_ARRAY else CHAR
+                "int" -> if (isArray) INT_ARRAY else INT
+                "integer" -> if (isArray) INT_ARRAY else INT
+                "long" -> if (isArray) LONG_ARRAY else LONG
+                "float" -> if (isArray) FLOAT_ARRAY else FLOAT
+                "double" -> if (isArray) DOUBLE_ARRAY else DOUBLE
+                "string" -> STRING
                 else -> ClassName.bestGuess(typeName)
             }
             val genericType =
