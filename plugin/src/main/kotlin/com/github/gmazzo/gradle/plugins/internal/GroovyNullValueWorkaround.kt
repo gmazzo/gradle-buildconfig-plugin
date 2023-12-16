@@ -4,7 +4,6 @@ import com.github.gmazzo.gradle.plugins.BuildConfigClassSpec
 import com.github.gmazzo.gradle.plugins.addField
 import com.github.gmazzo.gradle.plugins.typeOf
 import com.github.gmazzo.gradle.plugins.valueOf
-import groovy.lang.GroovyObject
 import groovy.lang.GroovyObjectSupport
 import java.io.Serializable
 import java.lang.reflect.Type

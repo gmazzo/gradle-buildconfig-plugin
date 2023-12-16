@@ -1,4 +1,4 @@
-import com.github.gmazzo.gradle.plugins.BuildConfigField
+import com.github.gmazzo.gradle.plugins.BuildConfigValue
 import com.github.gmazzo.gradle.plugins.generators.BuildConfigGenerator
 import com.github.gmazzo.gradle.plugins.generators.BuildConfigGeneratorSpec
 import java.io.FileOutputStream
@@ -35,10 +35,11 @@ buildConfig {
     buildConfigField<String>("OPTIONAL", null)
     buildConfigField("BUILD_TIME", System.currentTimeMillis())
     buildConfigField("FEATURE_ENABLED", true)
+    buildConfigField("MAGIC_NUMBERS", listOf(1, 2, 3))
 
     // all possible kind for String
     buildConfigField("STRING", "aString")
-    buildConfigField<String>("STRING_NULL", null)
+    buildConfigField("STRING_NULL", null as String?)
     buildConfigField("STRING_PROVIDER", provider { "aString" })
     buildConfigField("STRING_ARRAY", arrayOf("a", "b", "c"))
     buildConfigField("STRING_ARRAY_PROVIDER", provider { arrayOf("a", "b", "c") })
@@ -51,7 +52,7 @@ buildConfig {
 
     // all possible kind for Byte
     buildConfigField("BYTE", 64.toByte())
-    buildConfigField<Byte>("BYTE_NULL", null)
+    buildConfigField("BYTE_NULL", null as Byte?)
     buildConfigField("BYTE_PROVIDER", provider { 64.toByte() })
     buildConfigField("BYTE_NATIVE_ARRAY", byteArrayOf(1, 2, 3))
     buildConfigField("BYTE_NATIVE_ARRAY_PROVIDER", provider { byteArrayOf(1, 2, 3) })
@@ -66,7 +67,7 @@ buildConfig {
 
     // all possible kind for Short
     buildConfigField("SHORT", 64.toShort())
-    buildConfigField<Short>("SHORT_NULL", null)
+    buildConfigField("SHORT_NULL", null as Short?)
     buildConfigField("SHORT_PROVIDER", provider { 64.toShort() })
     buildConfigField("SHORT_NATIVE_ARRAY", shortArrayOf(1, 2, 3))
     buildConfigField("SHORT_NATIVE_ARRAY_PROVIDER", provider { shortArrayOf(1, 2, 3) })
@@ -81,7 +82,7 @@ buildConfig {
 
     // all possible kind for Char
     buildConfigField("CHAR", 'a')
-    buildConfigField<Char>("CHAR_NULL", null)
+    buildConfigField("CHAR_NULL", null as Char?)
     buildConfigField("CHAR_PROVIDER", provider { 'a' })
     buildConfigField("CHAR_NATIVE_ARRAY", charArrayOf('a', 'b', 'c'))
     buildConfigField("CHAR_NATIVE_ARRAY_PROVIDER", provider { charArrayOf('a', 'b', 'c') })
@@ -95,8 +96,8 @@ buildConfig {
     buildConfigField("CHAR_SET_PROVIDER", provider { setOf('a', null, 'c') })
 
     // all possible kind for Int
-    buildConfigField("INT", 1)
-    buildConfigField<Int>("INT_NULL", null)
+    buildConfigField("INT", 1 as Int)
+    buildConfigField("INT_NULL", null as Int?)
     buildConfigField("INT_PROVIDER", provider { 1 })
     buildConfigField("INT_NATIVE_ARRAY", intArrayOf(1, 2, 3))
     buildConfigField("INT_NATIVE_ARRAY_PROVIDER", provider { intArrayOf(1, 2, 3) })
@@ -111,7 +112,7 @@ buildConfig {
 
     // all possible kind for Long
     buildConfigField("LONG", 1L)
-    buildConfigField<Long>("LONG_NULL", null)
+    buildConfigField("LONG_NULL", null as Long?)
     buildConfigField("LONG_PROVIDER", provider { 1L })
     buildConfigField("LONG_NATIVE_ARRAY", longArrayOf(1L, 2L, 3L))
     buildConfigField("LONG_NATIVE_ARRAY_PROVIDER", provider { longArrayOf(1L, 2L, 3L) })
@@ -126,7 +127,7 @@ buildConfig {
 
     // all possible kind for Float
     buildConfigField("FLOAT", 1f)
-    buildConfigField<Float>("FLOAT_NULL", null)
+    buildConfigField("FLOAT_NULL", null as Float?)
     buildConfigField("FLOAT_PROVIDER", provider { 1f })
     buildConfigField("FLOAT_NATIVE_ARRAY", floatArrayOf(1f, 2f, 3f))
     buildConfigField("FLOAT_NATIVE_ARRAY_PROVIDER", provider { floatArrayOf(1f, 2f, 3f) })
@@ -141,7 +142,7 @@ buildConfig {
 
     // all possible kind for Double
     buildConfigField("DOUBLE", 1.0)
-    buildConfigField<Double>("DOUBLE_NULL", null)
+    buildConfigField("DOUBLE_NULL", null as Double?)
     buildConfigField("DOUBLE_PROVIDER", provider { 1.0 })
     buildConfigField("DOUBLE_NATIVE_ARRAY", doubleArrayOf(1.0, 2.0, 3.0))
     buildConfigField("DOUBLE_NATIVE_ARRAY_PROVIDER", provider { doubleArrayOf(1.0, 2.0, 3.0) })
@@ -156,7 +157,7 @@ buildConfig {
 
     // all possible kind for Boolean
     buildConfigField("BOOLEAN", true)
-    buildConfigField<Boolean>("BOOLEAN_NULL", null)
+    buildConfigField("BOOLEAN_NULL", null as Boolean?)
     buildConfigField("BOOLEAN_PROVIDER", provider { true })
     buildConfigField("BOOLEAN_NATIVE_ARRAY", booleanArrayOf(true, false, false))
     buildConfigField("BOOLEAN_NATIVE_ARRAY_PROVIDER", provider { booleanArrayOf(true, false, false) })
@@ -236,7 +237,7 @@ val propertiesSS = buildConfig.sourceSets.register("properties") {
                 spec.fields.forEach {
                     props.setProperty(
                         it.name,
-                        (it.value.get() as BuildConfigField.Literal).value.toString()
+                        (it.value.get() as BuildConfigValue.Literal).value.toString()
                     )
                 }
                 props.storeToXML(FileOutputStream(File(spec.outputDir, "${spec.className}.xml")), null)

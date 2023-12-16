@@ -1,6 +1,8 @@
 package com.github.gmazzo.gradle.plugins.generators
 
 import com.github.gmazzo.gradle.plugins.BuildConfigField
+import com.github.gmazzo.gradle.plugins.BuildConfigType
+import com.github.gmazzo.gradle.plugins.BuildConfigValue
 import com.github.gmazzo.gradle.plugins.asVarArg
 import com.github.gmazzo.gradle.plugins.elements
 import com.github.gmazzo.gradle.plugins.parseTypename
@@ -29,6 +31,7 @@ import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.SET
 import com.squareup.kotlinpoet.SHORT
 import com.squareup.kotlinpoet.SHORT_ARRAY
+import com.squareup.kotlinpoet.STAR
 import com.squareup.kotlinpoet.STRING
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeSpec
@@ -41,8 +44,6 @@ data class BuildConfigKotlinGenerator(
     @get:Input var topLevelConstants: Boolean = false,
     @get:Input var internalVisibility: Boolean = true
 ) : BuildConfigGenerator {
-
-    private val constTypes = setOf(String::class.asClassName(), BOOLEAN, BYTE, SHORT, INT, LONG, CHAR, FLOAT, DOUBLE)
 
     private val logger = Logging.getLogger(javaClass)
 
@@ -65,10 +66,10 @@ data class BuildConfigKotlinGenerator(
             val nullableAwareType = if (value.value != null) typeName else typeName.copy(nullable = true)
 
             return@map PropertySpec.builder(field.name, nullableAwareType, kModifiers)
-                .apply { if (value.value != null && typeName in constTypes) addModifiers(KModifier.CONST) }
+                .apply { if (value.value != null && typeName in CONST_TYPES) addModifiers(KModifier.CONST) }
                 .apply {
                     when (value) {
-                        is BuildConfigField.Literal -> {
+                        is BuildConfigValue.Literal -> {
                             val (format, count) = nullableAwareType.format(value.value)
                             val args = value.value.asVarArg()
 
@@ -79,42 +80,53 @@ data class BuildConfigKotlinGenerator(
                             initializer(format, *args)
                         }
 
-                        is BuildConfigField.Expression -> initializer("%L", value.value)
+                        is BuildConfigValue.Expression -> initializer("%L", value.value)
                     }
 
                 }
                 .build()
         } catch (e: Exception) {
             throw IllegalArgumentException(
-                "Failed to generate field '${field.name}' of type '${field.type.get().value}', " +
+                "Failed to generate field '${field.name}' of type '${field.type.get()}', " +
                         "with value: ${field.value.get().value} (of type '${field.value.get().value?.javaClass}')", e
             )
         }
     }
 
-    private fun BuildConfigField.Type.toTypeName(): TypeName = when (this) {
-        is BuildConfigField.JavaRef -> value.kotlin.asTypeName()
-        is BuildConfigField.NameRef -> {
-            val (typeName, isArray, isNullable) = value.parseTypename()
+    private fun BuildConfigType<*>.toTypeName(): TypeName {
+        fun Class<*>.toTypeName(): TypeName =
+            if (isArray) ARRAY.parameterizedBy(componentType.toTypeName())
+            else kotlin.asTypeName()
 
-            val type = when (typeName.lowercase()) {
-                "boolean" -> if (isArray) BOOLEAN_ARRAY else BOOLEAN
-                "byte" -> if (isArray) BYTE_ARRAY else BYTE
-                "short" -> if (isArray) SHORT_ARRAY else SHORT
-                "char" -> if (isArray) CHAR_ARRAY else CHAR
-                "int" -> if (isArray) INT_ARRAY else INT
-                "integer" -> if (isArray) INT_ARRAY else INT
-                "long" -> if (isArray) LONG_ARRAY else LONG
-                "float" -> if (isArray) FLOAT_ARRAY else FLOAT
-                "double" -> if (isArray) DOUBLE_ARRAY else DOUBLE
-                "string" -> STRING
-                else -> ClassName.bestGuess(typeName)
+        fun TypeName.parameterized(parameters: List<BuildConfigType<*>>) =
+            if (parameters.isEmpty()) this
+            else (this as ClassName).parameterizedBy(*parameters.map { it.toTypeName() }.toTypedArray())
+
+        return when (this) {
+            is BuildConfigType.JavaRef -> ref.toTypeName()
+            is BuildConfigType.NameRef -> {
+                val (typeName, isNullable, isArray) = ref.parseTypename()
+
+                var type: TypeName = when (typeName.lowercase()) {
+                    "boolean" -> if (isArray && !isNullable) BOOLEAN_ARRAY else BOOLEAN
+                    "byte" -> if (isArray && !isNullable) BYTE_ARRAY else BYTE
+                    "short" -> if (isArray && !isNullable) SHORT_ARRAY else SHORT
+                    "char" -> if (isArray && !isNullable) CHAR_ARRAY else CHAR
+                    "int" -> if (isArray && !isNullable) INT_ARRAY else INT
+                    "integer" -> if (isArray && !isNullable) INT_ARRAY else INT
+                    "long" -> if (isArray && !isNullable) LONG_ARRAY else LONG
+                    "float" -> if (isArray && !isNullable) FLOAT_ARRAY else FLOAT
+                    "double" -> if (isArray && !isNullable) DOUBLE_ARRAY else DOUBLE
+                    "string" -> STRING
+                    "list" -> LIST
+                    "set" -> SET
+                    else -> ClassName.bestGuess(typeName)
+                }
+                type = type.parameterized(typeParameters)
+                if (isNullable) type = type.copy(nullable = true)
+                if (isArray && !type.isPrimitiveArray) type = ARRAY.parameterizedBy(type)
+                return type
             }
-            val genericType =
-                if (typeParameters.isEmpty()) type
-                else checkNotNull(type as? ClassName).parameterizedBy(typeParameters.map { it.toTypeName() })
-
-            if (isNullable) genericType.copy(nullable = true) else genericType
         }
     }
 
@@ -138,49 +150,69 @@ data class BuildConfigKotlinGenerator(
 
 
     private fun TypeName.format(forValue: Any?): Pair<String, Int> {
-        fun Any?.format() = when (this) {
-            is Char -> "'%L'"
-            is Long -> "%LL"
-            is Float -> "%Lf"
-            is String -> "%S"
+        fun TypeName?.format() = when (this?.copy(nullable = false)) {
+            CHAR -> "'%L'"
+            LONG -> "%LL"
+            FLOAT -> "%Lf"
+            STRING -> "%S"
             else -> "%L"
         }
 
-        fun List<Any?>.format(function: String) = joinToString(
+        fun List<Any?>.format(function: String, item: (Any) -> TypeName) = joinToString(
             prefix = "$function(",
             separator = ", ",
             postfix = ")",
-            transform = { it.format() }
+            transform = { it?.let(item).format() }
         ) to size
 
         val elements = forValue.elements
-        val singleFormat by lazy { elements.single().format() to 1 }
-        val arrayFormat by lazy { elements.format("arrayOf") }
-        val listFormat by lazy { elements.format("listOf") }
-        val setFormat by lazy { elements.format("setOf") }
 
-        return when (this) {
-            LONG, STRING -> singleFormat
-            ARRAY -> arrayFormat
-            BYTE_ARRAY -> elements.format("byteArrayOf")
-            SHORT_ARRAY -> elements.format("shortArrayOf")
-            CHAR_ARRAY -> elements.format("charArrayOf")
-            INT_ARRAY -> elements.format("intArrayOf")
-            LONG_ARRAY -> elements.format("longArrayOf")
-            FLOAT_ARRAY -> elements.format("floatArrayOf")
-            DOUBLE_ARRAY -> elements.format("doubleArrayOf")
-            BOOLEAN_ARRAY -> elements.format("booleanArrayOf")
-            LIST -> listFormat
-            SET -> setFormat
-            is ParameterizedTypeName -> when (rawType) {
-                ARRAY -> arrayFormat
-                LIST-> listFormat
-                SET -> setFormat
-                else -> singleFormat
+        fun singleFormat() =
+            elements.single()?.let { it::class.asTypeName() }.format() to 1
+
+        fun arrayFormat(item: (Any) -> TypeName) =
+            elements.format("arrayOf", item)
+
+        fun listFormat(item: (Any) -> TypeName) =
+            elements.format("listOf", item)
+
+        fun setFormat(item: (Any) -> TypeName) =
+            elements.format("setOf", item)
+
+        return when (val nonNullable = copy(nullable = false)) {
+            LONG, STRING -> singleFormat()
+            ARRAY -> arrayFormat { it::class.asTypeName() }
+            BYTE_ARRAY -> elements.format("byteArrayOf") { BYTE }
+            SHORT_ARRAY -> elements.format("shortArrayOf") { SHORT }
+            CHAR_ARRAY -> elements.format("charArrayOf") { CHAR }
+            INT_ARRAY -> elements.format("intArrayOf") { INT }
+            LONG_ARRAY -> elements.format("longArrayOf") { LONG }
+            FLOAT_ARRAY -> elements.format("floatArrayOf") { FLOAT }
+            DOUBLE_ARRAY -> elements.format("doubleArrayOf") { DOUBLE }
+            BOOLEAN_ARRAY -> elements.format("booleanArrayOf") { BOOLEAN }
+            LIST, GENERIC_LIST -> listFormat { it::class.asTypeName() }
+            SET, GENERIC_SET -> setFormat { it::class.asTypeName() }
+            is ParameterizedTypeName -> when (nonNullable.rawType) {
+                ARRAY -> arrayFormat { nonNullable.typeArguments.first() }
+                LIST, GENERIC_LIST -> listFormat { nonNullable.typeArguments.first() }
+                SET, GENERIC_SET -> setFormat { nonNullable.typeArguments.first() }
+                else -> singleFormat()
             }
 
-            else -> singleFormat
+            else -> singleFormat()
         }
+    }
+
+    private val TypeName.isPrimitiveArray
+        get() = when (copy(nullable = false)) {
+            BYTE_ARRAY, SHORT_ARRAY, CHAR_ARRAY, INT_ARRAY, LONG_ARRAY, FLOAT_ARRAY, DOUBLE_ARRAY, BOOLEAN_ARRAY -> true
+            else -> false
+        }
+
+    companion object {
+        private val CONST_TYPES = setOf(STRING, BOOLEAN, BYTE, SHORT, INT, LONG, CHAR, FLOAT, DOUBLE)
+        private val GENERIC_LIST = ClassName("", "List")
+        private val GENERIC_SET = ClassName("", "SET")
     }
 
 }

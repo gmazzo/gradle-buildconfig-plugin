@@ -6,26 +6,31 @@ import java.io.Serializable
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 
-private val regEx = "(.*?)(\\[])?(\\?)?".toRegex()
+private val regEx = "([^\\[\\]?]+?)(\\?)?(\\[])?".toRegex()
 
-internal fun String.parseTypename(): Triple<String, Boolean, Boolean> = regEx.matchEntire(this)?.let {
-    val (type, array, nullable) = it.destructured
+internal fun String.parseTypename(): Triple<String, Boolean, Boolean> {
+    val match = regEx.matchEntire(this)
+    checkNotNull(match) {
+        "Class name must be of one of these formats: 'ClassName', 'ClassName?', 'ClassName[]' or 'ClassName?[]'"
+    }
 
-    Triple(type, array.isNotEmpty(), nullable.isNotEmpty())
-} ?: Triple(this, false, false)
+    val (type, nullable, array) = match.destructured
 
-internal fun typeOf(type: Class<out Serializable>) =
-    BuildConfigField.JavaRef(type)
+    return Triple(type, nullable.isNotEmpty(), array.isNotEmpty())
+}
+
+internal fun typeOf(type: Class<*>) =
+    BuildConfigType.JavaRef(type)
 
 @PublishedApi
-internal fun nameOf(type: KType): BuildConfigField.NameRef = (type.classifier!! as KClass<*>).let { kClass ->
-    BuildConfigField.NameRef(
+internal fun nameOf(type: KType): BuildConfigType.NameRef = (type.classifier!! as KClass<*>).let { kClass ->
+    BuildConfigType.NameRef(
         kClass.qualifiedName!! + if (type.isMarkedNullable) "?" else "",
         if (kClass.typeParameters.isEmpty()) emptyList() else type.arguments.map { nameOf(it.type!!) }
     )
 }
 
-internal fun nameOf(className: String): BuildConfigField.NameRef {
+internal fun nameOf(className: String): BuildConfigType.NameRef {
     val iterator = className.toList().listIterator()
     val nameRef = parseName(iterator, null)
     check(!iterator.hasNext()) {
@@ -38,9 +43,9 @@ internal fun nameOf(className: String): BuildConfigField.NameRef {
 
 private fun parseName(
     iterator: ListIterator<Char>,
-    parentParameters: MutableList<BuildConfigField.NameRef>?
-): BuildConfigField.NameRef {
-    val parameters = mutableListOf<BuildConfigField.NameRef>()
+    parentParameters: MutableList<BuildConfigType.NameRef>?
+): BuildConfigType.NameRef {
+    val parameters = mutableListOf<BuildConfigType.NameRef>()
     val name = buildString {
         while (iterator.hasNext()) {
             when (val ch = iterator.next()) {
@@ -59,20 +64,19 @@ private fun parseName(
             }
         }
     }
-    return BuildConfigField.NameRef(name, parameters)
+    return BuildConfigType.NameRef(name, parameters)
 }
 
 @PublishedApi
 internal fun expressionOf(expression: String) =
-    BuildConfigField.Expression(expression)
+    BuildConfigValue.Expression(expression)
 
 @PublishedApi
-internal fun valueOf(value: Any?) = check(value is Serializable?) { "Value must be a Serializable: $value" }.let {
-    BuildConfigField.Literal(value)
-}
+internal fun valueOf(value: Serializable?) =
+    BuildConfigValue.Literal(value)
 
 private fun BuildConfigClassSpec.buildConfigField(
-    type: BuildConfigField.Type,
+    type: BuildConfigType<*>,
     name: String,
     action: (BuildConfigField) -> Unit,
 ): NamedDomainObjectProvider<BuildConfigField> = buildConfigFields.size.let { position ->
@@ -84,14 +88,14 @@ private fun BuildConfigClassSpec.buildConfigField(
 }
 
 @PublishedApi
-internal fun BuildConfigClassSpec.addField(type: BuildConfigField.Type, name: String, value: BuildConfigField.Value) =
+internal fun BuildConfigClassSpec.addField(type: BuildConfigType<*>, name: String, value: BuildConfigValue) =
     buildConfigField(type, name) { it.value.value(value).disallowChanges() }
 
 @PublishedApi
 internal fun BuildConfigClassSpec.addField(
-    type: BuildConfigField.Type,
+    type: BuildConfigType<*>,
     name: String,
-    value: Provider<BuildConfigField.Value>
+    value: Provider<BuildConfigValue>
 ) =
     buildConfigField(type, name) { it.value.value(value).disallowChanges() }
 

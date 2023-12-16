@@ -21,6 +21,7 @@ public abstract class BuildConfigBaseTest {
         assertNull(BuildConfig.OPTIONAL);
         assertTrue(System.currentTimeMillis() >= BuildConfig.BUILD_TIME);
         assertTrue(BuildConfig.FEATURE_ENABLED);
+        assertEquals(Arrays.asList(1, 2, 3), BuildConfig.MAGIC_NUMBERS);
     }
 
     @Test
@@ -49,10 +50,10 @@ public abstract class BuildConfigBaseTest {
         assertArrayEquals(new Byte[]{1, 2, 3}, BuildConfig.BYTE_ARRAY_PROVIDER);
         assertArrayEquals(new Byte[]{1, null, 3}, BuildConfig.BYTE_ARRAY_NULLABLE);
         assertArrayEquals(new Byte[]{1, null, 3}, BuildConfig.BYTE_ARRAY_NULLABLE_PROVIDER);
-        assertEquals(Arrays.asList(1, null, 3), BuildConfig.BYTE_LIST);
-        assertEquals(Arrays.asList(1, null, 3), BuildConfig.BYTE_LIST_PROVIDER);
-        assertEquals(new HashSet<>(Arrays.asList(1, null, 3)), BuildConfig.BYTE_SET);
-        assertEquals(new HashSet<>(Arrays.asList(1, null, 3)), BuildConfig.BYTE_SET_PROVIDER);
+        assertEquals(Arrays.asList((byte) 1, null, (byte) 3), BuildConfig.BYTE_LIST);
+        assertEquals(Arrays.asList((byte) 1, null, (byte) 3), BuildConfig.BYTE_LIST_PROVIDER);
+        assertEquals(new HashSet<>(Arrays.asList((byte) 1, null, (byte) 3)), BuildConfig.BYTE_SET);
+        assertEquals(new HashSet<>(Arrays.asList((byte) 1, null, (byte) 3)), BuildConfig.BYTE_SET_PROVIDER);
     }
 
     @Test
@@ -66,10 +67,10 @@ public abstract class BuildConfigBaseTest {
         assertArrayEquals(new Short[]{1, 2, 3}, BuildConfig.SHORT_ARRAY_PROVIDER);
         assertArrayEquals(new Short[]{1, null, 3}, BuildConfig.SHORT_ARRAY_NULLABLE);
         assertArrayEquals(new Short[]{1, null, 3}, BuildConfig.SHORT_ARRAY_NULLABLE_PROVIDER);
-        assertEquals(Arrays.asList(1, null, 3), BuildConfig.SHORT_LIST);
-        assertEquals(Arrays.asList(1, null, 3), BuildConfig.SHORT_LIST_PROVIDER);
-        assertEquals(new HashSet<>(Arrays.asList(1, null, 3)), BuildConfig.SHORT_SET);
-        assertEquals(new HashSet<>(Arrays.asList(1, null, 3)), BuildConfig.SHORT_SET_PROVIDER);
+        assertEquals(Arrays.asList((short) 1, null, (short) 3), BuildConfig.SHORT_LIST);
+        assertEquals(Arrays.asList((short) 1, null, (short) 3), BuildConfig.SHORT_LIST_PROVIDER);
+        assertEquals(new HashSet<>(Arrays.asList((short) 1, null, (short) 3)), BuildConfig.SHORT_SET);
+        assertEquals(new HashSet<>(Arrays.asList((short) 1, null, (short) 3)), BuildConfig.SHORT_SET_PROVIDER);
     }
 
     @Test
