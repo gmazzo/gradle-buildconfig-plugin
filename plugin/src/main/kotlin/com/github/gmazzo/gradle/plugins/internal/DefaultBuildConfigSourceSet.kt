@@ -14,16 +14,17 @@ internal abstract class DefaultBuildConfigSourceSet(
 ) :
     BuildConfigSourceSetInternal,
     BuildConfigClassSpec by classSpec,
-    Iterable<TaskProvider<BuildConfigTask>> {
+    Iterable<TaskProvider<BuildConfigTask>>,
+    GroovyNullValueWorkaround() {
 
     @Inject
     constructor(
         name: String,
         objects: ObjectFactory,
     ) : this(
-        classSpec = objects.newInstance<BuildConfigClassSpec>(name),
-        extraSpecs = objects.domainObjectContainer(BuildConfigClassSpec::class.java) { extraName ->
-            objects.newInstance<BuildConfigClassSpec>(extraName)
+        classSpec = objects.newInstance<BuildConfigClassSpecInternal>(name),
+        extraSpecs = objects.domainObjectContainer(BuildConfigClassSpecInternal::class.java) { extraName ->
+            objects.newInstance<BuildConfigClassSpecInternal>(extraName)
         }
     )
 

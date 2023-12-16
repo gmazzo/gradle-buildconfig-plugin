@@ -57,7 +57,7 @@ interface BuildConfigClassSpec : Named {
         value: Provider<String>
     ) = addField(nameOf(type), name, value.map(::expressionOf))
 
-    fun <Type : Any> buildConfigField(
+    fun <Type : Serializable> buildConfigField(
         type: Class<out Type>,
         name: String,
         value: Type?,
