@@ -59,10 +59,7 @@ data class BuildConfigKotlinGenerator(
 
     private fun Iterable<BuildConfigField>.asPropertiesSpec() = map { field ->
         try {
-            val typeName = when (val type = field.type.get()) {
-                is BuildConfigField.JavaRef -> type.javaType.asTypeName()
-                is BuildConfigField.NameRef -> type.toTypeName()
-            }
+            val typeName = field.type.get().toTypeName()
 
             val value = field.value.get()
             val nullableAwareType = if (value.value != null) typeName else typeName.copy(nullable = true)
@@ -88,15 +85,15 @@ data class BuildConfigKotlinGenerator(
                 }
                 .build()
         } catch (e: Exception) {
-            throw IllegalArgumentException("Failed to generate field ${field.name} of type ${field.value.get()}, " +
+            throw IllegalArgumentException("Failed to generate field ${field.name} of type ${field.type.get()}, " +
                     "with value: ${field.value.get().value}", e)
         }
     }
 
     private fun BuildConfigField.Type.toTypeName(): TypeName = when (this) {
-        is BuildConfigField.JavaRef -> javaType.asTypeName()
+        is BuildConfigField.JavaRef -> value.asTypeName()
         is BuildConfigField.NameRef -> {
-            val (typeName, isArray, isNullable) = className.parseTypename()
+            val (typeName, isArray, isNullable) = value.parseTypename()
 
             val type = when (typeName.lowercase()) {
                 "boolean" -> if (isArray) BOOLEAN_ARRAY else BOOLEAN
