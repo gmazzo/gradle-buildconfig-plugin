@@ -108,8 +108,8 @@ data class BuildConfigJavaGenerator(
                 )
             } catch (e: Exception) {
                 throw IllegalArgumentException(
-                    "Failed to generate field ${field.name} of type ${field.type.get().value}, " +
-                            "with value: ${field.value.get().value}", e
+                    "Failed to generate field '${field.name}' of type '${field.type.get().value}', " +
+                            "with value: ${field.value.get().value} (of type '${field.value.get().value?.javaClass}')", e
                 )
             }
         }
