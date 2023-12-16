@@ -46,30 +46,15 @@ data class BuildConfigKotlinGenerator(
 
     private val logger = Logging.getLogger(javaClass)
 
-    private fun BuildConfigField.Type.toTypeName(): TypeName = when (this) {
-        is BuildConfigField.JavaRef -> javaType.asTypeName()
-        is BuildConfigField.NameRef -> {
-            val (typeName, isArray, isNullable) = className.parseTypename()
+    override fun execute(spec: BuildConfigGeneratorSpec) {
+        logger.debug("Generating {} for fields {}", spec.className, spec.fields)
 
-            val type = when (typeName.lowercase()) {
-                "boolean" -> if (isArray) BOOLEAN_ARRAY else BOOLEAN
-                "byte" -> if (isArray) BYTE_ARRAY else BYTE
-                "short" -> if (isArray) SHORT_ARRAY else SHORT
-                "char" -> if (isArray) CHAR_ARRAY else CHAR
-                "int" -> if (isArray) INT_ARRAY else INT
-                "integer" -> if (isArray) INT_ARRAY else INT
-                "long" -> if (isArray) LONG_ARRAY else LONG
-                "float" -> if (isArray) FLOAT_ARRAY else FLOAT
-                "double" -> if (isArray) DOUBLE_ARRAY else DOUBLE
-                "string" -> STRING
-                else -> ClassName.bestGuess(typeName)
-            }
-            val genericType =
-                if (typeParameters.isEmpty()) type
-                else checkNotNull(type as? ClassName).parameterizedBy(typeParameters.map { it.toTypeName() })
+        val fields = spec.fields.asPropertiesSpec()
 
-            if (isNullable) genericType.copy(nullable = true) else genericType
-        }
+        FileSpec.builder(spec.packageName, spec.className)
+            .addFields(fields, spec.documentation)
+            .build()
+            .writeTo(spec.outputDir)
     }
 
     private fun Iterable<BuildConfigField>.asPropertiesSpec() = map { field ->
@@ -108,15 +93,30 @@ data class BuildConfigKotlinGenerator(
         }
     }
 
-    override fun execute(spec: BuildConfigGeneratorSpec) {
-        logger.debug("Generating {} for fields {}", spec.className, spec.fields)
+    private fun BuildConfigField.Type.toTypeName(): TypeName = when (this) {
+        is BuildConfigField.JavaRef -> javaType.asTypeName()
+        is BuildConfigField.NameRef -> {
+            val (typeName, isArray, isNullable) = className.parseTypename()
 
-        val fields = spec.fields.asPropertiesSpec()
+            val type = when (typeName.lowercase()) {
+                "boolean" -> if (isArray) BOOLEAN_ARRAY else BOOLEAN
+                "byte" -> if (isArray) BYTE_ARRAY else BYTE
+                "short" -> if (isArray) SHORT_ARRAY else SHORT
+                "char" -> if (isArray) CHAR_ARRAY else CHAR
+                "int" -> if (isArray) INT_ARRAY else INT
+                "integer" -> if (isArray) INT_ARRAY else INT
+                "long" -> if (isArray) LONG_ARRAY else LONG
+                "float" -> if (isArray) FLOAT_ARRAY else FLOAT
+                "double" -> if (isArray) DOUBLE_ARRAY else DOUBLE
+                "string" -> STRING
+                else -> ClassName.bestGuess(typeName)
+            }
+            val genericType =
+                if (typeParameters.isEmpty()) type
+                else checkNotNull(type as? ClassName).parameterizedBy(typeParameters.map { it.toTypeName() })
 
-        FileSpec.builder(spec.packageName, spec.className)
-            .addFields(fields, spec.documentation)
-            .build()
-            .writeTo(spec.outputDir)
+            if (isNullable) genericType.copy(nullable = true) else genericType
+        }
     }
 
     private fun FileSpec.Builder.addFields(fields: List<PropertySpec>, kdoc: String?): FileSpec.Builder = when {
