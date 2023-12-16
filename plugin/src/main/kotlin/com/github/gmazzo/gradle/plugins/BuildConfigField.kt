@@ -21,9 +21,9 @@ interface BuildConfigField : Named {
     @get:Input
     val position: Property<Int>
 
-    sealed interface Type : Serializable
-    data class JavaRef(val javaType: JavaType) : Type
-    data class NameRef(val className: String, val typeParameters: List<NameRef> = emptyList()) : Type
+    sealed interface Type : Serializable { val value: Serializable }
+    data class JavaRef(override val value: Class<out Serializable>) : Type
+    data class NameRef(override val value: String, val typeParameters: List<NameRef> = emptyList()) : Type
 
     sealed interface Value : Serializable { val value: Serializable? }
     data class Literal(override val value: Serializable?) : Value {

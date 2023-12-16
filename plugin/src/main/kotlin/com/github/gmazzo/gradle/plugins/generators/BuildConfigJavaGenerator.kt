@@ -23,9 +23,9 @@ data class BuildConfigJavaGenerator(
     private val logger = Logging.getLogger(javaClass)
 
     private fun BuildConfigField.Type.toTypeName(): TypeName = when (this) {
-        is BuildConfigField.JavaRef -> TypeName.get(javaType)
+        is BuildConfigField.JavaRef -> TypeName.get(value)
         is BuildConfigField.NameRef -> {
-            val (typeName, isArray, isNullable) = className.parseTypename()
+            val (typeName, isArray, isNullable) = value.parseTypename()
 
             val type = when (typeName) {
                 "boolean" -> TypeName.BOOLEAN
@@ -76,7 +76,7 @@ data class BuildConfigJavaGenerator(
         spec.fields.forEach { field ->
             try {
                 val typeName = when (val type = field.type.get()) {
-                    is BuildConfigField.JavaRef -> TypeName.get(type.javaType)
+                    is BuildConfigField.JavaRef -> TypeName.get(type.value)
                     is BuildConfigField.NameRef -> type.toTypeName()
                 }
                 val value = field.value.get()
@@ -108,7 +108,7 @@ data class BuildConfigJavaGenerator(
                 )
             } catch (e: Exception) {
                 throw IllegalArgumentException(
-                    "Failed to generate field ${field.name} of type ${field.value.get()}, " +
+                    "Failed to generate field ${field.name} of type ${field.type.get().value}, " +
                             "with value: ${field.value.get().value}", e
                 )
             }

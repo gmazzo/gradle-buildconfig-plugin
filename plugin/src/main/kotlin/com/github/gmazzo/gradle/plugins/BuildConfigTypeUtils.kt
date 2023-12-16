@@ -3,7 +3,6 @@ package com.github.gmazzo.gradle.plugins
 import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.provider.Provider
 import java.io.Serializable
-import java.lang.reflect.Type
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 
@@ -15,7 +14,7 @@ internal fun String.parseTypename(): Triple<String, Boolean, Boolean> = regEx.ma
     Triple(type, array.isNotEmpty(), nullable.isNotEmpty())
 } ?: Triple(this, false, false)
 
-internal fun typeOf(type: Type) =
+internal fun typeOf(type: Class<out Serializable>) =
     BuildConfigField.JavaRef(type)
 
 @PublishedApi
