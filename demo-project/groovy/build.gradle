@@ -22,6 +22,7 @@ buildConfig {
     buildConfigField(String, 'OPTIONAL', null)
     buildConfigField(long, 'BUILD_TIME', System.currentTimeMillis())
     buildConfigField(boolean, 'FEATURE_ENABLED', true)
+    buildConfigField('List<Int>', 'MAGIC_NUMBERS', [1, 2, 3])
 
     // all possible kind for String
     buildConfigField(String, "STRING", "aString")
@@ -31,10 +32,10 @@ buildConfig {
     buildConfigField(String[], "STRING_ARRAY_PROVIDER", provider { ["a", "b", "c"] })
     buildConfigField(String[], "STRING_ARRAY_NULLABLE", ["a", null, "c"])
     buildConfigField(String[], "STRING_ARRAY_NULLABLE_PROVIDER", provider { ["a", null, "c"] })
-    buildConfigField(List<String>, "STRING_LIST", ["a", null, "c"])
-    buildConfigField(List<String>, "STRING_LIST_PROVIDER", provider { ["a", null, "c"] })
-    buildConfigField(Set<String>, "STRING_SET", ["a", null, "c"])
-    buildConfigField(Set<String>, "STRING_SET_PROVIDER", provider { ["a", null, "c"] })
+    buildConfigField('List<String>', "STRING_LIST", ["a", null, "c"])
+    buildConfigField('List<String>', "STRING_LIST_PROVIDER", provider { ["a", null, "c"] })
+    buildConfigField('Set<String>', "STRING_SET", ["a", null, "c"])
+    buildConfigField('Set<String>', "STRING_SET_PROVIDER", provider { ["a", null, "c"] })
 
     // all possible kind for Byte
     buildConfigField(byte, "BYTE", 64 as byte)
@@ -46,10 +47,10 @@ buildConfig {
     buildConfigField(Byte[], "BYTE_ARRAY_PROVIDER", provider { [1, 2, 3] })
     buildConfigField(Byte[], "BYTE_ARRAY_NULLABLE", [1, null, 3])
     buildConfigField(Byte[], "BYTE_ARRAY_NULLABLE_PROVIDER", provider { [1, null, 3] })
-    buildConfigField(List<Byte>, "BYTE_LIST", [1, null, 3])
-    buildConfigField(List<Byte>, "BYTE_LIST_PROVIDER", provider { [1, null, 3] })
-    buildConfigField(Set<Byte>, "BYTE_SET", [1, null, 3])
-    buildConfigField(Set<Byte>, "BYTE_SET_PROVIDER", provider { [1, null, 3] })
+    buildConfigField('List<Byte>', "BYTE_LIST", [1, null, 3])
+    buildConfigField('List<Byte>', "BYTE_LIST_PROVIDER", provider { [1, null, 3] })
+    buildConfigField('Set<Byte>', "BYTE_SET", [1, null, 3])
+    buildConfigField('Set<Byte>', "BYTE_SET_PROVIDER", provider { [1, null, 3] })
 
     // all possible kind for Short
     buildConfigField(short, "SHORT", 64)
@@ -61,10 +62,10 @@ buildConfig {
     buildConfigField(Short[], "SHORT_ARRAY_PROVIDER", provider { [1, 2, 3] })
     buildConfigField(Short[], "SHORT_ARRAY_NULLABLE", [1, null, 3])
     buildConfigField(Short[], "SHORT_ARRAY_NULLABLE_PROVIDER", provider { [1, null, 3] })
-    buildConfigField(List<Short>, "SHORT_LIST", [1, null, 3])
-    buildConfigField(List<Short>, "SHORT_LIST_PROVIDER", provider { [1, null, 3] })
-    buildConfigField(Set<Short>, "SHORT_SET", [1, null, 3])
-    buildConfigField(Set<Short>, "SHORT_SET_PROVIDER", provider { [1, null, 3] })
+    buildConfigField('List<Short>', "SHORT_LIST", [1, null, 3])
+    buildConfigField('List<Short>', "SHORT_LIST_PROVIDER", provider { [1, null, 3] })
+    buildConfigField('Set<Short>', "SHORT_SET", [1, null, 3])
+    buildConfigField('Set<Short>', "SHORT_SET_PROVIDER", provider { [1, null, 3] })
 
     // all possible kind for Char
     buildConfigField(char, "CHAR", 'a' as char)
@@ -76,10 +77,10 @@ buildConfig {
     buildConfigField(Character[], "CHAR_ARRAY_PROVIDER", provider { ['a' as char, 'b' as char, 'c' as char] })
     buildConfigField(Character[], "CHAR_ARRAY_NULLABLE", ['a' as char, null, 'c' as char])
     buildConfigField(Character[], "CHAR_ARRAY_NULLABLE_PROVIDER", provider { ['a' as char, null, 'c' as char] })
-    buildConfigField(List<Character>, "CHAR_LIST", ['a' as char, null, 'c' as char])
-    buildConfigField(List<Character>, "CHAR_LIST_PROVIDER", provider { ['a' as char, null, 'c' as char] })
-    buildConfigField(Set<Character>, "CHAR_SET", ['a' as char, null, 'c' as char])
-    buildConfigField(Set<Character>, "CHAR_SET_PROVIDER", provider { ['a' as char, null, 'c' as char] })
+    buildConfigField('List<Character>', "CHAR_LIST", ['a' as char, null, 'c' as char])
+    buildConfigField('List<Character>', "CHAR_LIST_PROVIDER", provider { ['a' as char, null, 'c' as char] })
+    buildConfigField('Set<Character>', "CHAR_SET", ['a' as char, null, 'c' as char])
+    buildConfigField('Set<Character>', "CHAR_SET_PROVIDER", provider { ['a' as char, null, 'c' as char] })
 
     // all possible kind for Int
     buildConfigField(int, "INT", 1)
@@ -91,10 +92,10 @@ buildConfig {
     buildConfigField(Integer[], "INT_ARRAY_PROVIDER", provider { [1, 2, 3] })
     buildConfigField(Integer[], "INT_ARRAY_NULLABLE", [1, null, 3])
     buildConfigField(Integer[], "INT_ARRAY_NULLABLE_PROVIDER", provider { [1, null, 3] })
-    buildConfigField(List<Integer>, "INT_LIST", [1, null, 3])
-    buildConfigField(List<Integer>, "INT_LIST_PROVIDER", provider { [1, null, 3] })
-    buildConfigField(Set<Integer>, "INT_SET", [1, null, 3])
-    buildConfigField(Set<Integer>, "INT_SET_PROVIDER", provider { [1, null, 3] })
+    buildConfigField('List<Integer>', "INT_LIST", [1, null, 3])
+    buildConfigField('List<Integer>', "INT_LIST_PROVIDER", provider { [1, null, 3] })
+    buildConfigField('Set<Integer>', "INT_SET", [1, null, 3])
+    buildConfigField('Set<Integer>', "INT_SET_PROVIDER", provider { [1, null, 3] })
 
     // all possible kind for Long
     buildConfigField(long, "LONG", 1L)
@@ -106,10 +107,10 @@ buildConfig {
     buildConfigField(Long[], "LONG_ARRAY_PROVIDER", provider { [1L, 2L, 3L] })
     buildConfigField(Long[], "LONG_ARRAY_NULLABLE", [1L, null, 3L])
     buildConfigField(Long[], "LONG_ARRAY_NULLABLE_PROVIDER", provider { [1L, null, 3L] })
-    buildConfigField(List<Long>, "LONG_LIST", [1L, null, 3L])
-    buildConfigField(List<Long>, "LONG_LIST_PROVIDER", provider { [1L, null, 3L] })
-    buildConfigField(Set<Long>, "LONG_SET", [1L, null, 3L])
-    buildConfigField(Set<Long>, "LONG_SET_PROVIDER", provider { [1L, null, 3L] })
+    buildConfigField('List<Long>', "LONG_LIST", [1L, null, 3L])
+    buildConfigField('List<Long>', "LONG_LIST_PROVIDER", provider { [1L, null, 3L] })
+    buildConfigField('Set<Long>', "LONG_SET", [1L, null, 3L])
+    buildConfigField('Set<Long>', "LONG_SET_PROVIDER", provider { [1L, null, 3L] })
 
     // all possible kind for Float
     buildConfigField(float, "FLOAT", 1f)
@@ -121,10 +122,10 @@ buildConfig {
     buildConfigField(Float[], "FLOAT_ARRAY_PROVIDER", provider { [1f, 2f, 3f] })
     buildConfigField(Float[], "FLOAT_ARRAY_NULLABLE", [1f, null, 3f])
     buildConfigField(Float[], "FLOAT_ARRAY_NULLABLE_PROVIDER", provider { [1f, null, 3f] })
-    buildConfigField(List<Float>, "FLOAT_LIST", [1f, null, 3f])
-    buildConfigField(List<Float>, "FLOAT_LIST_PROVIDER", provider { [1f, null, 3f] })
-    buildConfigField(Set<Float>, "FLOAT_SET", [1f, null, 3f])
-    buildConfigField(Set<Float>, "FLOAT_SET_PROVIDER", provider { [1f, null, 3f] })
+    buildConfigField('List<Float>', "FLOAT_LIST", [1f, null, 3f])
+    buildConfigField('List<Float>', "FLOAT_LIST_PROVIDER", provider { [1f, null, 3f] })
+    buildConfigField('Set<Float>', "FLOAT_SET", [1f, null, 3f])
+    buildConfigField('Set<Float>', "FLOAT_SET_PROVIDER", provider { [1f, null, 3f] })
 
     // all possible kind for Double
     buildConfigField(double, "DOUBLE", 1.0)
@@ -136,10 +137,10 @@ buildConfig {
     buildConfigField(Double[], "DOUBLE_ARRAY_PROVIDER", provider { [1.0, 2.0, 3.0] })
     buildConfigField(Double[], "DOUBLE_ARRAY_NULLABLE", [1.0, null, 3.0])
     buildConfigField(Double[], "DOUBLE_ARRAY_NULLABLE_PROVIDER", provider { [1.0, null, 3.0] })
-    buildConfigField(List<Double>, "DOUBLE_LIST", [1.0, null, 3.0])
-    buildConfigField(List<Double>, "DOUBLE_LIST_PROVIDER", provider { [1.0, null, 3.0] })
-    buildConfigField(Set<Double>, "DOUBLE_SET", [1.0, null, 3.0])
-    buildConfigField(Set<Double>, "DOUBLE_SET_PROVIDER", provider { [1.0, null, 3.0] })
+    buildConfigField('List<Double>', "DOUBLE_LIST", [1.0, null, 3.0])
+    buildConfigField('List<Double>', "DOUBLE_LIST_PROVIDER", provider { [1.0, null, 3.0] })
+    buildConfigField('Set<Double>', "DOUBLE_SET", [1.0, null, 3.0])
+    buildConfigField('Set<Double>', "DOUBLE_SET_PROVIDER", provider { [1.0, null, 3.0] })
 
     // all possible kind for Boolean
     buildConfigField(boolean, "BOOLEAN", true)
@@ -151,10 +152,10 @@ buildConfig {
     buildConfigField(Boolean[], "BOOLEAN_ARRAY_PROVIDER", provider { [true, false, false] })
     buildConfigField(Boolean[], "BOOLEAN_ARRAY_NULLABLE", [true, null, false])
     buildConfigField(Boolean[], "BOOLEAN_ARRAY_NULLABLE_PROVIDER", provider { [true, null, false] })
-    buildConfigField(List<Boolean>, "BOOLEAN_LIST", [true, null, false])
-    buildConfigField(List<Boolean>, "BOOLEAN_LIST_PROVIDER", provider { [true, null, false] })
-    buildConfigField(Set<Boolean>, "BOOLEAN_SET", [true, null, false])
-    buildConfigField(Set<Boolean>, "BOOLEAN_SET_PROVIDER", provider { [true, null, false] })
+    buildConfigField('List<Boolean>', "BOOLEAN_LIST", [true, null, false])
+    buildConfigField('List<Boolean>', "BOOLEAN_LIST_PROVIDER", provider { [true, null, false] })
+    buildConfigField('Set<Boolean>', "BOOLEAN_SET", [true, null, false])
+    buildConfigField('Set<Boolean>', "BOOLEAN_SET_PROVIDER", provider { [true, null, false] })
 
     // custom formats with expressions, including Map and custom types
     buildConfigField(
@@ -186,7 +187,7 @@ buildConfig {
 sourceSets {
     test {
         buildConfig {
-            buildConfigField('String', 'TEST_CONSTANT', '"aTestValue"')
+            buildConfigField(String, 'TEST_CONSTANT', 'aTestValue')
         }
     }
 }
@@ -199,10 +200,10 @@ def buildResources = buildConfig.forClass("BuildResources") {
 }
 def generateResourcesConstants = tasks.register("generateResourcesConstants") {
     doFirst {
-        sourceSets["main"].resources.asFileTree.visit { file ->
+        sourceSets.main.resources.asFileTree.visit { file ->
             def name = file.path.toUpperCase().replaceAll("\\W", "_")
 
-            buildResources.buildConfigField("java.io.File", name, "new File(\"$file.path\")")
+            buildResources.buildConfigField('java.io.File', name, "new File(\"$file.path\")")
         }
     }
 }

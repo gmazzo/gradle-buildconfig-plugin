@@ -23,6 +23,7 @@ buildConfig {
     buildConfigField("BUILD_TIME", System.currentTimeMillis())
     buildConfigField("FEATURE_ENABLED", true)
     buildConfigField("MAGIC_NUMBERS", intArrayOf(1, 2, 3, 4))
+    buildConfigField("STRING_LIST", arrayOf("a", "b", "c"))
     buildConfigField("kotlin.collections.Map<String, Int>", "MAP", "mapOf(\"a\" to 1, \"b\" to 2)")
     buildConfigField("com.github.gmazzo.buildconfig.demos.kts.SomeData", "DATA", "SomeData(\"a\", 1)")
 
@@ -39,6 +40,7 @@ internal object BuildConfig {
     internal const val BUILD_TIME: Long = 1_702_559_872_137L
     internal const val FEATURE_ENABLED: Boolean = true
     internal val MAGIC_NUMBERS: IntArray = intArrayOf(1, 2, 3)
+    internal val STRING_LIST: Array<String> = arrayOf("a", "b", "c")
     internal val MAP: Map<String, Int> = mapOf("a" to 1, "b" to 2)
     internal val DATA: SomeData = SomeData("a", 1)
 }
@@ -60,6 +62,7 @@ buildConfig {
     buildConfigField(long, 'BUILD_TIME', System.currentTimeMillis())
     buildConfigField(boolean, 'FEATURE_ENABLED', true)
     buildConfigField(int[], "MAGIC_NUMBERS", [1, 2, 3])
+    buildConfigField('List<String>', "STRING_LIST", ["a", "b", "c"])
     buildConfigField("java.util.Map<String, Integer>", "MAP", "java.util.Map.of(\"a\", 1, \"b\", 2)")
     buildConfigField("com.github.gmazzo.buildconfig.demos.groovy.SomeData", "DATA", "new SomeData(\"a\", 1)")
 }
@@ -75,6 +78,7 @@ final class BuildConfig {
     public static final long BUILD_TIME = 1702559872111L;
     public static final boolean FEATURE_ENABLED = true;
     public static final int[] MAGIC_NUMBERS = {1, 2, 3};
+    public static final String[] STRING_LIST = {"a", "b", "c"};
     public static final Map<String, Integer> MAP = java.util.Map.of("a", 1, "b", 2);
     public static final SomeData DATA = new SomeData("a", 1);
 }
