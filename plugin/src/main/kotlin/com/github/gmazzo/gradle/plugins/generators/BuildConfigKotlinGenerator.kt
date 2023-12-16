@@ -85,13 +85,15 @@ data class BuildConfigKotlinGenerator(
                 }
                 .build()
         } catch (e: Exception) {
-            throw IllegalArgumentException("Failed to generate field ${field.name} of type ${field.type.get()}, " +
-                    "with value: ${field.value.get().value}", e)
+            throw IllegalArgumentException(
+                "Failed to generate field '${field.name}' of type '${field.type.get().value}', " +
+                        "with value: ${field.value.get().value} (of type '${field.value.get().value?.javaClass}')", e
+            )
         }
     }
 
     private fun BuildConfigField.Type.toTypeName(): TypeName = when (this) {
-        is BuildConfigField.JavaRef -> value.asTypeName()
+        is BuildConfigField.JavaRef -> value.kotlin.asTypeName()
         is BuildConfigField.NameRef -> {
             val (typeName, isArray, isNullable) = value.parseTypename()
 
@@ -172,7 +174,7 @@ data class BuildConfigKotlinGenerator(
             SET -> setFormat
             is ParameterizedTypeName -> when (rawType) {
                 ARRAY -> arrayFormat
-                LIST -> listFormat
+                LIST-> listFormat
                 SET -> setFormat
                 else -> singleFormat
             }

@@ -118,10 +118,10 @@ class BuildConfigPluginTest {
             buildConfigField(String[], "STRING_ARRAY_PROVIDER", provider { ["a", "b", "c"] })
             buildConfigField(String[], "STRING_ARRAY_NULLABLE", ["a", null, "c"])
             buildConfigField(String[], "STRING_ARRAY_NULLABLE_PROVIDER", provider { ["a", null, "c"] })
-            buildConfigField(List<String>.class, "STRING_LIST", ["a", null, "c"])
-            buildConfigField(List<String>.class, "STRING_LIST_PROVIDER", provider { ["a", null, "c"] })
-            buildConfigField(Set<String>.class, "STRING_SET", ["a", null, "c"])
-            buildConfigField(Set<String>.class, "STRING_SET_PROVIDER", provider { ["a", null, "c"] })
+            buildConfigField(List<String>, "STRING_LIST", ["a", null, "c"])
+            buildConfigField(List<String>, "STRING_LIST_PROVIDER", provider { ["a", null, "c"] })
+            buildConfigField(Set<String>, "STRING_SET", ["a", null, "c"])
+            buildConfigField(Set<String>, "STRING_SET_PROVIDER", provider { ["a", null, "c"] })
         
             // all possible kind for Byte
             buildConfigField(byte, "BYTE", (byte) 64)
@@ -253,16 +253,6 @@ class BuildConfigPluginTest {
                     "java.util.Map<String, Integer>",
                     "MAP_PROVIDER",
                     provider { "java.util.Map.of(\"a\", 1, \"b\", 2)" }
-            )
-            buildConfigField(
-                    "com.github.gmazzo.buildconfig.demos.groovy.SomeData",
-                    "DATA",
-                    "new SomeData(\"a\", 1)"
-            )
-            buildConfigField(
-                    "com.github.gmazzo.buildconfig.demos.groovy.SomeData",
-                    "DATA_PROVIDER",
-                    provider { "new SomeData(\"a\", 1)" }
             )
 
         }

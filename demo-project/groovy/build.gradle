@@ -11,6 +11,8 @@ dependencies {
 }
 
 buildConfig {
+    useJavaOutput { defaultVisibility = true }
+
     documentation = "This is a generated BuildConfig class"
     packageName("com.github.gmazzo.buildconfig.demos.groovy")
 
@@ -115,14 +117,14 @@ buildConfig {
     buildConfigField(float, "FLOAT_PROVIDER", provider { 1f })
     buildConfigField(float[], "FLOAT_NATIVE_ARRAY", [1f, 2f, 3f])
     buildConfigField(float[], "FLOAT_NATIVE_ARRAY_PROVIDER", provider { [1f, 2f, 3f] })
-    buildConfigField(Float[], "FLOAT_ARRAY", [1f, 2f, 3f] )
-    buildConfigField(Float[], "FLOAT_ARRAY_PROVIDER", provider { [1f, 2f , 3f] })
-    buildConfigField(Float[], "FLOAT_ARRAY_NULLABLE", [1f, null, 3f] )
-    buildConfigField(Float[], "FLOAT_ARRAY_NULLABLE_PROVIDER", provider { [1f, null , 3f]  })
-    buildConfigField(List<Float>, "FLOAT_LIST", [1f, null, 3f] )
-    buildConfigField(List<Float>, "FLOAT_LIST_PROVIDER", provider { [1f, null , 3f]  })
-    buildConfigField(Set<Float>, "FLOAT_SET", [1f, null, 3f] )
-    buildConfigField(Set<Float>, "FLOAT_SET_PROVIDER", provider { [1f, null , 3f]  })
+    buildConfigField(Float[], "FLOAT_ARRAY", [1f, 2f, 3f])
+    buildConfigField(Float[], "FLOAT_ARRAY_PROVIDER", provider { [1f, 2f, 3f] })
+    buildConfigField(Float[], "FLOAT_ARRAY_NULLABLE", [1f, null, 3f])
+    buildConfigField(Float[], "FLOAT_ARRAY_NULLABLE_PROVIDER", provider { [1f, null, 3f] })
+    buildConfigField(List<Float>, "FLOAT_LIST", [1f, null, 3f])
+    buildConfigField(List<Float>, "FLOAT_LIST_PROVIDER", provider { [1f, null, 3f] })
+    buildConfigField(Set<Float>, "FLOAT_SET", [1f, null, 3f])
+    buildConfigField(Set<Float>, "FLOAT_SET_PROVIDER", provider { [1f, null, 3f] })
 
     // all possible kind for Double
     buildConfigField(double, "DOUBLE", 1.0)
@@ -130,14 +132,14 @@ buildConfig {
     buildConfigField(double, "DOUBLE_PROVIDER", provider { 1.0 })
     buildConfigField(double[], "DOUBLE_NATIVE_ARRAY", [1.0, 2.0, 3.0])
     buildConfigField(double[], "DOUBLE_NATIVE_ARRAY_PROVIDER", provider { [1.0, 2.0, 3.0] })
-    buildConfigField(Double[], "DOUBLE_ARRAY", [1.0, 2.0, 3.0] )
-    buildConfigField(Double[], "DOUBLE_ARRAY_PROVIDER", provider { [1.0, 2.0 , 3.0] })
-    buildConfigField(Double[], "DOUBLE_ARRAY_NULLABLE", [1.0, null, 3.0] )
-    buildConfigField(Double[], "DOUBLE_ARRAY_NULLABLE_PROVIDER", provider { [1.0, null , 3.0]})
-    buildConfigField(List<Double>, "DOUBLE_LIST", [1.0, null, 3.0] )
-    buildConfigField(List<Double>, "DOUBLE_LIST_PROVIDER", provider { [1.0, null , 3.0]})
-    buildConfigField(Set<Double>, "DOUBLE_SET", [1.0, null, 3.0] )
-    buildConfigField(Set<Double>, "DOUBLE_SET_PROVIDER", provider { [1.0, null , 3.0]})
+    buildConfigField(Double[], "DOUBLE_ARRAY", [1.0, 2.0, 3.0])
+    buildConfigField(Double[], "DOUBLE_ARRAY_PROVIDER", provider { [1.0, 2.0, 3.0] })
+    buildConfigField(Double[], "DOUBLE_ARRAY_NULLABLE", [1.0, null, 3.0])
+    buildConfigField(Double[], "DOUBLE_ARRAY_NULLABLE_PROVIDER", provider { [1.0, null, 3.0] })
+    buildConfigField(List<Double>, "DOUBLE_LIST", [1.0, null, 3.0])
+    buildConfigField(List<Double>, "DOUBLE_LIST_PROVIDER", provider { [1.0, null, 3.0] })
+    buildConfigField(Set<Double>, "DOUBLE_SET", [1.0, null, 3.0])
+    buildConfigField(Set<Double>, "DOUBLE_SET_PROVIDER", provider { [1.0, null, 3.0] })
 
     // all possible kind for Boolean
     buildConfigField(boolean, "BOOLEAN", true)
@@ -145,14 +147,14 @@ buildConfig {
     buildConfigField(boolean, "BOOLEAN_PROVIDER", provider { true })
     buildConfigField(boolean[], "BOOLEAN_NATIVE_ARRAY", [true, false, false])
     buildConfigField(boolean[], "BOOLEAN_NATIVE_ARRAY_PROVIDER", provider { [true, false, false] })
-    buildConfigField(Boolean[], "BOOLEAN_ARRAY", [true, false, false] )
-    buildConfigField(Boolean[], "BOOLEAN_ARRAY_PROVIDER", provider { [true, false , false ] })
-    buildConfigField(Boolean[], "BOOLEAN_ARRAY_NULLABLE", [true, null, false] )
-    buildConfigField(Boolean[], "BOOLEAN_ARRAY_NULLABLE_PROVIDER", provider { [true, null , false ] })
-    buildConfigField(List<Boolean>, "BOOLEAN_LIST", [true, null, false] )
-    buildConfigField(List<Boolean>, "BOOLEAN_LIST_PROVIDER", provider { [true, null , false ] })
-    buildConfigField(Set<Boolean>, "BOOLEAN_SET", [true, null, false] )
-    buildConfigField(Set<Boolean>, "BOOLEAN_SET_PROVIDER", provider { [true, null , false ] })
+    buildConfigField(Boolean[], "BOOLEAN_ARRAY", [true, false, false])
+    buildConfigField(Boolean[], "BOOLEAN_ARRAY_PROVIDER", provider { [true, false, false] })
+    buildConfigField(Boolean[], "BOOLEAN_ARRAY_NULLABLE", [true, null, false])
+    buildConfigField(Boolean[], "BOOLEAN_ARRAY_NULLABLE_PROVIDER", provider { [true, null, false] })
+    buildConfigField(List<Boolean>, "BOOLEAN_LIST", [true, null, false])
+    buildConfigField(List<Boolean>, "BOOLEAN_LIST_PROVIDER", provider { [true, null, false] })
+    buildConfigField(Set<Boolean>, "BOOLEAN_SET", [true, null, false])
+    buildConfigField(Set<Boolean>, "BOOLEAN_SET_PROVIDER", provider { [true, null, false] })
 
     // custom formats with expressions, including Map and custom types
     buildConfigField(
@@ -177,11 +179,7 @@ buildConfig {
     )
 
     forClass('Custom') {
-        useJavaOutput {
-            defaultVisibility = true
-
-            buildConfigField('String', 'CUSTOM_VALUE', "\"aValue\"")
-        }
+        buildConfigField('String', 'CUSTOM_VALUE', "\"aValue\"")
     }
 }
 

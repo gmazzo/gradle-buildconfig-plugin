@@ -3,6 +3,7 @@ package com.github.gmazzo.gradle.plugins
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.parallel.Execution
@@ -28,7 +29,7 @@ class BuildConfigTaskCacheabilityTest {
     // to generate unique build cache entry per run
     private val uuid = UUID.randomUUID()
 
-    @BeforeAll
+    @BeforeEach
     fun setup() {
         projectDir.deleteRecursively()
         projectDir.mkdirs()

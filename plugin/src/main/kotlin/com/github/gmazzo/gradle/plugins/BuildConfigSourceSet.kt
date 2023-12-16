@@ -15,7 +15,7 @@ interface BuildConfigSourceSet : BuildConfigClassSpec {
     val generateTask: TaskProvider<BuildConfigTask>
 
     fun generator(generator: BuildConfigGenerator) = apply {
-        this.generator.set(generator)
+        this.generator.value(generator).disallowChanges()
     }
 
     fun useJavaOutput() =
