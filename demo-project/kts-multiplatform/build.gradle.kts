@@ -1,4 +1,4 @@
-import com.github.gmazzo.gradle.plugins.BuildConfigSourceSet
+import com.github.gmazzo.buildconfig.BuildConfigSourceSet
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)

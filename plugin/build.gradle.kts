@@ -49,7 +49,7 @@ gradlePlugin {
         create("buildconfig") {
             id = "com.github.gmazzo.buildconfig"
             displayName = name
-            implementationClass = "com.github.gmazzo.gradle.plugins.BuildConfigPlugin"
+            implementationClass = "com.github.gmazzo.buildconfig.BuildConfigPlugin"
             description =
                 "A plugin for generating BuildConstants for any kind of Gradle projects: Java, Kotlin, Groovy, etc. Designed for KTS scripts."
             tags.addAll("buildconfig", "java", "kotlin", "kotlin-multiplatform")

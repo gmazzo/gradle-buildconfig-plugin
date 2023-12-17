@@ -1,6 +1,6 @@
-import com.github.gmazzo.gradle.plugins.BuildConfigValue
-import com.github.gmazzo.gradle.plugins.generators.BuildConfigGenerator
-import com.github.gmazzo.gradle.plugins.generators.BuildConfigGeneratorSpec
+import com.github.gmazzo.buildconfig.BuildConfigValue
+import com.github.gmazzo.buildconfig.generators.BuildConfigGenerator
+import com.github.gmazzo.buildconfig.generators.BuildConfigGeneratorSpec
 import java.io.FileOutputStream
 import java.util.Properties
 
