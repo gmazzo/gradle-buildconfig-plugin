@@ -1,9 +1,9 @@
 package org.gradle.kotlin.dsl
 
-import com.github.gmazzo.gradle.plugins.BuildConfigClassSpec
-import com.github.gmazzo.gradle.plugins.addField
-import com.github.gmazzo.gradle.plugins.nameOf
-import com.github.gmazzo.gradle.plugins.valueOf
+import com.github.gmazzo.buildconfig.BuildConfigClassSpec
+import com.github.gmazzo.buildconfig.addField
+import com.github.gmazzo.buildconfig.nameOf
+import com.github.gmazzo.buildconfig.valueOf
 import org.gradle.api.provider.Provider
 import java.io.Serializable
 import kotlin.reflect.typeOf
