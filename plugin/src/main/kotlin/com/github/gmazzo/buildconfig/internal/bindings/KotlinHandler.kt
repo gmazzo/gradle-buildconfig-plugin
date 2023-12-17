@@ -6,31 +6,26 @@ import com.github.gmazzo.buildconfig.generators.BuildConfigKotlinGenerator
 import org.gradle.api.Named
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
-import org.gradle.api.file.SourceDirectorySet
+import org.gradle.kotlin.dsl.getByName
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetContainer
 
 internal class KotlinHandler(
     project: Project,
     private val extension: BuildConfigExtension
-) : PluginBindingHandler<Named> { // TODO should be KotlinSourceSet but fails on tests (but not from external project)
+) : PluginBindingHandler<KotlinSourceSet> {
 
-    // project.extensions.getByName<KotlinSourceSetContainer>("kotlin").sourceSets
-    override val sourceSets = with(project.extensions.getByName("kotlin")) {
-        @Suppress("UNCHECKED_CAST")
-        javaClass.getMethod("getSourceSets")
-            .invoke(this) as NamedDomainObjectContainer<Named>
-    }
+    override val sourceSets =
+        project.extensions.getByName<KotlinSourceSetContainer>("kotlin").sourceSets
 
-    override fun nameOf(sourceSet: Named): String = sourceSet.name
+    override fun nameOf(sourceSet: KotlinSourceSet): String = sourceSet.name
 
     override fun onBind() {
         extension.generator.convention(BuildConfigKotlinGenerator())
     }
 
-    // sourceSet.kotlin.srcDir(spec)
-    override fun onSourceSetAdded(sourceSet: Named, spec: BuildConfigSourceSet) {
-        (sourceSet.javaClass.getMethod("getKotlin")
-            .invoke(sourceSet) as SourceDirectorySet)
-            .srcDir(spec)
+    override fun onSourceSetAdded(sourceSet: KotlinSourceSet, spec: BuildConfigSourceSet) {
+        sourceSet.kotlin.srcDir(spec)
     }
 
 }

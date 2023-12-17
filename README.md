@@ -57,6 +57,15 @@ internal object BuildConfig {
 > buildConfigField("FILE", file("aFile").relativeToOrSelf(projectDir)) // use this instead, for instance
 > ```
 
+> [!IMPORTANT]
+> When using along with the Kotlin plugin, both needs to be loaded in the same classloader (declared in the same Gradle project, like the root one for instance)
+> ```kotlin
+> plugins {
+>    id("org.jetbrains.kotlin.jvm") apply false
+>    id("com.github.gmazzo.buildconfig") apply false
+> }
+> ```
+
 ## Usage in Groovy
 On your `build.gradle` add:
 ```groovy

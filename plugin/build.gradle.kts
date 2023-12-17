@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.gradle.pluginPublish)
     alias(libs.plugins.jacoco.testkit)
     alias(libs.plugins.publicationsReport)
+    alias(libs.plugins.buildConfig)
 }
 
 group = "com.github.gmazzo.buildconfig"
@@ -19,6 +20,8 @@ kotlin {
     }
 }
 
+val pluginUnderTestDependencies by configurations.creating
+
 dependencies {
     fun DependencyHandler.plugin(dependency: Provider<PluginDependency>) =
         dependency.get().run { create("$pluginId:$pluginId.gradle.plugin:$version") }
@@ -34,6 +37,8 @@ dependencies {
     testImplementation(libs.kotlin.test)
     testImplementation(libs.mockk)
     testImplementation("org.junit.jupiter:junit-jupiter-params")
+
+    pluginUnderTestDependencies(plugin(libs.plugins.kotlin.jvm))
 }
 
 gradlePlugin {
@@ -53,9 +58,21 @@ gradlePlugin {
 }
 
 tasks.withType<Test> {
+    dependsOn("publishAllPublicationsToLocalRepository")
     workingDir = temporaryDir
     useJUnitPlatform()
     doLast { Thread.sleep(5000) } // allows GradleRunner to store JaCoCo data before computing task outputs
+}
+
+val localRepoDir = layout.buildDirectory.dir("repo")
+val localRepo = publishing.repositories.maven(localRepoDir) { name = "Local" }
+buildConfig {
+    buildConfigField("LOCAL_REPO", localRepoDir.map { it.asFile.relativeToOrSelf(tasks.test.get().workingDir) })
+    buildConfigField("LOCAL_VERSION", provider { version.toString() })
+}
+
+tasks.pluginUnderTestMetadata {
+    pluginClasspath.from(pluginUnderTestDependencies)
 }
 
 tasks.check {
