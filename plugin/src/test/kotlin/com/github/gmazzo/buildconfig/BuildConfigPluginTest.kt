@@ -1,5 +1,6 @@
 package com.github.gmazzo.buildconfig
 
+import com.github.gmazzo.buildconfig.plugin.BuildConfig
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.gradle.tooling.internal.consumer.DefaultGradleConnector
@@ -54,7 +55,6 @@ class BuildConfigPluginTest {
 
         val result = GradleRunner.create()
             .forwardOutput()
-            .withPluginClasspath()
             .withProjectDir(projectDir)
             .withGradleVersion(gradleVersion)
             .withArguments("build", "-s")
@@ -66,14 +66,21 @@ class BuildConfigPluginTest {
     private fun Args.writeBuildGradle() {
         projectDir.resolve("settings.gradle").writeText(
             """
+            pluginManagement { 
+                repositories {
+                    maven { url file("../../../../../${BuildConfig.LOCAL_REPO}") }
+                    gradlePluginPortal()
+                }
+            }
+
             rootProject.name = "$PROJECT_NAME"
-        """.trimIndent()
+            """.trimIndent()
         )
 
         projectDir.resolve("build.gradle").writeText("""
         plugins {
             id ${kotlinVersion?.let { "'org.jetbrains.kotlin.jvm' version '$kotlinVersion'" } ?: "'java'"}
-            id 'com.github.gmazzo.buildconfig' version '<latest>'
+            id 'com.github.gmazzo.buildconfig' version '${BuildConfig.LOCAL_VERSION}'
         }
         """ + (if (withPackage) """
         group = 'gs.test'
