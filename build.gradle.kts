@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.jvm) apply false
     alias(libs.plugins.kotlin.multiplatform) apply false
     alias(libs.plugins.android) apply false
+    alias(libs.plugins.publicationsReport)
     `jacoco-report-aggregation`
 }
 
@@ -27,8 +28,10 @@ tasks.check {
 
 tasks.register(PublishingPlugin.PUBLISH_LIFECYCLE_TASK_NAME) {
     dependsOn(pluginBuild.task(":$name"))
+    finalizedBy(tasks.reportPublications)
 }
 
 tasks.register(MavenPublishPlugin.PUBLISH_LOCAL_LIFECYCLE_TASK_NAME) {
     dependsOn(pluginBuild.task(":$name"))
+    finalizedBy(tasks.reportPublications)
 }

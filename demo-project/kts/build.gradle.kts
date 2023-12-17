@@ -96,7 +96,7 @@ buildConfig {
     buildConfigField("CHAR_SET_PROVIDER", provider { setOf('a', null, 'c') })
 
     // all possible kind for Int
-    buildConfigField("INT", 1 as Int)
+    buildConfigField("INT", 1)
     buildConfigField("INT_NULL", null as Int?)
     buildConfigField("INT_PROVIDER", provider { 1 })
     buildConfigField("INT_NATIVE_ARRAY", intArrayOf(1, 2, 3))
