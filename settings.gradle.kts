@@ -8,7 +8,9 @@ includeBuild("plugin")
 include(
     "demo-project:generic",
     "demo-project:groovy",
+    "demo-project:groovy-gen-kotlin",
     "demo-project:kts",
     "demo-project:kts-android",
+    "demo-project:kts-gen-java",
     "demo-project:kts-multiplatform",
 )
