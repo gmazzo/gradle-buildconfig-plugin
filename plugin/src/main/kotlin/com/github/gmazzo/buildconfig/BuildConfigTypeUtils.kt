@@ -1,7 +1,5 @@
 package com.github.gmazzo.buildconfig
 
-import org.gradle.api.NamedDomainObjectProvider
-import org.gradle.api.provider.Provider
 import org.jetbrains.annotations.VisibleForTesting
 import java.io.Serializable
 import java.lang.reflect.GenericArrayType
@@ -133,30 +131,6 @@ internal fun expressionOf(expression: String) =
 @PublishedApi
 internal fun valueOf(value: Serializable?) =
     BuildConfigValue.Literal(value)
-
-private fun BuildConfigClassSpec.buildConfigField(
-    type: BuildConfigType,
-    name: String,
-    action: (BuildConfigField) -> Unit,
-): NamedDomainObjectProvider<BuildConfigField> = buildConfigFields.size.let { position ->
-    buildConfigFields.register(name) {
-        it.type.value(type).disallowChanges()
-        it.position.convention(position)
-        action(it)
-    }
-}
-
-@PublishedApi
-internal fun BuildConfigClassSpec.addField(type: BuildConfigType, name: String, value: BuildConfigValue) =
-    buildConfigField(type, name) { it.value.value(value).disallowChanges() }
-
-@PublishedApi
-internal fun BuildConfigClassSpec.addField(
-    type: BuildConfigType,
-    name: String,
-    value: Provider<BuildConfigValue>
-) =
-    buildConfigField(type, name) { it.value.value(value).disallowChanges() }
 
 internal val Any?.elements: List<Any?>
     get() = when (this) {
