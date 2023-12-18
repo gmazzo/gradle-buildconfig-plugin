@@ -96,11 +96,9 @@ class BuildConfigPlugin : Plugin<Project> {
 
             generator.set(sourceSet.generator)
             outputDir.set(layout.buildDirectory.dir("generated/sources/buildConfig/${sourceSet.name}"))
-            specs.addAll(provider {
-                (sequenceOf(sourceSet) + sourceSet.extraSpecs)
-                    .map { isolate(it) }
-                    .toList()
-            })
+
+            specs.add(provider { isolate(sourceSet) })
+            specs.addAll(provider { sourceSet.extraSpecs.map { isolate(it) } })
         }
     }
 
@@ -109,18 +107,17 @@ class BuildConfigPlugin : Plugin<Project> {
      * It makes it compatible with Configuration Cache
      */
     private fun Project.isolate(source: BuildConfigClassSpec) =
-        objects.newInstance<BuildConfigClassSpec>(source.name).apply {
+        objects.newInstance<BuildConfigClassSpec>(source.name).apply spec@{
             className.set(source.className)
             packageName.set(source.packageName)
             documentation.set(source.documentation)
-            buildConfigFields.addAll(source.buildConfigFields.map { isolate(it) })
-        }
-
-    private fun Project.isolate(source: BuildConfigField) =
-        objects.newInstance<BuildConfigField>(source.name).apply {
-            type.set(source.type)
-            value.set(source.value)
-            position.set(source.position)
+            buildConfigFields.addAll(source.buildConfigFields.map { field ->
+                objects.newInstance<BuildConfigField>(field.name).apply field@{
+                    this@field.type.set(field.type)
+                    this@field.value.set(field.value)
+                    this@field.position.set(field.position)
+                }
+            })
         }
 
     private val Project.defaultPackage

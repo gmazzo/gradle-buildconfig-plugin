@@ -1,7 +1,6 @@
 package com.github.gmazzo.buildconfig.internal
 
 import com.github.gmazzo.buildconfig.BuildConfigClassSpec
-import groovy.lang.GroovyObjectSupport
 
 /**
  * Workaround for Groovy's `null` value issue when calling overloaded methods limitation:
@@ -12,7 +11,7 @@ import groovy.lang.GroovyObjectSupport
  *   	[class java.lang.Class, class java.lang.String, interface org.gradle.api.provider.Provider]
  * ```
  */
-internal abstract class GroovyNullValueWorkaround : BuildConfigClassSpec, GroovyObjectSupport() {
+internal abstract class GroovyNullValueWorkaround : BuildConfigClassSpec {
 
     fun buildConfigField(
         type: Class<*>,

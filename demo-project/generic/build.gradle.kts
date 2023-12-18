@@ -1,3 +1,4 @@
+import com.github.gmazzo.buildconfig.BuildConfigField
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -21,6 +22,13 @@ buildConfig {
     forClass("BuildResources") {
         buildConfigField("String","A_CONSTANT", "\"aConstant\"")
     }
+
+    buildConfigFields.addLater(provider {
+        objects.newInstance<BuildConfigField>("PROVIDED").apply {
+            type(String::class.java)
+            value("byAddLater")
+        }
+    })
 }
 
 // everything below here are just helper code to allow testing the plugin as we can't rely on any framework like JUnit
@@ -37,6 +45,8 @@ val generateBuildConfigTest = task<AssertGeneratedFile>("generateBuildConfigTest
         public final class BuildConfig {
           public static final String APP_NAME = "generic";
         
+          public static final String PROVIDED = "byAddLater";
+
           public static final String APP_SECRET = "Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu";
         
           public static final long BUILD_TIME = 172800000;
