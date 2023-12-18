@@ -1,5 +1,3 @@
-import org.gradle.api.internal.catalog.ExternalModuleDependencyFactory
-
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.gradle.pluginPublish)
@@ -24,9 +22,6 @@ kotlin {
 dependencies {
     fun DependencyHandler.plugin(dependency: Provider<PluginDependency>) =
         dependency.get().run { create("$pluginId:$pluginId.gradle.plugin:$version") }
-
-    fun DependencyHandler.plugin(dependency: ExternalModuleDependencyFactory.PluginNotationSupplier) =
-        plugin(dependency.asProvider())
 
     compileOnly(gradleKotlinDsl())
     compileOnly(plugin(libs.plugins.kotlin.jvm))
