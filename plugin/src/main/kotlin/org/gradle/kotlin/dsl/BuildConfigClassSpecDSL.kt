@@ -10,6 +10,15 @@ import java.io.Serializable
 import kotlin.reflect.typeOf
 
 @BuildConfigDsl
+inline fun <reified Type : Any> BuildConfigClassSpec.buildConfigField(
+    name: String,
+    crossinline configure: BuildConfigField.() -> Unit
+): NamedDomainObjectProvider<BuildConfigField> = buildConfigField(name, Action {
+    it.type(typeOf<Type>())
+    configure.invoke(it)
+})
+
+@BuildConfigDsl
 inline fun <reified Type : Serializable?> BuildConfigClassSpec.buildConfigField(
     name: String,
     value: Type?,

@@ -172,16 +172,12 @@ buildConfig {
     buildConfigField("BOOLEAN_SET_PROVIDER", provider { setOf(true, null, false) })
 
     // custom formats with expressions, including Map and custom types
-    buildConfigField(
-        "kotlin.collections.Map<String, Int>",
-        "MAP",
-        "mapOf(\"a\" to 1, \"b\" to 2)"
-    )
-    buildConfigField(
-        "kotlin.collections.Map<String, Int>",
-        "MAP_PROVIDER",
-        provider { "mapOf(\"a\" to 1, \"b\" to 2)" }
-    )
+    buildConfigField<Map<String, Int>>("MAP")  {
+        expression("mapOf(\"a\" to 1, \"b\" to 2)")
+    }
+    buildConfigField<Map<String, Int>>("MAP_PROVIDER") {
+        expression("mapOf(\"a\" to 1, \"b\" to 2)")
+    }
     buildConfigField(
         "com.github.gmazzo.buildconfig.demos.kts.SomeData",
         "DATA",
@@ -216,8 +212,8 @@ buildConfig.forClass("BuildResources") {
         files.visit {
             val name = path.uppercase().replace("\\W".toRegex(), "_")
 
-            fields.add(objects.newInstance<BuildConfigField>( name).apply {
-                type(File::class.java)
+            fields.add(objects.newInstance<BuildConfigField>(name).apply {
+                type(File::class)
                 expression("File(\"$path\")")
             })
         }

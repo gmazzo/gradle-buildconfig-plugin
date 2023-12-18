@@ -7,6 +7,7 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 import java.io.Serializable
 import java.lang.reflect.Type
+import kotlin.reflect.KClass
 import kotlin.reflect.KType
 
 interface BuildConfigField : Named {
@@ -38,6 +39,10 @@ interface BuildConfigField : Named {
 
     fun type(type: Type) = apply {
         this.type.value(nameOf(type)).disallowChanges()
+    }
+
+    fun type(type: KClass<*>) = apply {
+        type(type.java)
     }
 
     fun type(type: KType) = apply {

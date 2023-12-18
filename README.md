@@ -24,7 +24,9 @@ buildConfig {
     buildConfigField("FEATURE_ENABLED", true)
     buildConfigField("MAGIC_NUMBERS", intArrayOf(1, 2, 3, 4))
     buildConfigField("STRING_LIST", arrayOf("a", "b", "c"))
-    buildConfigField("kotlin.collections.Map<String, Int>", "MAP", "mapOf(\"a\" to 1, \"b\" to 2)")
+    buildConfigField<Map<String, Int>>("MAP") {
+        expression("mapOf(\"a\" to 1, \"b\" to 2)")
+    }
     buildConfigField("com.github.gmazzo.buildconfig.demos.kts.SomeData", "DATA", "SomeData(\"a\", 1)")
 
 }

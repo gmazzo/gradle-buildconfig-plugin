@@ -91,7 +91,8 @@ data class BuildConfigKotlinGenerator(
     }
 
     private fun BuildConfigType.toTypeName(): TypeName {
-        var type: TypeName = when (className.lowercase()) {
+        val kotlinClassName = runCatching { Class.forName(className).kotlin.qualifiedName!! }.getOrDefault(className)
+        var type: TypeName = when (kotlinClassName.lowercase()) {
             "boolean" -> if (array && !nullable) BOOLEAN_ARRAY else BOOLEAN
             "byte" -> if (array && !nullable) BYTE_ARRAY else BYTE
             "short" -> if (array && !nullable) SHORT_ARRAY else SHORT
@@ -104,7 +105,7 @@ data class BuildConfigKotlinGenerator(
             "string" -> STRING
             "list" -> LIST
             "set" -> SET
-            else -> ClassName.bestGuess(className)
+            else -> ClassName.bestGuess(kotlinClassName)
         }
         if (typeArguments.isNotEmpty())
             type = (type as ClassName).parameterizedBy(*typeArguments.map { it.toTypeName() }.toTypedArray())
