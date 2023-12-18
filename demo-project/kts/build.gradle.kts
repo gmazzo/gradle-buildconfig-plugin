@@ -1,3 +1,4 @@
+import com.github.gmazzo.buildconfig.BuildConfigField
 import com.github.gmazzo.buildconfig.BuildConfigValue
 import com.github.gmazzo.buildconfig.generators.BuildConfigGenerator
 import com.github.gmazzo.buildconfig.generators.BuildConfigGeneratorSpec
@@ -209,11 +210,19 @@ val versionsSS = buildConfig.sourceSets.register("Versions") {
 buildConfig.forClass("BuildResources") {
     buildConfigField("A_CONSTANT", "aConstant")
 
-    sourceSets["main"].resources.asFileTree.visit {
-        val name = path.uppercase().replace("\\W".toRegex(), "_")
+    val files = sourceSets["main"].resources.sourceDirectories.asFileTree
+    buildConfigFields.addAllLater(provider {
+        val fields = mutableListOf<BuildConfigField>()
+        files.visit {
+            val name = path.uppercase().replace("\\W".toRegex(), "_")
 
-        buildConfigField("java.io.File", name, "File(\"$path\")")
-    }
+            fields.add(objects.newInstance<BuildConfigField>( name).apply {
+                type(File::class.java)
+                expression("File(\"$path\")")
+            })
+        }
+        fields
+    })
 }
 
 // example of a custom generator that builds into XML

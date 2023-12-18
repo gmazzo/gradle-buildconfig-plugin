@@ -1,3 +1,5 @@
+import com.github.gmazzo.buildconfig.BuildConfigField
+
 plugins {
     id 'java'
     id 'com.github.gmazzo.buildconfig'
@@ -198,9 +200,17 @@ sourceSets {
 buildConfig.forClass("BuildResources") {
     buildConfigField('String', 'A_CONSTANT', '"aConstant"')
 
-    sourceSets.main.resources.asFileTree.visit {
-        def name = it.path.toUpperCase().replaceAll("\\W", "_")
+    def files = sourceSets.main.resources.sourceDirectories.asFileTree
+    buildConfigFields.addAllLater(provider {
+        List<BuildConfigField> fields = []
+        files.asFileTree.visit {
+            def name = it.path.toUpperCase().replaceAll("\\W", "_")
 
-        buildConfigField('java.io.File', name, "new File(\"${it.path}\")")
-    }
+            fields.add(objects.newInstance(BuildConfigField, name).with { _ ->
+                type(File)
+                expression("new File(\"${it.path}\")")
+            })
+        }
+        return fields
+    })
 }
