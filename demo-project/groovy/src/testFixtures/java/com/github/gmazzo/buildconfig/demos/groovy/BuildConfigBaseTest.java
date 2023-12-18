@@ -2,12 +2,9 @@ package com.github.gmazzo.buildconfig.demos.groovy;
 
 import org.junit.Test;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import static org.junit.Assert.*;
 
@@ -46,8 +43,8 @@ public abstract class BuildConfigBaseTest {
         assertEquals(64, BuildConfig.BYTE_PROVIDER);
         assertArrayEquals(new byte[]{1, 2, 3}, BuildConfig.BYTE_NATIVE_ARRAY);
         assertArrayEquals(new byte[]{1, 2, 3}, BuildConfig.BYTE_NATIVE_ARRAY_PROVIDER);
-        assertArrayEquals(new Byte[]{1, 2, 3}, BuildConfig.BYTE_ARRAY);
-        assertArrayEquals(new Byte[]{1, 2, 3}, BuildConfig.BYTE_ARRAY_PROVIDER);
+        assertArrayEquals(new byte[]{1, 2, 3}, BuildConfig.BYTE_ARRAY);
+        assertArrayEquals(new byte[]{1, 2, 3}, BuildConfig.BYTE_ARRAY_PROVIDER);
         assertArrayEquals(new Byte[]{1, null, 3}, BuildConfig.BYTE_ARRAY_NULLABLE);
         assertArrayEquals(new Byte[]{1, null, 3}, BuildConfig.BYTE_ARRAY_NULLABLE_PROVIDER);
         assertEquals(Arrays.asList((byte) 1, null, (byte) 3), BuildConfig.BYTE_LIST);
@@ -63,8 +60,8 @@ public abstract class BuildConfigBaseTest {
         assertEquals(64, BuildConfig.SHORT_PROVIDER);
         assertArrayEquals(new short[]{1, 2, 3}, BuildConfig.SHORT_NATIVE_ARRAY);
         assertArrayEquals(new short[]{1, 2, 3}, BuildConfig.SHORT_NATIVE_ARRAY_PROVIDER);
-        assertArrayEquals(new Short[]{1, 2, 3}, BuildConfig.SHORT_ARRAY);
-        assertArrayEquals(new Short[]{1, 2, 3}, BuildConfig.SHORT_ARRAY_PROVIDER);
+        assertArrayEquals(new short[]{1, 2, 3}, BuildConfig.SHORT_ARRAY);
+        assertArrayEquals(new short[]{1, 2, 3}, BuildConfig.SHORT_ARRAY_PROVIDER);
         assertArrayEquals(new Short[]{1, null, 3}, BuildConfig.SHORT_ARRAY_NULLABLE);
         assertArrayEquals(new Short[]{1, null, 3}, BuildConfig.SHORT_ARRAY_NULLABLE_PROVIDER);
         assertEquals(Arrays.asList((short) 1, null, (short) 3), BuildConfig.SHORT_LIST);
@@ -80,8 +77,8 @@ public abstract class BuildConfigBaseTest {
         assertEquals('a', BuildConfig.CHAR_PROVIDER);
         assertArrayEquals(new char[]{'a', 'b', 'c'}, BuildConfig.CHAR_NATIVE_ARRAY);
         assertArrayEquals(new char[]{'a', 'b', 'c'}, BuildConfig.CHAR_NATIVE_ARRAY_PROVIDER);
-        assertArrayEquals(new Character[]{'a', 'b', 'c'}, BuildConfig.CHAR_ARRAY);
-        assertArrayEquals(new Character[]{'a', 'b', 'c'}, BuildConfig.CHAR_ARRAY_PROVIDER);
+        assertArrayEquals(new char[]{'a', 'b', 'c'}, BuildConfig.CHAR_ARRAY);
+        assertArrayEquals(new char[]{'a', 'b', 'c'}, BuildConfig.CHAR_ARRAY_PROVIDER);
         assertArrayEquals(new Character[]{'a', null, 'c'}, BuildConfig.CHAR_ARRAY_NULLABLE);
         assertArrayEquals(new Character[]{'a', null, 'c'}, BuildConfig.CHAR_ARRAY_NULLABLE_PROVIDER);
         assertEquals(Arrays.asList('a', null, 'c'), BuildConfig.CHAR_LIST);
@@ -97,8 +94,8 @@ public abstract class BuildConfigBaseTest {
         assertEquals(1, BuildConfig.INT_PROVIDER);
         assertArrayEquals(new int[]{1, 2, 3}, BuildConfig.INT_NATIVE_ARRAY);
         assertArrayEquals(new int[]{1, 2, 3}, BuildConfig.INT_NATIVE_ARRAY_PROVIDER);
-        assertArrayEquals(new Integer[]{1, 2, 3}, BuildConfig.INT_ARRAY);
-        assertArrayEquals(new Integer[]{1, 2, 3}, BuildConfig.INT_ARRAY_PROVIDER);
+        assertArrayEquals(new int[]{1, 2, 3}, BuildConfig.INT_ARRAY);
+        assertArrayEquals(new int[]{1, 2, 3}, BuildConfig.INT_ARRAY_PROVIDER);
         assertArrayEquals(new Integer[]{1, null, 3}, BuildConfig.INT_ARRAY_NULLABLE);
         assertArrayEquals(new Integer[]{1, null, 3}, BuildConfig.INT_ARRAY_NULLABLE_PROVIDER);
         assertEquals(Arrays.asList(1, null, 3), BuildConfig.INT_LIST);
@@ -114,8 +111,8 @@ public abstract class BuildConfigBaseTest {
         assertEquals(1, BuildConfig.LONG_PROVIDER);
         assertArrayEquals(new long[]{1L, 2L, 3L}, BuildConfig.LONG_NATIVE_ARRAY);
         assertArrayEquals(new long[]{1L, 2L, 3L}, BuildConfig.LONG_NATIVE_ARRAY_PROVIDER);
-        assertArrayEquals(new Long[]{1L, 2L, 3L}, BuildConfig.LONG_ARRAY);
-        assertArrayEquals(new Long[]{1L, 2L, 3L}, BuildConfig.LONG_ARRAY_PROVIDER);
+        assertArrayEquals(new long[]{1L, 2L, 3L}, BuildConfig.LONG_ARRAY);
+        assertArrayEquals(new long[]{1L, 2L, 3L}, BuildConfig.LONG_ARRAY_PROVIDER);
         assertArrayEquals(new Long[]{1L, null, 3L}, BuildConfig.LONG_ARRAY_NULLABLE);
         assertArrayEquals(new Long[]{1L, null, 3L}, BuildConfig.LONG_ARRAY_NULLABLE_PROVIDER);
         assertEquals(Arrays.asList(1L, null, 3L), BuildConfig.LONG_LIST);
@@ -131,8 +128,8 @@ public abstract class BuildConfigBaseTest {
         assertEquals(1, BuildConfig.FLOAT_PROVIDER, 0);
         assertArrayEquals(new float[]{1f, 2f, 3f}, BuildConfig.FLOAT_NATIVE_ARRAY, 0);
         assertArrayEquals(new float[]{1f, 2f, 3f}, BuildConfig.FLOAT_NATIVE_ARRAY_PROVIDER, 0);
-        assertArrayEquals(new Float[]{1f, 2f, 3f}, BuildConfig.FLOAT_ARRAY);
-        assertArrayEquals(new Float[]{1f, 2f, 3f}, BuildConfig.FLOAT_ARRAY_PROVIDER);
+        assertArrayEquals(new float[]{1f, 2f, 3f}, BuildConfig.FLOAT_ARRAY, 0);
+        assertArrayEquals(new float[]{1f, 2f, 3f}, BuildConfig.FLOAT_ARRAY_PROVIDER, 0);
         assertArrayEquals(new Float[]{1f, null, 3f}, BuildConfig.FLOAT_ARRAY_NULLABLE);
         assertArrayEquals(new Float[]{1f, null, 3f}, BuildConfig.FLOAT_ARRAY_NULLABLE_PROVIDER);
         assertEquals(Arrays.asList(1f, null, 3f), BuildConfig.FLOAT_LIST);
@@ -148,8 +145,8 @@ public abstract class BuildConfigBaseTest {
         assertEquals(1, BuildConfig.DOUBLE_PROVIDER, 0);
         assertArrayEquals(new double[]{1.0, 2.0, 3.0}, BuildConfig.DOUBLE_NATIVE_ARRAY, 0);
         assertArrayEquals(new double[]{1.0, 2.0, 3.0}, BuildConfig.DOUBLE_NATIVE_ARRAY_PROVIDER, 0);
-        assertArrayEquals(new Double[]{1.0, 2.0, 3.0}, BuildConfig.DOUBLE_ARRAY);
-        assertArrayEquals(new Double[]{1.0, 2.0, 3.0}, BuildConfig.DOUBLE_ARRAY_PROVIDER);
+        assertArrayEquals(new double[]{1.0, 2.0, 3.0}, BuildConfig.DOUBLE_ARRAY, 0);
+        assertArrayEquals(new double[]{1.0, 2.0, 3.0}, BuildConfig.DOUBLE_ARRAY_PROVIDER, 0);
         assertArrayEquals(new Double[]{1.0, null, 3.0}, BuildConfig.DOUBLE_ARRAY_NULLABLE);
         assertArrayEquals(new Double[]{1.0, null, 3.0}, BuildConfig.DOUBLE_ARRAY_NULLABLE_PROVIDER);
         assertEquals(Arrays.asList(1.0, null, 3.0), BuildConfig.DOUBLE_LIST);
@@ -165,8 +162,8 @@ public abstract class BuildConfigBaseTest {
         assertTrue(BuildConfig.BOOLEAN_PROVIDER);
         assertArrayEquals(new boolean[]{true, false, false}, BuildConfig.BOOLEAN_NATIVE_ARRAY);
         assertArrayEquals(new boolean[]{true, false, false}, BuildConfig.BOOLEAN_NATIVE_ARRAY_PROVIDER);
-        assertArrayEquals(new Boolean[]{true, false, false}, BuildConfig.BOOLEAN_ARRAY);
-        assertArrayEquals(new Boolean[]{true, false, false}, BuildConfig.BOOLEAN_ARRAY_PROVIDER);
+        assertArrayEquals(new boolean[]{true, false, false}, BuildConfig.BOOLEAN_ARRAY);
+        assertArrayEquals(new boolean[]{true, false, false}, BuildConfig.BOOLEAN_ARRAY_PROVIDER);
         assertArrayEquals(new Boolean[]{true, null, false}, BuildConfig.BOOLEAN_ARRAY_NULLABLE);
         assertArrayEquals(new Boolean[]{true, null, false}, BuildConfig.BOOLEAN_ARRAY_NULLABLE_PROVIDER);
         assertEquals(Arrays.asList(true, null, false), BuildConfig.BOOLEAN_LIST);

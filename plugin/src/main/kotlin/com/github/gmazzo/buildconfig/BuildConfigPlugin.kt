@@ -17,6 +17,7 @@ import org.gradle.api.plugins.PluginContainer
 import org.gradle.api.tasks.SourceSet
 import org.gradle.kotlin.dsl.add
 import org.gradle.kotlin.dsl.domainObjectContainer
+import org.gradle.kotlin.dsl.newInstance
 import org.gradle.kotlin.dsl.register
 
 class BuildConfigPlugin : Plugin<Project> {
@@ -93,12 +94,34 @@ class BuildConfigPlugin : Plugin<Project> {
             group = "BuildConfig"
             description = "Generates the build constants class for '${sourceSet.name}' source"
 
-            specs.add(sourceSet.classSpec)
-            specs.addAll(sourceSet.extraSpecs)
             generator.set(sourceSet.generator)
             outputDir.set(layout.buildDirectory.dir("generated/sources/buildConfig/${sourceSet.name}"))
+            specs.addAll(provider {
+                (sequenceOf(sourceSet) + sourceSet.extraSpecs)
+                    .map { isolate(it) }
+                    .toList()
+            })
         }
     }
+
+    /**
+     * Helper method to create a copy of a BuildConfigClassSpec not linked to Gradle related extensions/DSL
+     * It makes it compatible with Configuration Cache
+     */
+    private fun Project.isolate(source: BuildConfigClassSpec) =
+        objects.newInstance<BuildConfigClassSpec>(source.name).apply {
+            className.set(source.className)
+            packageName.set(source.packageName)
+            documentation.set(source.documentation)
+            buildConfigFields.addAll(source.buildConfigFields.map { isolate(it) })
+        }
+
+    private fun Project.isolate(source: BuildConfigField) =
+        objects.newInstance<BuildConfigField>(source.name).apply {
+            type.set(source.type)
+            value.set(source.value)
+            position.set(source.position)
+        }
 
     private val Project.defaultPackage
         get() = provider {

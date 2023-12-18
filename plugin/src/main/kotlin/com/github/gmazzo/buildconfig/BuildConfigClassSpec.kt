@@ -59,7 +59,7 @@ interface BuildConfigClassSpec : Named {
         type: Class<out Type>,
         name: String,
         value: Type?,
-    ) = addField(typeOf(type), name, valueOf(castToType(value, type) as Serializable))
+    ) = addField(nameOf(type), name, valueOf(castToType(value, type) as Serializable))
 
     fun buildConfigField(
         type: String,
@@ -71,6 +71,6 @@ interface BuildConfigClassSpec : Named {
         type: Class<out Type>,
         name: String,
         value: Provider<out Type>,
-    ) = addField(typeOf(type), name, value.map { valueOf(castToType(it, type) as Serializable) })
+    ) = addField(nameOf(type), name, value.map { valueOf(castToType(it, type) as Serializable) })
 
 }

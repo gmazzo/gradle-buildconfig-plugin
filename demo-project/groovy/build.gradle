@@ -1,5 +1,5 @@
 plugins {
-    id 'groovy'
+    id 'java'
     id 'com.github.gmazzo.buildconfig'
     id 'java-test-fixtures'
 }
@@ -45,8 +45,8 @@ buildConfig {
     buildConfigField(byte[], "BYTE_NATIVE_ARRAY_PROVIDER", provider { [1, 2, 3] })
     buildConfigField(Byte[], "BYTE_ARRAY", [1, 2, 3])
     buildConfigField(Byte[], "BYTE_ARRAY_PROVIDER", provider { [1, 2, 3] })
-    buildConfigField(Byte[], "BYTE_ARRAY_NULLABLE", [1, null, 3])
-    buildConfigField(Byte[], "BYTE_ARRAY_NULLABLE_PROVIDER", provider { [1, null, 3] })
+    buildConfigField('Byte?[]', "BYTE_ARRAY_NULLABLE", [1, null, 3])
+    buildConfigField('Byte?[]', "BYTE_ARRAY_NULLABLE_PROVIDER", provider { [1, null, 3] })
     buildConfigField('List<Byte>', "BYTE_LIST", [1, null, 3])
     buildConfigField('List<Byte>', "BYTE_LIST_PROVIDER", provider { [1, null, 3] })
     buildConfigField('Set<Byte>', "BYTE_SET", [1, null, 3])
@@ -60,8 +60,8 @@ buildConfig {
     buildConfigField(short[], "SHORT_NATIVE_ARRAY_PROVIDER", provider { [1, 2, 3] })
     buildConfigField(Short[], "SHORT_ARRAY", [1, 2, 3])
     buildConfigField(Short[], "SHORT_ARRAY_PROVIDER", provider { [1, 2, 3] })
-    buildConfigField(Short[], "SHORT_ARRAY_NULLABLE", [1, null, 3])
-    buildConfigField(Short[], "SHORT_ARRAY_NULLABLE_PROVIDER", provider { [1, null, 3] })
+    buildConfigField('Short?[]', "SHORT_ARRAY_NULLABLE", [1, null, 3])
+    buildConfigField('Short?[]', "SHORT_ARRAY_NULLABLE_PROVIDER", provider { [1, null, 3] })
     buildConfigField('List<Short>', "SHORT_LIST", [1, null, 3])
     buildConfigField('List<Short>', "SHORT_LIST_PROVIDER", provider { [1, null, 3] })
     buildConfigField('Set<Short>', "SHORT_SET", [1, null, 3])
@@ -75,8 +75,8 @@ buildConfig {
     buildConfigField(char[], "CHAR_NATIVE_ARRAY_PROVIDER", provider { ['a' as char, 'b' as char, 'c' as char] })
     buildConfigField(Character[], "CHAR_ARRAY", ['a' as char, 'b' as char, 'c' as char])
     buildConfigField(Character[], "CHAR_ARRAY_PROVIDER", provider { ['a' as char, 'b' as char, 'c' as char] })
-    buildConfigField(Character[], "CHAR_ARRAY_NULLABLE", ['a' as char, null, 'c' as char])
-    buildConfigField(Character[], "CHAR_ARRAY_NULLABLE_PROVIDER", provider { ['a' as char, null, 'c' as char] })
+    buildConfigField('Character?[]', "CHAR_ARRAY_NULLABLE", ['a' as char, null, 'c' as char])
+    buildConfigField('Character?[]', "CHAR_ARRAY_NULLABLE_PROVIDER", provider { ['a' as char, null, 'c' as char] })
     buildConfigField('List<Character>', "CHAR_LIST", ['a' as char, null, 'c' as char])
     buildConfigField('List<Character>', "CHAR_LIST_PROVIDER", provider { ['a' as char, null, 'c' as char] })
     buildConfigField('Set<Character>', "CHAR_SET", ['a' as char, null, 'c' as char])
@@ -90,8 +90,8 @@ buildConfig {
     buildConfigField(int[], "INT_NATIVE_ARRAY_PROVIDER", provider { [1, 2, 3] })
     buildConfigField(Integer[], "INT_ARRAY", [1, 2, 3])
     buildConfigField(Integer[], "INT_ARRAY_PROVIDER", provider { [1, 2, 3] })
-    buildConfigField(Integer[], "INT_ARRAY_NULLABLE", [1, null, 3])
-    buildConfigField(Integer[], "INT_ARRAY_NULLABLE_PROVIDER", provider { [1, null, 3] })
+    buildConfigField('Integer?[]', "INT_ARRAY_NULLABLE", [1, null, 3])
+    buildConfigField('Integer?[]', "INT_ARRAY_NULLABLE_PROVIDER", provider { [1, null, 3] })
     buildConfigField('List<Integer>', "INT_LIST", [1, null, 3])
     buildConfigField('List<Integer>', "INT_LIST_PROVIDER", provider { [1, null, 3] })
     buildConfigField('Set<Integer>', "INT_SET", [1, null, 3])
@@ -105,8 +105,8 @@ buildConfig {
     buildConfigField(long[], "LONG_NATIVE_ARRAY_PROVIDER", provider { [1L, 2L, 3L] })
     buildConfigField(Long[], "LONG_ARRAY", [1L, 2L, 3L])
     buildConfigField(Long[], "LONG_ARRAY_PROVIDER", provider { [1L, 2L, 3L] })
-    buildConfigField(Long[], "LONG_ARRAY_NULLABLE", [1L, null, 3L])
-    buildConfigField(Long[], "LONG_ARRAY_NULLABLE_PROVIDER", provider { [1L, null, 3L] })
+    buildConfigField('Long?[]', "LONG_ARRAY_NULLABLE", [1L, null, 3L])
+    buildConfigField('Long?[]', "LONG_ARRAY_NULLABLE_PROVIDER", provider { [1L, null, 3L] })
     buildConfigField('List<Long>', "LONG_LIST", [1L, null, 3L])
     buildConfigField('List<Long>', "LONG_LIST_PROVIDER", provider { [1L, null, 3L] })
     buildConfigField('Set<Long>', "LONG_SET", [1L, null, 3L])
@@ -120,8 +120,8 @@ buildConfig {
     buildConfigField(float[], "FLOAT_NATIVE_ARRAY_PROVIDER", provider { [1f, 2f, 3f] })
     buildConfigField(Float[], "FLOAT_ARRAY", [1f, 2f, 3f])
     buildConfigField(Float[], "FLOAT_ARRAY_PROVIDER", provider { [1f, 2f, 3f] })
-    buildConfigField(Float[], "FLOAT_ARRAY_NULLABLE", [1f, null, 3f])
-    buildConfigField(Float[], "FLOAT_ARRAY_NULLABLE_PROVIDER", provider { [1f, null, 3f] })
+    buildConfigField('Float?[]', "FLOAT_ARRAY_NULLABLE", [1f, null, 3f])
+    buildConfigField('Float?[]', "FLOAT_ARRAY_NULLABLE_PROVIDER", provider { [1f, null, 3f] })
     buildConfigField('List<Float>', "FLOAT_LIST", [1f, null, 3f])
     buildConfigField('List<Float>', "FLOAT_LIST_PROVIDER", provider { [1f, null, 3f] })
     buildConfigField('Set<Float>', "FLOAT_SET", [1f, null, 3f])
@@ -135,8 +135,8 @@ buildConfig {
     buildConfigField(double[], "DOUBLE_NATIVE_ARRAY_PROVIDER", provider { [1.0, 2.0, 3.0] })
     buildConfigField(Double[], "DOUBLE_ARRAY", [1.0, 2.0, 3.0])
     buildConfigField(Double[], "DOUBLE_ARRAY_PROVIDER", provider { [1.0, 2.0, 3.0] })
-    buildConfigField(Double[], "DOUBLE_ARRAY_NULLABLE", [1.0, null, 3.0])
-    buildConfigField(Double[], "DOUBLE_ARRAY_NULLABLE_PROVIDER", provider { [1.0, null, 3.0] })
+    buildConfigField('Double?[]', "DOUBLE_ARRAY_NULLABLE", [1.0, null, 3.0])
+    buildConfigField('Double?[]', "DOUBLE_ARRAY_NULLABLE_PROVIDER", provider { [1.0, null, 3.0] })
     buildConfigField('List<Double>', "DOUBLE_LIST", [1.0, null, 3.0])
     buildConfigField('List<Double>', "DOUBLE_LIST_PROVIDER", provider { [1.0, null, 3.0] })
     buildConfigField('Set<Double>', "DOUBLE_SET", [1.0, null, 3.0])
@@ -150,8 +150,8 @@ buildConfig {
     buildConfigField(boolean[], "BOOLEAN_NATIVE_ARRAY_PROVIDER", provider { [true, false, false] })
     buildConfigField(Boolean[], "BOOLEAN_ARRAY", [true, false, false])
     buildConfigField(Boolean[], "BOOLEAN_ARRAY_PROVIDER", provider { [true, false, false] })
-    buildConfigField(Boolean[], "BOOLEAN_ARRAY_NULLABLE", [true, null, false])
-    buildConfigField(Boolean[], "BOOLEAN_ARRAY_NULLABLE_PROVIDER", provider { [true, null, false] })
+    buildConfigField('Boolean?[]', "BOOLEAN_ARRAY_NULLABLE", [true, null, false])
+    buildConfigField('Boolean?[]', "BOOLEAN_ARRAY_NULLABLE_PROVIDER", provider { [true, null, false] })
     buildConfigField('List<Boolean>', "BOOLEAN_LIST", [true, null, false])
     buildConfigField('List<Boolean>', "BOOLEAN_LIST_PROVIDER", provider { [true, null, false] })
     buildConfigField('Set<Boolean>', "BOOLEAN_SET", [true, null, false])
@@ -195,19 +195,12 @@ sourceSets {
 /**
  *  A task that iterates over your classpath resources and generate constants for them
  */
-def buildResources = buildConfig.forClass("BuildResources") {
+buildConfig.forClass("BuildResources") {
     buildConfigField('String', 'A_CONSTANT', '"aConstant"')
-}
-def generateResourcesConstants = tasks.register("generateResourcesConstants") {
-    doFirst {
-        sourceSets.main.resources.asFileTree.visit { file ->
-            def name = file.path.toUpperCase().replaceAll("\\W", "_")
 
-            buildResources.buildConfigField('java.io.File', name, "new File(\"$file.path\")")
-        }
+    sourceSets.main.resources.asFileTree.visit {
+        def name = it.path.toUpperCase().replaceAll("\\W", "_")
+
+        buildConfigField('java.io.File', name, "new File(\"${it.path}\")")
     }
-}
-
-tasks.generateBuildConfig {
-    dependsOn(generateResourcesConstants)
 }

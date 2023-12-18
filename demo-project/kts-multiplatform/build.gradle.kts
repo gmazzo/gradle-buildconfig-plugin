@@ -33,3 +33,7 @@ buildConfig {
 tasks.register("test") {
     dependsOn("allTests")
 }
+
+tasks.named("compileTestDevelopmentExecutableKotlinJs") {
+    notCompatibleWithConfigurationCache("uses Task.project")
+}

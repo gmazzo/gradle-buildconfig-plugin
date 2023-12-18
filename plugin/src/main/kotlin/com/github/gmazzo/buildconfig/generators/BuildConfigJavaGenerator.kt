@@ -4,7 +4,6 @@ import com.github.gmazzo.buildconfig.BuildConfigType
 import com.github.gmazzo.buildconfig.BuildConfigValue
 import com.github.gmazzo.buildconfig.asVarArg
 import com.github.gmazzo.buildconfig.elements
-import com.github.gmazzo.buildconfig.parseTypename
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.FieldSpec
@@ -23,49 +22,27 @@ data class BuildConfigJavaGenerator(
 
     private val logger = Logging.getLogger(javaClass)
 
-    private fun BuildConfigType<*>.toTypeName(): TypeName {
-        fun TypeName.parameterized(parameters: List<BuildConfigType<*>>) =
-            if (parameters.isEmpty()) this
-            else ParameterizedTypeName.get(
-                this as ClassName,
-                *parameters.map { it.toTypeName() }.toTypedArray()
-            )
-
-        return when (this) {
-            is BuildConfigType.JavaRef -> TypeName.get(ref).parameterized(typeParameters)
-            is BuildConfigType.NameRef -> {
-                val (typeName, isNullable, isArray) = ref.parseTypename()
-
-                var type = when (typeName) {
-                    "boolean" -> TypeName.BOOLEAN
-                    "Boolean" -> TypeName.BOOLEAN.box()
-                    "byte" -> TypeName.BYTE
-                    "Byte" -> TypeName.BYTE.box()
-                    "short" -> TypeName.SHORT
-                    "Short" -> TypeName.SHORT.box()
-                    "char" -> TypeName.CHAR
-                    "Char" -> TypeName.CHAR.box()
-                    "Character" -> TypeName.CHAR.box()
-                    "int" -> TypeName.INT
-                    "Int" -> TypeName.INT.box()
-                    "Integer" -> TypeName.INT.box()
-                    "long" -> TypeName.LONG
-                    "Long" -> TypeName.LONG.box()
-                    "float" -> TypeName.FLOAT
-                    "Float" -> TypeName.FLOAT.box()
-                    "double" -> TypeName.DOUBLE
-                    "Double" -> TypeName.DOUBLE.box()
-                    "String" -> STRING
-                    "List" -> LIST
-                    "Set" -> SET
-                    else -> ClassName.bestGuess(typeName)
-                }
-                if (isNullable && type.isPrimitive) type = type.box()
-                type = type.parameterized(typeParameters)
-                if (isArray) type = ArrayTypeName.of(type)
-                return type
-            }
+    private fun BuildConfigType.toTypeName(): TypeName {
+        var type = when (className.lowercase()) {
+            "boolean" -> if (nullable) TypeName.BOOLEAN.box() else TypeName.BOOLEAN
+            "byte" -> if (nullable) TypeName.BYTE.box() else TypeName.BYTE
+            "short" -> if (nullable) TypeName.SHORT.box() else TypeName.SHORT
+            "char", "character" -> if (nullable) TypeName.CHAR.box() else TypeName.CHAR
+            "int", "integer" -> if (nullable) TypeName.INT.box() else TypeName.INT
+            "long" -> if (nullable) TypeName.LONG.box() else TypeName.LONG
+            "float" -> if (nullable) TypeName.FLOAT.box() else TypeName.FLOAT
+            "double" -> if (nullable) TypeName.DOUBLE.box() else TypeName.DOUBLE
+            "string" -> STRING
+            "list" -> LIST
+            "set" -> SET
+            else -> ClassName.bestGuess(className)
         }
+        if (typeArguments.isNotEmpty()) type = ParameterizedTypeName.get(
+            type as ClassName,
+            *typeArguments.map { it.copy(nullable = true).toTypeName() }.toTypedArray()
+        )
+        if (array) type = ArrayTypeName.of(type)
+        return type
     }
 
     override fun execute(spec: BuildConfigGeneratorSpec) {

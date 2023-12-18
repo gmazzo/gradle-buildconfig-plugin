@@ -203,23 +203,17 @@ val versionsSS = buildConfig.sourceSets.register("Versions") {
     buildConfigField("myDependencyVersion", "1.0.1")
 }
 
-val buildResources = buildConfig.forClass("BuildResources") {
+/**
+ *  A task that iterates over your classpath resources and generate constants for them
+ */
+buildConfig.forClass("BuildResources") {
     buildConfigField("A_CONSTANT", "aConstant")
-}
-val generateResourcesConstants by tasks.registering {
-    doFirst {
-        sourceSets["main"].resources.asFileTree.visit {
-            val name = path.uppercase().replace("\\W".toRegex(), "_")
 
-            with(buildResources) {
-                buildConfigField("java.io.File", name, "File(\"$path\")")
-            }
-        }
+    sourceSets["main"].resources.asFileTree.visit {
+        val name = path.uppercase().replace("\\W".toRegex(), "_")
+
+        buildConfigField("java.io.File", name, "File(\"$path\")")
     }
-}
-
-tasks.generateBuildConfig {
-    dependsOn(generateResourcesConstants)
 }
 
 // example of a custom generator that builds into XML

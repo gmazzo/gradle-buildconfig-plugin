@@ -5,7 +5,6 @@ import com.github.gmazzo.buildconfig.BuildConfigType
 import com.github.gmazzo.buildconfig.BuildConfigValue
 import com.github.gmazzo.buildconfig.asVarArg
 import com.github.gmazzo.buildconfig.elements
-import com.github.gmazzo.buildconfig.parseTypename
 import com.squareup.kotlinpoet.ARRAY
 import com.squareup.kotlinpoet.BOOLEAN
 import com.squareup.kotlinpoet.BOOLEAN_ARRAY
@@ -91,41 +90,27 @@ data class BuildConfigKotlinGenerator(
         }
     }
 
-    private fun BuildConfigType<*>.toTypeName(): TypeName {
-        fun Class<*>.toTypeName(): TypeName =
-            if (isArray) ARRAY.parameterizedBy(componentType.toTypeName())
-            else kotlin.asTypeName()
-
-        fun TypeName.parameterized(parameters: List<BuildConfigType<*>>) =
-            if (parameters.isEmpty()) this
-            else (this as ClassName).parameterizedBy(*parameters.map { it.toTypeName() }.toTypedArray())
-
-        return when (this) {
-            is BuildConfigType.JavaRef -> ref.toTypeName()
-            is BuildConfigType.NameRef -> {
-                val (typeName, isNullable, isArray) = ref.parseTypename()
-
-                var type: TypeName = when (typeName.lowercase()) {
-                    "boolean" -> if (isArray && !isNullable) BOOLEAN_ARRAY else BOOLEAN
-                    "byte" -> if (isArray && !isNullable) BYTE_ARRAY else BYTE
-                    "short" -> if (isArray && !isNullable) SHORT_ARRAY else SHORT
-                    "char" -> if (isArray && !isNullable) CHAR_ARRAY else CHAR
-                    "int" -> if (isArray && !isNullable) INT_ARRAY else INT
-                    "integer" -> if (isArray && !isNullable) INT_ARRAY else INT
-                    "long" -> if (isArray && !isNullable) LONG_ARRAY else LONG
-                    "float" -> if (isArray && !isNullable) FLOAT_ARRAY else FLOAT
-                    "double" -> if (isArray && !isNullable) DOUBLE_ARRAY else DOUBLE
-                    "string" -> STRING
-                    "list" -> LIST
-                    "set" -> SET
-                    else -> ClassName.bestGuess(typeName)
-                }
-                type = type.parameterized(typeParameters)
-                if (isNullable) type = type.copy(nullable = true)
-                if (isArray && !type.isPrimitiveArray) type = ARRAY.parameterizedBy(type)
-                return type
-            }
+    private fun BuildConfigType.toTypeName(): TypeName {
+        var type: TypeName = when (className.lowercase()) {
+            "boolean" -> if (array && !nullable) BOOLEAN_ARRAY else BOOLEAN
+            "byte" -> if (array && !nullable) BYTE_ARRAY else BYTE
+            "short" -> if (array && !nullable) SHORT_ARRAY else SHORT
+            "char" -> if (array && !nullable) CHAR_ARRAY else CHAR
+            "int" -> if (array && !nullable) INT_ARRAY else INT
+            "integer" -> if (array && !nullable) INT_ARRAY else INT
+            "long" -> if (array && !nullable) LONG_ARRAY else LONG
+            "float" -> if (array && !nullable) FLOAT_ARRAY else FLOAT
+            "double" -> if (array && !nullable) DOUBLE_ARRAY else DOUBLE
+            "string" -> STRING
+            "list" -> LIST
+            "set" -> SET
+            else -> ClassName.bestGuess(className)
         }
+        if (typeArguments.isNotEmpty())
+            type = (type as ClassName).parameterizedBy(*typeArguments.map { it.toTypeName() }.toTypedArray())
+        if (nullable) type = type.copy(nullable = true)
+        if (array && !type.isPrimitiveArray) type = ARRAY.parameterizedBy(type)
+        return type
     }
 
     private fun FileSpec.Builder.addFields(fields: List<PropertySpec>, kdoc: String?): FileSpec.Builder = when {
