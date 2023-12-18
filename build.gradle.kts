@@ -1,5 +1,6 @@
 plugins {
     base
+    `maven-publish`
     alias(libs.plugins.kotlin.android) apply false
     alias(libs.plugins.kotlin.jvm) apply false
     alias(libs.plugins.kotlin.multiplatform) apply false
@@ -26,12 +27,12 @@ tasks.check {
     dependsOn(jacocoTestReport.reportTask, pluginBuild.task(":$name"))
 }
 
-tasks.register(PublishingPlugin.PUBLISH_LIFECYCLE_TASK_NAME) {
+tasks.publish {
     dependsOn(pluginBuild.task(":$name"))
     finalizedBy(tasks.reportPublications)
 }
 
-tasks.register(MavenPublishPlugin.PUBLISH_LOCAL_LIFECYCLE_TASK_NAME) {
+tasks.publishToMavenLocal {
     dependsOn(pluginBuild.task(":$name"))
     finalizedBy(tasks.reportPublications)
 }
