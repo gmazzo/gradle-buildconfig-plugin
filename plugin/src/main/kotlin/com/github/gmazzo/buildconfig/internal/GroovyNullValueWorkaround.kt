@@ -1,7 +1,6 @@
 package com.github.gmazzo.buildconfig.internal
 
 import com.github.gmazzo.buildconfig.BuildConfigClassSpec
-import com.github.gmazzo.buildconfig.addField
 import com.github.gmazzo.buildconfig.nameOf
 import com.github.gmazzo.buildconfig.valueOf
 import groovy.lang.GroovyObjectSupport
@@ -22,7 +21,7 @@ internal abstract class GroovyNullValueWorkaround : BuildConfigClassSpec, Groovy
         type: Class<out Type>,
         name: String,
         value: Any?, // this should be `Serializable?` but Groovy fails to resolve the overloading when `null as Serializable` is passed as value
-    ) = check(value is Serializable?) { "Value is not a Serializable: $value (${value!!::class.java.name})" }
-        .run { addField(nameOf(type), name, valueOf(value)) }
+    ) = check(value == null) { "Only `null` values expected here, please fill a bug" }
+        .run { buildConfigField(nameOf(type), name, valueOf(null)) }
 
 }
