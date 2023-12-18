@@ -65,3 +65,7 @@ tasks.check {
 tasks.publish {
     dependsOn(tasks.publishPlugins)
 }
+
+tasks.generateJacocoTestKitProperties {
+    notCompatibleWithConfigurationCache("uses Task.extensions")
+}

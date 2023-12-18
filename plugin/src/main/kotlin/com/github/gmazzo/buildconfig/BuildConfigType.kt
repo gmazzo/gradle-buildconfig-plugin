@@ -2,25 +2,26 @@ package com.github.gmazzo.buildconfig
 
 import java.io.Serializable
 
-sealed class BuildConfigType<RefType : Serializable> : Serializable {
+data class BuildConfigType @JvmOverloads constructor(
+    val className: String,
+    val typeArguments: List<BuildConfigType> = emptyList(),
+    val nullable: Boolean = false,
+    val array: Boolean = false,
+) : Serializable {
 
-    abstract val ref: RefType
-
-    abstract val typeParameters: List<BuildConfigType<*>>
-
-    data class JavaRef(
-        override val ref: Class<*>,
-        override val typeParameters: List<BuildConfigType<*>> = emptyList(),
-    ) : BuildConfigType<Class<*>>()
-
-    data class NameRef(
-        override val ref: String,
-        override val typeParameters: List<BuildConfigType<*>> = emptyList(),
-    ) : BuildConfigType<String>()
-
-    override fun toString(): String = when(typeParameters.size) {
-        0 -> ref.toString()
-        else -> "$ref<${typeParameters.joinToString(", ")}>"
+    private val text by lazy {
+        buildString {
+            append(className)
+            if (typeArguments.isNotEmpty()) {
+                append("<")
+                append(typeArguments.joinToString(", "))
+                append(">")
+            }
+            if (nullable) append("?")
+            if (array) append("[]")
+        }
     }
+
+    override fun toString(): String = text
 
 }
