@@ -48,49 +48,56 @@ interface BuildConfigClassSpec : Named {
     fun buildConfigField(
         type: String,
         name: String,
-        value: String,
-    ) = buildConfigField(nameOf(type), name, expressionOf(value))
+        expression: String,
+    ) = buildConfigField(name) {
+        it.type(type)
+        it.expression(expression)
+    }
 
     fun buildConfigField(
         type: String,
         name: String,
         value: Serializable?,
-    ) = buildConfigField(nameOf(type), name, valueOf(value))
+    ) = buildConfigField(name) {
+        it.type(type)
+        it.value(value)
+    }
 
     fun <Type : Serializable> buildConfigField(
         type: Class<out Type>,
         name: String,
         value: Type?,
-    ) = buildConfigField(nameOf(type), name, valueOf(castToType(value, type) as Serializable))
+    ) = buildConfigField(name) {
+        it.type(type)
+        it.value(castToType(value, type) as Serializable?)
+    }
 
+    /*
+     Because of erasure types on Groovy, this method is call for two use cases:
+     - when `buildConfigField('File', 'NAME', provider { 'File("aFile")' })` is called
+     - when `buildConfigField('List<Int>', 'NAME', provider { [1, 2] })` is called
+
+     So we assume that if the value is a String, it's an expression, otherwise it's a literal.
+     Literal strings values has a dedicated `buildConfigField(String, 'NAME', provider { 'aValue' })` method
+     */
     fun buildConfigField(
         type: String,
         name: String,
         value: Provider<out Serializable>
-    ) = buildConfigField(nameOf(type), name, value.map { if (it is String) expressionOf(it) else valueOf(it) })
+    ) = buildConfigField(name) {
+        it.type(type)
+        it.value
+            .value(value.map { v -> if (v is String) BuildConfigValue.Expression(v) else BuildConfigValue.Literal(v) })
+            .disallowChanges()
+    }
 
     fun <Type : Serializable> buildConfigField(
         type: Class<out Type>,
         name: String,
         value: Provider<out Type>,
-    ) = buildConfigField(nameOf(type), name, value.map { valueOf(castToType(it, type) as Serializable) })
-
-    fun buildConfigField(
-        type: BuildConfigType,
-        name: String,
-        value: BuildConfigValue,
     ) = buildConfigField(name) {
-        it.type.value(type).disallowChanges()
-        it.value.value(value).disallowChanges()
-    }
-
-    fun buildConfigField(
-        type: BuildConfigType,
-        name: String,
-        value: Provider<BuildConfigValue>
-    ) = buildConfigField(name) {
-        it.type.value(type).disallowChanges()
-        it.value.value(value).disallowChanges()
+        it.type(type)
+        it.value(value.map { v -> castToType(v, type) as Serializable })
     }
 
     fun buildConfigField(

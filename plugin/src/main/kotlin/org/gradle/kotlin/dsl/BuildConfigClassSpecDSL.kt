@@ -2,8 +2,9 @@ package org.gradle.kotlin.dsl
 
 import com.github.gmazzo.buildconfig.BuildConfigClassSpec
 import com.github.gmazzo.buildconfig.BuildConfigDsl
-import com.github.gmazzo.buildconfig.nameOf
-import com.github.gmazzo.buildconfig.valueOf
+import com.github.gmazzo.buildconfig.BuildConfigField
+import org.gradle.api.Action
+import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.provider.Provider
 import java.io.Serializable
 import kotlin.reflect.typeOf
@@ -12,52 +13,76 @@ import kotlin.reflect.typeOf
 inline fun <reified Type : Serializable?> BuildConfigClassSpec.buildConfigField(
     name: String,
     value: Type?,
-) = buildConfigField(nameOf(typeOf<Type>()), name, valueOf(value))
+): NamedDomainObjectProvider<BuildConfigField> = buildConfigField(name, Action {
+    it.type(typeOf<Type>())
+    it.value(value)
+})
 
 @BuildConfigDsl
-inline fun <reified Type : Serializable?> BuildConfigClassSpec.buildConfigField(
+inline fun <reified Type : Serializable> BuildConfigClassSpec.buildConfigField(
     name: String,
     value: Provider<out Type>,
-) = buildConfigField(nameOf(typeOf<Type>()), name, value.map(::valueOf))
+) = buildConfigField(name, Action {
+    it.type(typeOf<Type>())
+    it.value(value)
+})
 
 @BuildConfigDsl
 @JvmName("buildConfigFieldArray")
 inline fun <reified Type : Serializable?> BuildConfigClassSpec.buildConfigField(
     name: String,
     value: Array<Type>,
-) = buildConfigField(nameOf(typeOf<Array<Type>>()), name, valueOf(value))
+) = buildConfigField(name, Action {
+    it.type(typeOf<Array<Type>>())
+    it.value(value)
+})
 
 @BuildConfigDsl
 @JvmName("buildConfigFieldList")
 inline fun <reified Type : Serializable?> BuildConfigClassSpec.buildConfigField(
     name: String,
     value: List<Type>,
-) = buildConfigField(nameOf(typeOf<List<Type>>()), name, valueOf(if (value is Serializable) value else ArrayList(value)))
+) = buildConfigField(name, Action {
+    it.type(typeOf<List<Type>>())
+    it.value(if (value is Serializable) value else ArrayList(value))
+})
 
 @BuildConfigDsl
 @JvmName("buildConfigFieldSet")
 inline fun <reified Type : Serializable?> BuildConfigClassSpec.buildConfigField(
     name: String,
     value: Set<Type>,
-) = buildConfigField(nameOf(typeOf<Set<Type>>()), name, valueOf(if (value is Serializable) value else LinkedHashSet(value)))
+) = buildConfigField(name, Action {
+    it.type(typeOf<Set<Type>>())
+    it.value(if (value is Serializable) value else LinkedHashSet(value))
+})
 
 @BuildConfigDsl
 @JvmName("buildConfigFieldArray")
 inline fun <reified Type : Serializable?> BuildConfigClassSpec.buildConfigField(
     name: String,
-    value: Provider<out Array<Type>>,
-) = buildConfigField(nameOf(typeOf<Array<Type>>()), name, value.map(::valueOf))
+    value: Provider<Array<Type>>,
+) = buildConfigField(name, Action {
+    it.type(typeOf<Array<Type>>())
+    it.value(value)
+})
 
 @BuildConfigDsl
 @JvmName("buildConfigFieldList")
 inline fun <reified Type : Serializable?> BuildConfigClassSpec.buildConfigField(
     name: String,
     value: Provider<out List<Type>>,
-) = buildConfigField(nameOf(typeOf<List<Type>>()), name, value.map { valueOf(if (it is Serializable) it else ArrayList(it)) })
+) = buildConfigField(name, Action {
+    it.type(typeOf<List<Type>>())
+    it.value(value.map(::ArrayList))
+})
 
 @BuildConfigDsl
 @JvmName("buildConfigFieldSet")
 inline fun <reified Type : Serializable?> BuildConfigClassSpec.buildConfigField(
     name: String,
     value: Provider<out Set<Type>>,
-) = buildConfigField(nameOf(typeOf<Set<Type>>()), name, value.map { valueOf(if (it is Serializable) it else LinkedHashSet(it)) })
+) = buildConfigField(name, Action {
+    it.type(typeOf<Set<Type>>())
+    it.value(value.map(::LinkedHashSet))
+})
