@@ -1,7 +1,6 @@
 package com.github.gmazzo.buildconfig
 
 import org.jetbrains.annotations.VisibleForTesting
-import java.io.Serializable
 import java.lang.reflect.GenericArrayType
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
@@ -72,7 +71,6 @@ internal fun nameOf(type: Type): BuildConfigType = when(type) {
     else -> error("Unsupported type: $type")
 }
 
-@PublishedApi
 internal fun nameOf(type: KType): BuildConfigType {
     val isArray = type.javaType.isArray
     val targetType = type.takeIf { isArray }?.arguments?.singleOrNull()?.type ?: type
@@ -123,14 +121,6 @@ private fun parseName(
     val (typeName, nullable, array) = name.parseTypename()
     return BuildConfigType(typeName, parameters, nullable, array)
 }
-
-@PublishedApi
-internal fun expressionOf(expression: String) =
-    BuildConfigValue.Expression(expression)
-
-@PublishedApi
-internal fun valueOf(value: Serializable?) =
-    BuildConfigValue.Literal(value)
 
 internal val Any?.elements: List<Any?>
     get() = when (this) {

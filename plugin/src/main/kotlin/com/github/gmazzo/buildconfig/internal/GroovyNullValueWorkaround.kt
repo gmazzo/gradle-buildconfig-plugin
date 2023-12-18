@@ -1,10 +1,7 @@
 package com.github.gmazzo.buildconfig.internal
 
 import com.github.gmazzo.buildconfig.BuildConfigClassSpec
-import com.github.gmazzo.buildconfig.nameOf
-import com.github.gmazzo.buildconfig.valueOf
 import groovy.lang.GroovyObjectSupport
-import java.io.Serializable
 
 /**
  * Workaround for Groovy's `null` value issue when calling overloaded methods limitation:
@@ -17,11 +14,15 @@ import java.io.Serializable
  */
 internal abstract class GroovyNullValueWorkaround : BuildConfigClassSpec, GroovyObjectSupport() {
 
-    fun <Type : Serializable> buildConfigField(
-        type: Class<out Type>,
+    fun buildConfigField(
+        type: Class<*>,
         name: String,
-        value: Any?, // this should be `Serializable?` but Groovy fails to resolve the overloading when `null as Serializable` is passed as value
-    ) = check(value == null) { "Only `null` values expected here, please fill a bug" }
-        .run { buildConfigField(nameOf(type), name, valueOf(null)) }
+        value: Any?,
+    ) = check(value == null) { "Only `null` values expected here, please fill a bug" }.run {
+        buildConfigField(name) {
+            it.type(type)
+            it.value(null)
+        }
+    }
 
 }
