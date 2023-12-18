@@ -1,0 +1,183 @@
+plugins {
+    id 'java'
+    id 'com.github.gmazzo.buildconfig'
+    id 'java-test-fixtures'
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(libs.versions.java.get())
+
+dependencies {
+    implementation(projects.demoProject.groovy)
+    testImplementation(libs.kotlin.test)
+    testImplementation(testFixtures(projects.demoProject.groovy))
+}
+
+buildConfig {
+    useKotlinOutput()
+
+    documentation = "This is a generated BuildConfig class"
+    packageName("com.github.gmazzo.buildconfig.demos.groovy")
+
+    buildConfigField(String, 'APP_NAME', project.name)
+    buildConfigField(String, "APP_VERSION", provider { project.version })
+    buildConfigField(String, 'APP_SECRET', "Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu")
+    buildConfigField(String, 'OPTIONAL', null)
+    buildConfigField(long, 'BUILD_TIME', System.currentTimeMillis())
+    buildConfigField(boolean, 'FEATURE_ENABLED', true)
+    buildConfigField('List<Int>', 'MAGIC_NUMBERS', [1, 2, 3])
+
+    // all possible kind for String
+    buildConfigField(String, "STRING", "aString")
+    buildConfigField(String, "STRING_NULL", null)
+    buildConfigField(String, "STRING_PROVIDER", provider { "aString" })
+    buildConfigField(String[], "STRING_ARRAY", ["a", "b", "c"])
+    buildConfigField(String[], "STRING_ARRAY_PROVIDER", provider { ["a", "b", "c"] })
+    buildConfigField(String[], "STRING_ARRAY_NULLABLE", ["a", null, "c"])
+    buildConfigField(String[], "STRING_ARRAY_NULLABLE_PROVIDER", provider { ["a", null, "c"] })
+    buildConfigField('List<String>', "STRING_LIST", ["a", null, "c"])
+    buildConfigField('List<String>', "STRING_LIST_PROVIDER", provider { ["a", null, "c"] })
+    buildConfigField('Set<String>', "STRING_SET", ["a", null, "c"])
+    buildConfigField('Set<String>', "STRING_SET_PROVIDER", provider { ["a", null, "c"] })
+
+    // all possible kind for Byte
+    buildConfigField(byte, "BYTE", 64 as byte)
+    buildConfigField(Byte, "BYTE_NULL", null)
+    buildConfigField(byte, "BYTE_PROVIDER", provider { 64 as byte })
+    buildConfigField(byte[], "BYTE_NATIVE_ARRAY", [1, 2, 3])
+    buildConfigField(byte[], "BYTE_NATIVE_ARRAY_PROVIDER", provider { [1, 2, 3] })
+    buildConfigField(Byte[], "BYTE_ARRAY", [1, 2, 3])
+    buildConfigField(Byte[], "BYTE_ARRAY_PROVIDER", provider { [1, 2, 3] })
+    buildConfigField('Byte?[]', "BYTE_ARRAY_NULLABLE", [1, null, 3])
+    buildConfigField('Byte?[]', "BYTE_ARRAY_NULLABLE_PROVIDER", provider { [1, null, 3] })
+    buildConfigField('List<Byte>', "BYTE_LIST", [1, null, 3])
+    buildConfigField('List<Byte>', "BYTE_LIST_PROVIDER", provider { [1, null, 3] })
+    buildConfigField('Set<Byte>', "BYTE_SET", [1, null, 3])
+    buildConfigField('Set<Byte>', "BYTE_SET_PROVIDER", provider { [1, null, 3] })
+
+    // all possible kind for Short
+    buildConfigField(short, "SHORT", 64)
+    buildConfigField(short, "SHORT_NULL", null)
+    buildConfigField(short, "SHORT_PROVIDER", provider { 64 })
+    buildConfigField(short[], "SHORT_NATIVE_ARRAY", [1, 2, 3])
+    buildConfigField(short[], "SHORT_NATIVE_ARRAY_PROVIDER", provider { [1, 2, 3] })
+    buildConfigField(Short[], "SHORT_ARRAY", [1, 2, 3])
+    buildConfigField(Short[], "SHORT_ARRAY_PROVIDER", provider { [1, 2, 3] })
+    buildConfigField('Short?[]', "SHORT_ARRAY_NULLABLE", [1, null, 3])
+    buildConfigField('Short?[]', "SHORT_ARRAY_NULLABLE_PROVIDER", provider { [1, null, 3] })
+    buildConfigField('List<Short>', "SHORT_LIST", [1, null, 3])
+    buildConfigField('List<Short>', "SHORT_LIST_PROVIDER", provider { [1, null, 3] })
+    buildConfigField('Set<Short>', "SHORT_SET", [1, null, 3])
+    buildConfigField('Set<Short>', "SHORT_SET_PROVIDER", provider { [1, null, 3] })
+
+    // all possible kind for Char
+    buildConfigField(char, "CHAR", 'a' as char)
+    buildConfigField(Character, "CHAR_NULL", null)
+    buildConfigField(char, "CHAR_PROVIDER", provider { 'a' as char })
+    buildConfigField(char[], "CHAR_NATIVE_ARRAY", ['a' as char, 'b' as char, 'c' as char])
+    buildConfigField(char[], "CHAR_NATIVE_ARRAY_PROVIDER", provider { ['a' as char, 'b' as char, 'c' as char] })
+    buildConfigField(Character[], "CHAR_ARRAY", ['a' as char, 'b' as char, 'c' as char])
+    buildConfigField(Character[], "CHAR_ARRAY_PROVIDER", provider { ['a' as char, 'b' as char, 'c' as char] })
+    buildConfigField('Character?[]', "CHAR_ARRAY_NULLABLE", ['a' as char, null, 'c' as char])
+    buildConfigField('Character?[]', "CHAR_ARRAY_NULLABLE_PROVIDER", provider { ['a' as char, null, 'c' as char] })
+    buildConfigField('List<Character>', "CHAR_LIST", ['a' as char, null, 'c' as char])
+    buildConfigField('List<Character>', "CHAR_LIST_PROVIDER", provider { ['a' as char, null, 'c' as char] })
+    buildConfigField('Set<Character>', "CHAR_SET", ['a' as char, null, 'c' as char])
+    buildConfigField('Set<Character>', "CHAR_SET_PROVIDER", provider { ['a' as char, null, 'c' as char] })
+
+    // all possible kind for Int
+    buildConfigField(int, "INT", 1)
+    buildConfigField(Integer, "INT_NULL", null)
+    buildConfigField(int, "INT_PROVIDER", provider { 1 })
+    buildConfigField(int[], "INT_NATIVE_ARRAY", [1, 2, 3])
+    buildConfigField(int[], "INT_NATIVE_ARRAY_PROVIDER", provider { [1, 2, 3] })
+    buildConfigField(Integer[], "INT_ARRAY", [1, 2, 3])
+    buildConfigField(Integer[], "INT_ARRAY_PROVIDER", provider { [1, 2, 3] })
+    buildConfigField('Integer?[]', "INT_ARRAY_NULLABLE", [1, null, 3])
+    buildConfigField('Integer?[]', "INT_ARRAY_NULLABLE_PROVIDER", provider { [1, null, 3] })
+    buildConfigField('List<Integer>', "INT_LIST", [1, null, 3])
+    buildConfigField('List<Integer>', "INT_LIST_PROVIDER", provider { [1, null, 3] })
+    buildConfigField('Set<Integer>', "INT_SET", [1, null, 3])
+    buildConfigField('Set<Integer>', "INT_SET_PROVIDER", provider { [1, null, 3] })
+
+    // all possible kind for Long
+    buildConfigField(long, "LONG", 1L)
+    buildConfigField(Long, "LONG_NULL", null)
+    buildConfigField(long, "LONG_PROVIDER", provider { 1L })
+    buildConfigField(long[], "LONG_NATIVE_ARRAY", [1L, 2L, 3L])
+    buildConfigField(long[], "LONG_NATIVE_ARRAY_PROVIDER", provider { [1L, 2L, 3L] })
+    buildConfigField(Long[], "LONG_ARRAY", [1L, 2L, 3L])
+    buildConfigField(Long[], "LONG_ARRAY_PROVIDER", provider { [1L, 2L, 3L] })
+    buildConfigField('Long?[]', "LONG_ARRAY_NULLABLE", [1L, null, 3L])
+    buildConfigField('Long?[]', "LONG_ARRAY_NULLABLE_PROVIDER", provider { [1L, null, 3L] })
+    buildConfigField('List<Long>', "LONG_LIST", [1L, null, 3L])
+    buildConfigField('List<Long>', "LONG_LIST_PROVIDER", provider { [1L, null, 3L] })
+    buildConfigField('Set<Long>', "LONG_SET", [1L, null, 3L])
+    buildConfigField('Set<Long>', "LONG_SET_PROVIDER", provider { [1L, null, 3L] })
+
+    // all possible kind for Float
+    buildConfigField(float, "FLOAT", 1f)
+    buildConfigField(Float, "FLOAT_NULL", null)
+    buildConfigField(float, "FLOAT_PROVIDER", provider { 1f })
+    buildConfigField(float[], "FLOAT_NATIVE_ARRAY", [1f, 2f, 3f])
+    buildConfigField(float[], "FLOAT_NATIVE_ARRAY_PROVIDER", provider { [1f, 2f, 3f] })
+    buildConfigField(Float[], "FLOAT_ARRAY", [1f, 2f, 3f])
+    buildConfigField(Float[], "FLOAT_ARRAY_PROVIDER", provider { [1f, 2f, 3f] })
+    buildConfigField('Float?[]', "FLOAT_ARRAY_NULLABLE", [1f, null, 3f])
+    buildConfigField('Float?[]', "FLOAT_ARRAY_NULLABLE_PROVIDER", provider { [1f, null, 3f] })
+    buildConfigField('List<Float>', "FLOAT_LIST", [1f, null, 3f])
+    buildConfigField('List<Float>', "FLOAT_LIST_PROVIDER", provider { [1f, null, 3f] })
+    buildConfigField('Set<Float>', "FLOAT_SET", [1f, null, 3f])
+    buildConfigField('Set<Float>', "FLOAT_SET_PROVIDER", provider { [1f, null, 3f] })
+
+    // all possible kind for Double
+    buildConfigField(double, "DOUBLE", 1.0)
+    buildConfigField(Double, "DOUBLE_NULL", null)
+    buildConfigField(double, "DOUBLE_PROVIDER", provider { 1.0 })
+    buildConfigField(double[], "DOUBLE_NATIVE_ARRAY", [1.0, 2.0, 3.0])
+    buildConfigField(double[], "DOUBLE_NATIVE_ARRAY_PROVIDER", provider { [1.0, 2.0, 3.0] })
+    buildConfigField(Double[], "DOUBLE_ARRAY", [1.0, 2.0, 3.0])
+    buildConfigField(Double[], "DOUBLE_ARRAY_PROVIDER", provider { [1.0, 2.0, 3.0] })
+    buildConfigField('Double?[]', "DOUBLE_ARRAY_NULLABLE", [1.0, null, 3.0])
+    buildConfigField('Double?[]', "DOUBLE_ARRAY_NULLABLE_PROVIDER", provider { [1.0, null, 3.0] })
+    buildConfigField('List<Double>', "DOUBLE_LIST", [1.0, null, 3.0])
+    buildConfigField('List<Double>', "DOUBLE_LIST_PROVIDER", provider { [1.0, null, 3.0] })
+    buildConfigField('Set<Double>', "DOUBLE_SET", [1.0, null, 3.0])
+    buildConfigField('Set<Double>', "DOUBLE_SET_PROVIDER", provider { [1.0, null, 3.0] })
+
+    // all possible kind for Boolean
+    buildConfigField(boolean, "BOOLEAN", true)
+    buildConfigField(Boolean, "BOOLEAN_NULL", null)
+    buildConfigField(boolean, "BOOLEAN_PROVIDER", provider { true })
+    buildConfigField(boolean[], "BOOLEAN_NATIVE_ARRAY", [true, false, false])
+    buildConfigField(boolean[], "BOOLEAN_NATIVE_ARRAY_PROVIDER", provider { [true, false, false] })
+    buildConfigField(Boolean[], "BOOLEAN_ARRAY", [true, false, false])
+    buildConfigField(Boolean[], "BOOLEAN_ARRAY_PROVIDER", provider { [true, false, false] })
+    buildConfigField('Boolean?[]', "BOOLEAN_ARRAY_NULLABLE", [true, null, false])
+    buildConfigField('Boolean?[]', "BOOLEAN_ARRAY_NULLABLE_PROVIDER", provider { [true, null, false] })
+    buildConfigField('List<Boolean>', "BOOLEAN_LIST", [true, null, false])
+    buildConfigField('List<Boolean>', "BOOLEAN_LIST_PROVIDER", provider { [true, null, false] })
+    buildConfigField('Set<Boolean>', "BOOLEAN_SET", [true, null, false])
+    buildConfigField('Set<Boolean>', "BOOLEAN_SET_PROVIDER", provider { [true, null, false] })
+
+    // custom formats with expressions, including Map and custom types
+    buildConfigField(
+            "Map<String, Integer>",
+            "MAP",
+            "mapOf(\"a\" to 1, \"b\" to 2)"
+    )
+    buildConfigField(
+            "Map<String, Integer>",
+            "MAP_PROVIDER",
+            provider { "mapOf(\"a\" to 1, \"b\" to 2)" }
+    )
+    buildConfigField(
+            "com.github.gmazzo.buildconfig.demos.groovy.SomeData",
+            "DATA",
+            "new SomeData(\"a\", 1)"
+    )
+    buildConfigField(
+            "com.github.gmazzo.buildconfig.demos.groovy.SomeData",
+            "DATA_PROVIDER",
+            provider { "new SomeData(\"a\", 1)" }
+    )
+}
