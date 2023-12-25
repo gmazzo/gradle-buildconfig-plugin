@@ -16,4 +16,4 @@ jacoco-testkit = { id = "pl.droidsonroids.jacoco.testkit", version = "1.0.12" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
-publicationsReport = { id = "io.github.gmazzo.publications.report", version = "1.2.0" }
+publicationsReport = { id = "io.github.gmazzo.publications.report", version = "1.2.2" }
