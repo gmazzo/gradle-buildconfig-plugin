@@ -212,7 +212,7 @@ myproject
 If you add in your `build.gradle.kts`:
 ```kotlin
 val buildResources = buildConfig.forClass("BuildResources")
-val generateResourcesConstants by tasks.regitering {
+val generateResourcesConstants by tasks.registering {
     val resources = sourceSets["main"].resources.asFileTree
     
     inputs.files(resources)
