@@ -12,8 +12,8 @@ Designed for KTS scripts, with *experimental* support for Kotlin's **multi-platf
 On your `build.gradle.kts` add:
 ```kotlin
 plugins {
-    id("org.jetbrains.kotlin.jvm") version embeddedKotlinVersion
-    id("com.github.gmazzo.buildconfig") version <current version>
+    id("org.jetbrains.kotlin.jvm") version "<kotlin version>"
+    id("com.github.gmazzo.buildconfig") version "<current version>"
 }
 
 buildConfig {
@@ -25,9 +25,7 @@ buildConfig {
     buildConfigField("FEATURE_ENABLED", true)
     buildConfigField("MAGIC_NUMBERS", intArrayOf(1, 2, 3, 4))
     buildConfigField("STRING_LIST", arrayOf("a", "b", "c"))
-    buildConfigField<Map<String, Int>>("MAP") {
-        expression("mapOf(\"a\" to 1, \"b\" to 2)")
-    }
+    buildConfigField<Map<String, Int>>("MAP", expression("mapOf(\"a\" to 1, \"b\" to 2)"))
     buildConfigField("com.github.gmazzo.buildconfig.demos.kts.SomeData", "DATA", "SomeData(\"a\", 1)")
 
 }
@@ -67,6 +65,7 @@ buildConfig {
     buildConfigField(int[], "MAGIC_NUMBERS", [1, 2, 3])
     buildConfigField('List<String>', "STRING_LIST", ["a", "b", "c"])
     buildConfigField("java.util.Map<String, Integer>", "MAP", "java.util.Map.of(\"a\", 1, \"b\", 2)")
+    buildConfigField(Map.class, "GENERIC_MAP", expression("java.util.Map.of(\"a\", 1, \"b\", 2)"))
     buildConfigField("com.github.gmazzo.buildconfig.demos.groovy.SomeData", "DATA", "new SomeData(\"a\", 1)")
 }
 ```

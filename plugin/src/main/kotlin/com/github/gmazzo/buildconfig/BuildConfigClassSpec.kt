@@ -72,6 +72,15 @@ interface BuildConfigClassSpec : Named {
         it.value(castToType(value, type) as Serializable?)
     }
 
+    fun buildConfigField(
+        type: Class<*>,
+        name: String,
+        expression: BuildConfigValue.Expression
+    ) = buildConfigField(name) {
+        it.type(type)
+        it.value.value(expression)
+    }
+
     /*
      Because of erasure types on Groovy, this method is call for two use cases:
      - when `buildConfigField('File', 'NAME', provider { 'File("aFile")' })` is called
@@ -87,7 +96,13 @@ interface BuildConfigClassSpec : Named {
     ) = buildConfigField(name) {
         it.type(type)
         it.value
-            .value(value.map { v -> if (v is String) BuildConfigValue.Expression(v) else BuildConfigValue.Literal(v) })
+            .value(value.map { v ->
+                when (v) {
+                    is BuildConfigValue -> v
+                    is String -> BuildConfigValue.Expression(v)
+                    else -> BuildConfigValue.Literal(v)
+                }
+            })
             .disallowChanges()
     }
 
@@ -97,7 +112,17 @@ interface BuildConfigClassSpec : Named {
         value: Provider<out Type>,
     ) = buildConfigField(name) {
         it.type(type)
-        it.value(value.map { v -> castToType(v, type) as Serializable })
+        it.value.value(value.map { v ->
+            when (v) {
+                is BuildConfigValue -> v
+                is String -> when (type) {
+                    String::class.java -> BuildConfigValue.Literal(v)
+                    else -> BuildConfigValue.Expression(v)
+                }
+
+                else -> BuildConfigValue.Literal(castToType(v, type) as Serializable)
+            }
+        })
     }
 
     fun buildConfigField(
@@ -109,5 +134,8 @@ interface BuildConfigClassSpec : Named {
             configure.execute(it)
         }
     }
+
+    fun expression(expression: String) =
+        BuildConfigValue.Expression(expression)
 
 }

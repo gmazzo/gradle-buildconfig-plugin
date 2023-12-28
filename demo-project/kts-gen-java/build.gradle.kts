@@ -157,16 +157,10 @@ buildConfig {
     buildConfigField("BOOLEAN_SET_PROVIDER", provider { setOf(true, null, false) })
 
     // custom formats with expressions, including Map and custom types
-    buildConfigField(
-        "java.util.Map<String, Int>",
-        "MAP",
-        "java.util.Map.of(\"a\", 1, \"b\", 2)"
-    )
-    buildConfigField(
-        "java.util.Map<String, Int>",
-        "MAP_PROVIDER",
-        provider { "java.util.Map.of(\"a\", 1, \"b\", 2)" }
-    )
+    buildConfigField<Map<String, Int>>("MAP", expression("java.util.Map.of(\"a\", 1, \"b\", 2)"))
+    buildConfigField<Map<String, Int>>("MAP_PROVIDER", provider { expression("java.util.Map.of(\"a\", 1, \"b\", 2)") })
+    buildConfigField<Map<*, *>>("MAP_GENERIC", expression("java.util.Map.of(\"a\", 1, \"b\", 2)"))
+    buildConfigField<Map<*, *>>("MAP_GENERIC_PROVIDER", provider { expression("java.util.Map.of(\"a\", 1, \"b\", 2)") })
     buildConfigField(
         "com.github.gmazzo.buildconfig.demos.kts.SomeData",
         "DATA",

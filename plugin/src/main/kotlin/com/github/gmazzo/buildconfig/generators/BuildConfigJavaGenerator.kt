@@ -12,6 +12,7 @@ import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
+import com.squareup.javapoet.WildcardTypeName
 import org.gradle.api.logging.Logging
 import org.gradle.api.tasks.Input
 import javax.lang.model.element.Modifier
@@ -35,6 +36,7 @@ data class BuildConfigJavaGenerator(
             "string" -> STRING
             "list" -> LIST
             "set" -> SET
+            "*", "?" -> WildcardTypeName.get(Object::class.java)
             else -> ClassName.bestGuess(className)
         }
         if (typeArguments.isNotEmpty()) type = ParameterizedTypeName.get(
