@@ -172,6 +172,10 @@ buildConfig {
     )
     buildConfigField(Map.class, "MAP_GENERIC", expression("java.util.Map.of(\"a\", 1, \"b\", 2)"))
     buildConfigField(Map.class, "MAP_GENERIC_PROVIDER", provider { expression("java.util.Map.of(\"a\", 1, \"b\", 2)") })
+    buildConfigField(File.class, "FILE", new File("aFile"))
+    buildConfigField(File.class, "FILE_PROVIDER", provider { new File("aFile") })
+    buildConfigField(URI.class, "URI", uri("https://example.io"))
+    buildConfigField(URI.class, "URI_PROVIDER", provider { uri("https://example.io") })
     buildConfigField(
             "com.github.gmazzo.buildconfig.demos.groovy.SomeData",
             "DATA",

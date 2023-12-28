@@ -161,6 +161,10 @@ buildConfig {
     buildConfigField<Map<String, Int>>("MAP_PROVIDER", provider { expression("java.util.Map.of(\"a\", 1, \"b\", 2)") })
     buildConfigField<Map<*, *>>("MAP_GENERIC", expression("java.util.Map.of(\"a\", 1, \"b\", 2)"))
     buildConfigField<Map<*, *>>("MAP_GENERIC_PROVIDER", provider { expression("java.util.Map.of(\"a\", 1, \"b\", 2)") })
+    buildConfigField("FILE", File("aFile"))
+    buildConfigField("FILE_PROVIDER", provider { File("aFile") })
+    buildConfigField("URI", uri("https://example.io"))
+    buildConfigField("URI_PROVIDER", provider { uri("https://example.io") })
     buildConfigField(
         "com.github.gmazzo.buildconfig.demos.kts.SomeData",
         "DATA",
