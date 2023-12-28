@@ -24,6 +24,7 @@ import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.LIST
 import com.squareup.kotlinpoet.LONG
 import com.squareup.kotlinpoet.LONG_ARRAY
+import com.squareup.kotlinpoet.MAP
 import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.PropertySpec
@@ -149,11 +150,11 @@ data class BuildConfigKotlinGenerator(
             else -> "%L"
         }
 
-        fun List<Any?>.format(function: String, item: (Any) -> TypeName) = joinToString(
+        fun List<Any?>.format(function: String, elementType: TypeName?) = joinToString(
             prefix = "$function(",
             separator = ", ",
             postfix = ")",
-            transform = { it?.let(item).format() }
+            transform = { it?.let { elementType ?: it::class.asTypeName() }.format() }
         ) to size
 
         val elements = forValue.elements
@@ -161,32 +162,48 @@ data class BuildConfigKotlinGenerator(
         fun singleFormat() =
             elements.single()?.let { it::class.asTypeName() }.format() to 1
 
-        fun arrayFormat(item: (Any) -> TypeName) =
-            elements.format("arrayOf", item)
+        fun arrayFormat(elementType: TypeName?) =
+            elements.format("arrayOf", elementType)
 
-        fun listFormat(item: (Any) -> TypeName) =
-            elements.format("listOf", item)
+        fun listFormat(elementType: TypeName?) =
+            elements.format("listOf", elementType)
 
-        fun setFormat(item: (Any) -> TypeName) =
-            elements.format("setOf", item)
+        fun setFormat(elementType: TypeName?) =
+            elements.format("setOf", elementType)
+
+        fun mapFormat(keyType: TypeName?, valueType: TypeName?) =
+            elements.joinToString(
+                prefix = "mapOf(",
+                separator = ", ",
+                postfix = ")",
+                transform = {
+                    val (key, value) = (it as Map.Entry<Any?, Any?>)
+                    val keyFormat = (keyType ?: key?.let { key::class.asTypeName() }).format()
+                    val valueFormat = (valueType ?: value?.let { value::class.asTypeName() }).format()
+
+                    "$keyFormat to $valueFormat"
+                }
+            ) to elements.size * 2
 
         return when (val nonNullable = copy(nullable = false)) {
             LONG, STRING -> singleFormat()
-            ARRAY -> arrayFormat { it::class.asTypeName() }
-            BYTE_ARRAY -> elements.format("byteArrayOf") { BYTE }
-            SHORT_ARRAY -> elements.format("shortArrayOf") { SHORT }
-            CHAR_ARRAY -> elements.format("charArrayOf") { CHAR }
-            INT_ARRAY -> elements.format("intArrayOf") { INT }
-            LONG_ARRAY -> elements.format("longArrayOf") { LONG }
-            FLOAT_ARRAY -> elements.format("floatArrayOf") { FLOAT }
-            DOUBLE_ARRAY -> elements.format("doubleArrayOf") { DOUBLE }
-            BOOLEAN_ARRAY -> elements.format("booleanArrayOf") { BOOLEAN }
-            LIST, GENERIC_LIST -> listFormat { it::class.asTypeName() }
-            SET, GENERIC_SET -> setFormat { it::class.asTypeName() }
+            ARRAY -> arrayFormat(null)
+            BYTE_ARRAY -> elements.format("byteArrayOf", BYTE)
+            SHORT_ARRAY -> elements.format("shortArrayOf", SHORT)
+            CHAR_ARRAY -> elements.format("charArrayOf", CHAR)
+            INT_ARRAY -> elements.format("intArrayOf", INT)
+            LONG_ARRAY -> elements.format("longArrayOf", LONG)
+            FLOAT_ARRAY -> elements.format("floatArrayOf", FLOAT)
+            DOUBLE_ARRAY -> elements.format("doubleArrayOf", DOUBLE)
+            BOOLEAN_ARRAY -> elements.format("booleanArrayOf", BOOLEAN)
+            LIST, GENERIC_LIST -> listFormat(null)
+            SET, GENERIC_SET -> setFormat(null)
+            MAP, GENERIC_MAP -> mapFormat(null, null)
             is ParameterizedTypeName -> when (nonNullable.rawType) {
-                ARRAY -> arrayFormat { nonNullable.typeArguments.first() }
-                LIST, GENERIC_LIST -> listFormat { nonNullable.typeArguments.first() }
-                SET, GENERIC_SET -> setFormat { nonNullable.typeArguments.first() }
+                ARRAY -> arrayFormat(nonNullable.typeArguments[0])
+                LIST, GENERIC_LIST -> listFormat(nonNullable.typeArguments[0])
+                SET, GENERIC_SET -> setFormat(nonNullable.typeArguments[0])
+                MAP, GENERIC_MAP -> mapFormat(nonNullable.typeArguments[0], nonNullable.typeArguments[1])
                 else -> singleFormat()
             }
 
@@ -204,6 +221,7 @@ data class BuildConfigKotlinGenerator(
         private val CONST_TYPES = setOf(STRING, BOOLEAN, BYTE, SHORT, INT, LONG, CHAR, FLOAT, DOUBLE)
         private val GENERIC_LIST = ClassName("", "List")
         private val GENERIC_SET = ClassName("", "Set")
+        private val GENERIC_MAP = ClassName("", "Map")
         private val FILE = File::class.asClassName()
         private val URI = URI::class.asClassName()
     }

@@ -129,11 +129,11 @@ data class BuildConfigJavaGenerator(
             else -> "\$L"
         }
 
-        fun List<Any?>.format(prefix: String, postfix: String, item: (Any) -> TypeName) = joinToString(
+        fun List<Any?>.format(prefix: String, postfix: String, elementType: TypeName?) = joinToString(
             prefix = prefix,
             separator = ", ",
             postfix = postfix,
-            transform = { it?.let(item).format() }
+            transform = { it?.let { elementType ?: TypeName.get(it::class.java) }.format() }
         ) to size
 
         val elements = forValue.elements
@@ -141,23 +141,38 @@ data class BuildConfigJavaGenerator(
         fun singleFormat() =
             elements.single()?.let { TypeName.get(it::class.java) }.format() to 1
 
-        fun arrayFormat(item: (Any) -> TypeName) =
-            elements.format("{", "}", item)
+        fun listFormat(elementType: TypeName?) =
+            elements.format("java.util.Arrays.asList(", ")", elementType)
 
-        fun listFormat(item: (Any) -> TypeName) =
-            elements.format("java.util.Arrays.asList(", ")", item)
+        fun setFormat(elementType: TypeName?) =
+            elements.format("new java.util.LinkedHashSet<>(java.util.Arrays.asList(", "))", elementType)
 
-        fun setFormat(item: (Any) -> TypeName) =
-            elements.format("new java.util.LinkedHashSet<>(java.util.Arrays.asList(", "))", item)
+        fun mapFormat(keyType: TypeName?, valueType: TypeName?) =
+            elements.joinToString(
+                prefix = "java.util.Map.of(",
+                separator = ", ",
+                postfix = ")",
+                transform = {
+                    val (key, value) = (it as Map.Entry<Any?, Any?>)
+                    val keyFormat = (keyType ?: key?.let { TypeName.get(key::class.java) }).format()
+                    val valueFormat = (valueType ?: value?.let { TypeName.get(value::class.java) }).format()
+
+                    "$keyFormat, $valueFormat"
+                }
+            ) to elements.size * 2
 
         return when (this) {
             TypeName.LONG, ClassName.get(String::class.java) -> singleFormat()
-            is ArrayTypeName -> arrayFormat { componentType }
-            LIST, GENERIC_LIST -> listFormat { TypeName.get(it::class.java) }
-            SET, GENERIC_SET -> setFormat { TypeName.get(it::class.java) }
+            is ArrayTypeName ->elements.format("{", "}", componentType)
+            LIST, GENERIC_LIST -> listFormat(null)
+            SET, GENERIC_SET -> setFormat(null)
+            MAP, GENERIC_MAP -> mapFormat(null, null)
             is ParameterizedTypeName -> when (rawType) {
-                LIST, GENERIC_LIST -> listFormat { typeArguments.first() }
-                SET, GENERIC_SET -> setFormat { typeArguments.first() }
+                LIST, GENERIC_LIST -> listFormat(typeArguments[0].takeIf { it.isBoxedPrimitive })
+                SET, GENERIC_SET -> setFormat(typeArguments[0].takeIf { it.isBoxedPrimitive })
+                MAP, GENERIC_MAP -> mapFormat(
+                    typeArguments[0].takeIf { it.isBoxedPrimitive },
+                    typeArguments[1].takeIf { it.isBoxedPrimitive })
                 else -> singleFormat()
             }
 
@@ -169,10 +184,12 @@ data class BuildConfigJavaGenerator(
         private val STRING = ClassName.get(String::class.java)
         private val LIST = ClassName.get(List::class.java)
         private val SET = ClassName.get(Set::class.java)
+        private val MAP = ClassName.get(Map::class.java)
         private val FILE = ClassName.get(File::class.java)
         private val URI = ClassName.get(URI::class.java)
         private val GENERIC_LIST = ClassName.get("", "List")
         private val GENERIC_SET = ClassName.get("", "Set")
+        private val GENERIC_MAP = ClassName.get("", "Map")
     }
 
 }
