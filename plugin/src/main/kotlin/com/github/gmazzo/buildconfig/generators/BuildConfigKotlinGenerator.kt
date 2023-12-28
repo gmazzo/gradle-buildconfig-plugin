@@ -30,6 +30,7 @@ import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.SET
 import com.squareup.kotlinpoet.SHORT
 import com.squareup.kotlinpoet.SHORT_ARRAY
+import com.squareup.kotlinpoet.STAR
 import com.squareup.kotlinpoet.STRING
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeSpec
@@ -105,6 +106,7 @@ data class BuildConfigKotlinGenerator(
             "string" -> STRING
             "list" -> LIST
             "set" -> SET
+            "*", "?" -> STAR
             else -> ClassName.bestGuess(kotlinClassName)
         }
         if (typeArguments.isNotEmpty())

@@ -170,6 +170,8 @@ buildConfig {
             "MAP_PROVIDER",
             provider { "mapOf(\"a\" to 1, \"b\" to 2)" }
     )
+    buildConfigField(Map.class, "MAP_GENERIC", expression("mapOf(\"a\" to 1, \"b\" to 2)"))
+    buildConfigField(Map.class, "MAP_GENERIC_PROVIDER", provider { expression("mapOf(\"a\" to 1, \"b\" to 2)") })
     buildConfigField(
             "com.github.gmazzo.buildconfig.demos.groovy.SomeData",
             "DATA",

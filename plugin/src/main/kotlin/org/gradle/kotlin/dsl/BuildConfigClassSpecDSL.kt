@@ -3,6 +3,7 @@ package org.gradle.kotlin.dsl
 import com.github.gmazzo.buildconfig.BuildConfigClassSpec
 import com.github.gmazzo.buildconfig.BuildConfigDsl
 import com.github.gmazzo.buildconfig.BuildConfigField
+import com.github.gmazzo.buildconfig.BuildConfigValue
 import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.provider.Provider
@@ -34,6 +35,26 @@ inline fun <reified Type : Serializable> BuildConfigClassSpec.buildConfigField(
 ) = buildConfigField(name, Action {
     it.type(typeOf<Type>())
     it.value(value)
+})
+
+@BuildConfigDsl
+@JvmName("buildConfigFieldExpression")
+inline fun <reified Type : Any?> BuildConfigClassSpec.buildConfigField(
+    name: String,
+    expression: BuildConfigValue.Expression,
+): NamedDomainObjectProvider<BuildConfigField> = buildConfigField(name, Action {
+    it.type(typeOf<Type>())
+    it.value.set(expression)
+})
+
+@BuildConfigDsl
+@JvmName("buildConfigFieldExpression")
+inline fun <reified Type : Any?> BuildConfigClassSpec.buildConfigField(
+    name: String,
+    expression: Provider<BuildConfigValue.Expression>,
+): NamedDomainObjectProvider<BuildConfigField> = buildConfigField(name, Action {
+    it.type(typeOf<Type>())
+    it.value.set(expression)
 })
 
 @BuildConfigDsl

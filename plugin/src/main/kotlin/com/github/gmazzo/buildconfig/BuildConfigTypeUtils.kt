@@ -41,25 +41,32 @@ private val Type.genericName: String
         else -> error("Unsupported type: $this")
     }
 
-private val Type.isArray get() = when (this) {
-    is Class<*> -> isArray
-    is GenericArrayType -> true
-    else -> false
-}
+private val Type.isArray
+    get() = when (this) {
+        is Class<*> -> isArray
+        is GenericArrayType -> true
+        else -> false
+    }
 
-internal fun nameOf(type: Type): BuildConfigType = when(type) {
+internal fun nameOf(type: Type): BuildConfigType = when (type) {
     is Class<*> -> BuildConfigType(
         className = type.genericName,
-        typeArguments = type.typeParameters.map { nameOf(it.genericDeclaration) },
+        typeArguments = type.typeParameters.map {
+            nameOf(checkNotNull(it.bounds.singleOrNull()) {
+                "Types with complex parameters bounds are not supported: $type"
+            })
+        },
         nullable = false,
         array = type.isArray
     )
+
     is ParameterizedType -> BuildConfigType(
         className = type.rawType.genericName,
         typeArguments = type.actualTypeArguments.map { nameOf(it) },
         nullable = false,
         array = false
     )
+
     is GenericArrayType -> BuildConfigType(
         className = type.genericComponentType.genericName,
         typeArguments = checkNotNull(type.genericComponentType as? ParameterizedType) {
@@ -68,6 +75,7 @@ internal fun nameOf(type: Type): BuildConfigType = when(type) {
         nullable = false,
         array = true
     )
+
     else -> error("Unsupported type: $type")
 }
 
@@ -77,7 +85,7 @@ internal fun nameOf(type: KType): BuildConfigType {
 
     return BuildConfigType(
         className = type.javaType.genericName,
-        typeArguments = targetType.arguments.map { nameOf(it.type!!) },
+        typeArguments = targetType.arguments.map { it.type?.let(::nameOf) ?: nameOf("*") },
         nullable = targetType.isMarkedNullable,
         array = isArray
     )
