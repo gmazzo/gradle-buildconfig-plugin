@@ -50,6 +50,12 @@ internal object BuildConfig {
     internal val DATA: SomeData = SomeData("a", 1)
 }
 ```
+> [!IMPORTANT]
+> Avoid generating `File` entries with `Project.file` API, as they are created with absolute paths, and it will produce cache misses.
+> ```kotlin
+> buildConfigField("FILE", file("aFile")) // will create a file targeting `/your/project/root/aFile` -> DON'T!
+> buildConfigField("FILE", file("aFile").relativeToOrSelf(projectDir)) // use this instead, for instance
+> ```
 
 ## Usage in Groovy
 On your `build.gradle` add:
