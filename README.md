@@ -25,7 +25,9 @@ buildConfig {
     buildConfigField("FEATURE_ENABLED", true)
     buildConfigField("MAGIC_NUMBERS", intArrayOf(1, 2, 3, 4))
     buildConfigField("STRING_LIST", arrayOf("a", "b", "c"))
-    buildConfigField<Map<String, Int>>("MAP", expression("mapOf(\"a\" to 1, \"b\" to 2)"))
+    buildConfigField("MAP", mapOf("a" to 1, "b" to 2))
+    buildConfigField("FILE", File("aFile"))
+    buildConfigField("URI", uri("https://example.io"))
     buildConfigField("com.github.gmazzo.buildconfig.demos.kts.SomeData", "DATA", "SomeData(\"a\", 1)")
 
 }
@@ -43,6 +45,8 @@ internal object BuildConfig {
     internal val MAGIC_NUMBERS: IntArray = intArrayOf(1, 2, 3)
     internal val STRING_LIST: Array<String> = arrayOf("a", "b", "c")
     internal val MAP: Map<String, Int> = mapOf("a" to 1, "b" to 2)
+    internal val FILE: File = java.io.File("aFile")
+    internal val URI: URI = java.net.URI.create("https://example.io")
     internal val DATA: SomeData = SomeData("a", 1)
 }
 ```
@@ -64,8 +68,9 @@ buildConfig {
     buildConfigField(boolean, 'FEATURE_ENABLED', true)
     buildConfigField(int[], "MAGIC_NUMBERS", [1, 2, 3])
     buildConfigField('List<String>', "STRING_LIST", ["a", "b", "c"])
-    buildConfigField("java.util.Map<String, Integer>", "MAP", "java.util.Map.of(\"a\", 1, \"b\", 2)")
-    buildConfigField(Map.class, "GENERIC_MAP", expression("java.util.Map.of(\"a\", 1, \"b\", 2)"))
+    buildConfigField(Map.class, "MAP", [a: 1, b: 2])
+    buildConfigField(File.class, "FILE", new File("aFile"))
+    buildConfigField(URI.class, "URI", uri("https://example.io"))
     buildConfigField("com.github.gmazzo.buildconfig.demos.groovy.SomeData", "DATA", "new SomeData(\"a\", 1)")
 }
 ```
@@ -82,6 +87,8 @@ final class BuildConfig {
     public static final int[] MAGIC_NUMBERS = {1, 2, 3};
     public static final String[] STRING_LIST = {"a", "b", "c"};
     public static final Map<String, Integer> MAP = java.util.Map.of("a", 1, "b", 2);
+    public static final File FILE = new java.io.File("aFile");
+    public static final URI URI = java.net.URI.create("https://example.io");
     public static final SomeData DATA = new SomeData("a", 1);
 }
 ```

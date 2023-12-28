@@ -160,14 +160,16 @@ buildConfig {
     buildConfigField('Set<Boolean>', "BOOLEAN_SET_PROVIDER", provider { [true, null, false] })
 
     // custom formats with expressions, including Map and custom types
+    buildConfigField(Map.class, "MAP", [a: 1, b: 2])
+    buildConfigField(Map.class, "MAP_PROVIDER", [a: 1, b: 2])
     buildConfigField(
             "java.util.Map<String, Integer>",
-            "MAP",
+            "MAP_BY_EXPRESSION",
             "java.util.Map.of(\"a\", 1, \"b\", 2)"
     )
     buildConfigField(
             "java.util.Map<String, Integer>",
-            "MAP_PROVIDER",
+            "MAP_BY_EXPRESSION_PROVIDER",
             provider { "java.util.Map.of(\"a\", 1, \"b\", 2)" }
     )
     buildConfigField(Map.class, "MAP_GENERIC", expression("java.util.Map.of(\"a\", 1, \"b\", 2)"))

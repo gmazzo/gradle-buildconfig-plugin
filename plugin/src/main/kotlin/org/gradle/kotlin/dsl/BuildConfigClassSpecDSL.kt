@@ -88,6 +88,16 @@ inline fun <reified Type : Serializable?> BuildConfigClassSpec.buildConfigField(
 })
 
 @BuildConfigDsl
+@JvmName("buildConfigFieldMap")
+inline fun <reified Key : Serializable?, reified Value : Serializable?> BuildConfigClassSpec.buildConfigField(
+    name: String,
+    value: Map<Key, Value>,
+) = buildConfigField(name, Action {
+    it.type(typeOf<Map<Key, Value>>())
+    it.value(LinkedHashMap(value))
+})
+
+@BuildConfigDsl
 @JvmName("buildConfigFieldArray")
 inline fun <reified Type : Serializable?> BuildConfigClassSpec.buildConfigField(
     name: String,
@@ -115,4 +125,14 @@ inline fun <reified Type : Serializable?> BuildConfigClassSpec.buildConfigField(
 ) = buildConfigField(name, Action {
     it.type(typeOf<Set<Type>>())
     it.value(value.map(::LinkedHashSet))
+})
+
+@BuildConfigDsl
+@JvmName("buildConfigFieldMap")
+inline fun <reified Key : Serializable?, reified Value : Serializable?> BuildConfigClassSpec.buildConfigField(
+    name: String,
+    value: Provider<out Map<Key, Value>>,
+) = buildConfigField(name, Action {
+    it.type(typeOf<Map<Key, Value>>())
+    it.value(value.map(::LinkedHashMap))
 })

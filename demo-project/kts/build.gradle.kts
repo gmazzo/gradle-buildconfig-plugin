@@ -172,8 +172,10 @@ buildConfig {
     buildConfigField("BOOLEAN_SET_PROVIDER", provider { setOf(true, null, false) })
 
     // custom formats with expressions, including Map and custom types
-    buildConfigField<Map<String, Int>>("MAP", expression("mapOf(\"a\" to 1, \"b\" to 2)"))
-    buildConfigField<Map<String, Int>>("MAP_PROVIDER", provider { expression("mapOf(\"a\" to 1, \"b\" to 2)") })
+    buildConfigField("MAP", mapOf("a" to 1, "b" to 2))
+    buildConfigField("MAP_PROVIDER", provider { mapOf("a" to 1, "b" to 2) })
+    buildConfigField<Map<String, Int>>("MAP_BY_EXPRESSION", expression("mapOf(\"a\" to 1, \"b\" to 2)"))
+    buildConfigField<Map<String, Int>>("MAP_BY_EXPRESSION_PROVIDER", provider { expression("mapOf(\"a\" to 1, \"b\" to 2)") })
     buildConfigField<Map<*, *>>("MAP_GENERIC", expression("mapOf(\"a\" to 1, \"b\" to 2)"))
     buildConfigField<Map<*, *>>("MAP_GENERIC_PROVIDER", provider { expression("mapOf(\"a\" to 1, \"b\" to 2)") })
     buildConfigField("FILE", File("aFile"))

@@ -178,6 +178,8 @@ public abstract class BuildConfigBaseTest {
     public void testCustomTypes() {
         assertEquals(Map.of("a", 1, "b", 2), BuildConfig.MAP);
         assertEquals(Map.of("a", 1, "b", 2), BuildConfig.MAP_PROVIDER);
+        assertEquals(Map.of("a", 1, "b", 2), BuildConfig.MAP_BY_EXPRESSION);
+        assertEquals(Map.of("a", 1, "b", 2), BuildConfig.MAP_BY_EXPRESSION_PROVIDER);
         assertEquals(Map.of("a", 1, "b", 2), BuildConfig.MAP_GENERIC);
         assertEquals(Map.of("a", 1, "b", 2), BuildConfig.MAP_GENERIC_PROVIDER);
         assertEquals(new File("aFile"), BuildConfig.FILE);
