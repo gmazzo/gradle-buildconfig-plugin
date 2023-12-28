@@ -34,9 +34,12 @@ import com.squareup.kotlinpoet.STAR
 import com.squareup.kotlinpoet.STRING
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeSpec
+import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.asTypeName
 import org.gradle.api.logging.Logging
 import org.gradle.api.tasks.Input
+import java.io.File
+import java.net.URI
 
 data class BuildConfigKotlinGenerator(
     @get:Input var topLevelConstants: Boolean = false,
@@ -141,6 +144,8 @@ data class BuildConfigKotlinGenerator(
             LONG -> "%LL"
             FLOAT -> "%Lf"
             STRING -> "%S"
+            FILE -> "java.io.File(%S)"
+            URI -> "java.net.URI.create(%S)"
             else -> "%L"
         }
 
@@ -198,7 +203,9 @@ data class BuildConfigKotlinGenerator(
     companion object {
         private val CONST_TYPES = setOf(STRING, BOOLEAN, BYTE, SHORT, INT, LONG, CHAR, FLOAT, DOUBLE)
         private val GENERIC_LIST = ClassName("", "List")
-        private val GENERIC_SET = ClassName("", "SET")
+        private val GENERIC_SET = ClassName("", "Set")
+        private val FILE = File::class.asClassName()
+        private val URI = URI::class.asClassName()
     }
 
 }

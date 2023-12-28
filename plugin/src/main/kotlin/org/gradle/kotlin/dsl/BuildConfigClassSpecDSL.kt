@@ -74,7 +74,7 @@ inline fun <reified Type : Serializable?> BuildConfigClassSpec.buildConfigField(
     value: List<Type>,
 ) = buildConfigField(name, Action {
     it.type(typeOf<List<Type>>())
-    it.value(if (value is Serializable) value else ArrayList(value))
+    it.value(ArrayList(value))
 })
 
 @BuildConfigDsl
@@ -84,7 +84,7 @@ inline fun <reified Type : Serializable?> BuildConfigClassSpec.buildConfigField(
     value: Set<Type>,
 ) = buildConfigField(name, Action {
     it.type(typeOf<Set<Type>>())
-    it.value(if (value is Serializable) value else LinkedHashSet(value))
+    it.value(LinkedHashSet(value))
 })
 
 @BuildConfigDsl

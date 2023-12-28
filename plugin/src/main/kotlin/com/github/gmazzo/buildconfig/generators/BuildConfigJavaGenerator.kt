@@ -15,6 +15,8 @@ import com.squareup.javapoet.TypeSpec
 import com.squareup.javapoet.WildcardTypeName
 import org.gradle.api.logging.Logging
 import org.gradle.api.tasks.Input
+import java.io.File
+import java.net.URI
 import javax.lang.model.element.Modifier
 
 data class BuildConfigJavaGenerator(
@@ -122,6 +124,8 @@ data class BuildConfigJavaGenerator(
             TypeName.LONG -> "\$LL"
             TypeName.FLOAT -> "\$Lf"
             STRING -> "\$S"
+            FILE -> "new java.io.File(\$S)"
+            URI -> "java.net.URI.create(\$S)"
             else -> "\$L"
         }
 
@@ -165,6 +169,8 @@ data class BuildConfigJavaGenerator(
         private val STRING = ClassName.get(String::class.java)
         private val LIST = ClassName.get(List::class.java)
         private val SET = ClassName.get(Set::class.java)
+        private val FILE = ClassName.get(File::class.java)
+        private val URI = ClassName.get(URI::class.java)
         private val GENERIC_LIST = ClassName.get("", "List")
         private val GENERIC_SET = ClassName.get("", "Set")
     }

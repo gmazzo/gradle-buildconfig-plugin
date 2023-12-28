@@ -2,6 +2,8 @@ package com.github.gmazzo.buildconfig.demos.groovy;
 
 import org.junit.Test;
 
+import java.io.File;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
@@ -178,6 +180,10 @@ public abstract class BuildConfigBaseTest {
         assertEquals(Map.of("a", 1, "b", 2), BuildConfig.MAP_PROVIDER);
         assertEquals(Map.of("a", 1, "b", 2), BuildConfig.MAP_GENERIC);
         assertEquals(Map.of("a", 1, "b", 2), BuildConfig.MAP_GENERIC_PROVIDER);
+        assertEquals(new File("aFile"), BuildConfig.FILE);
+        assertEquals(new File("aFile"), BuildConfig.FILE_PROVIDER);
+        assertEquals(URI.create("https://example.io"), BuildConfig.URI);
+        assertEquals(URI.create("https://example.io"), BuildConfig.URI_PROVIDER);
         assertEquals(new SomeData("a", 1), BuildConfig.DATA);
         assertEquals(new SomeData("a", 1), BuildConfig.DATA_PROVIDER);
     }
