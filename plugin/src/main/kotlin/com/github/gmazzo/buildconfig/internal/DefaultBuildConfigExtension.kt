@@ -3,7 +3,7 @@ package com.github.gmazzo.buildconfig.internal
 import com.github.gmazzo.buildconfig.BuildConfigExtension
 import org.gradle.api.NamedDomainObjectContainer
 
-internal open class DefaultBuildConfigExtension(
+internal abstract class DefaultBuildConfigExtension(
     override val sourceSets: NamedDomainObjectContainer<BuildConfigSourceSetInternal>,
     defaultSourceSet: BuildConfigSourceSetInternal
 ) : BuildConfigExtension,

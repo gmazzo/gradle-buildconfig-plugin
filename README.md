@@ -171,6 +171,16 @@ buildConfig {
 > [!NOTE]
 > `documentation` applies independently for each generated class
 
+## Do not generate classes at Gradle Sync
+By default, all `BuildConfigTask`s will be run as part of the Gradle Sync phase, to improve the developer experiece by having always an up-to-date version of the generated BuildConfig classes.
+
+You can turn this behavior by setting the `com.github.gmazzo.buildconfig.generateAtSync` property to `false` in your `gradle.properties` file or by using the extension DSL:
+```kotlin
+buildConfig {
+    generateAtSync = false
+}
+```
+
 ## Values greater than 100 characters
 In some cases, such as embedded public certs, your build config values may exceed 100 characters in length and will become subject to line wrapping by the [Kotlin Poet](https://square.github.io/kotlinpoet/#spaces-wrap-by-default) output. If you need to workaround this behavior, you can explicitly control or prevent line wrapping by replacing spaces with a `·` character.
 

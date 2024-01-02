@@ -19,6 +19,7 @@ import org.gradle.kotlin.dsl.add
 import org.gradle.kotlin.dsl.domainObjectContainer
 import org.gradle.kotlin.dsl.newInstance
 import org.gradle.kotlin.dsl.register
+import org.gradle.kotlin.dsl.withType
 
 class BuildConfigPlugin : Plugin<Project> {
 
@@ -36,6 +37,13 @@ class BuildConfigPlugin : Plugin<Project> {
         )
 
         sourceSets.configureEach { configureSourceSet(it, defaultSS) }
+
+        extension.generateAtSync
+            .convention(findProperty("com.github.gmazzo.buildconfig.generateAtSync")?.toString()?.toBoolean() ?: true)
+            .finalizeValueOnRead()
+
+        rootProject.tasks.findByName("prepareKotlinBuildScriptModel")
+            ?.dependsOn(extension.generateAtSync.map { if (it) tasks.withType<BuildConfigTask>() else files() })
 
         plugins.withId("java") {
             JavaHandler(project, extension).configure(sourceSets)
