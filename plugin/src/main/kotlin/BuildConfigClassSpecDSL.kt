@@ -3,12 +3,21 @@ package org.gradle.kotlin.dsl
 import com.github.gmazzo.buildconfig.BuildConfigClassSpec
 import com.github.gmazzo.buildconfig.BuildConfigDsl
 import com.github.gmazzo.buildconfig.BuildConfigField
+import com.github.gmazzo.buildconfig.BuildConfigSourceSet
 import com.github.gmazzo.buildconfig.BuildConfigValue
 import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectProvider
+import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.provider.Provider
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import java.io.Serializable
 import kotlin.reflect.typeOf
+
+val KotlinSourceSet.buildConfig: BuildConfigSourceSet
+    get() = (this as ExtensionAware).extensions.getByName<BuildConfigSourceSet>("buildConfig")
+
+operator fun BuildConfigSourceSet.invoke(action: Action<BuildConfigSourceSet>) =
+    action.execute(this)
 
 @BuildConfigDsl
 inline fun <reified Type : Any> BuildConfigClassSpec.buildConfigField(

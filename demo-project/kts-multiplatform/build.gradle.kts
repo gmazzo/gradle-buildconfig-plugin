@@ -1,5 +1,3 @@
-import com.github.gmazzo.buildconfig.BuildConfigSourceSet
-
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     id("com.github.gmazzo.buildconfig")
@@ -19,12 +17,12 @@ dependencies {
 buildConfig {
     buildConfigField("COMMON_VALUE", "aCommonValue")
 
-    sourceSets.named<BuildConfigSourceSet>("jvmMain") {
+    sourceSets.named("jvmMain") {
         buildConfigField("PLATFORM", "jvm")
         buildConfigField( "JVM_VALUE", "aJvmValue")
     }
 
-    sourceSets.named<BuildConfigSourceSet>("jsMain") {
+    sourceSets.named("jsMain") {
         buildConfigField( "PLATFORM", "js")
         buildConfigField( "JS_VALUE", "aJsValue")
     }

@@ -192,9 +192,16 @@ buildConfig {
         "DATA_PROVIDER",
         provider { "SomeData(\"a\", 1)" }
     )
+}
 
-    sourceSets["test"].buildConfigField("TEST_CONSTANT", "aTestValue")
-    sourceSets["integrationTest"].buildConfigField("INTEGRATION_TEST_CONSTANT", "aIntTestValue")
+sourceSets.test { buildConfig.buildConfigField("TEST_CONSTANT", "aTestValue") }
+kotlin.sourceSets.test { buildConfig.buildConfigField("TEST_CONSTANT2", "anotherValue") }
+
+sourceSets["integrationTest"].buildConfig {
+    buildConfigField("INTEGRATION_TEST_CONSTANT", "aIntTestValue")
+}
+kotlin.sourceSets["integrationTest"].buildConfig {
+    buildConfigField("INTEGRATION_TEST_CONSTANT2", "anotherIntTestValue")
 }
 
 val versionsSS = buildConfig.sourceSets.register("Versions") {

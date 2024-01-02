@@ -65,7 +65,7 @@ class BuildConfigPlugin : Plugin<Project> {
 
             onSourceSetAdded(ss, spec)
 
-            (ss as? ExtensionAware)?.extensions?.add(BuildConfigClassSpec::class, "buildConfig", spec)
+            (ss as? ExtensionAware)?.extensions?.add(BuildConfigSourceSet::class, "buildConfig", spec)
         }
     }
 
