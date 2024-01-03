@@ -10,6 +10,7 @@ import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
+import java.io.File
 
 @CacheableTask
 abstract class BuildConfigTask : DefaultTask() {
@@ -24,9 +25,9 @@ abstract class BuildConfigTask : DefaultTask() {
     abstract val outputDir: DirectoryProperty
 
     @TaskAction
-    fun generateBuildConfigFile() = outputDir.get().asFile.let { dir ->
+    fun generateBuildConfigFile() {
+        val dir = outputDir.get().asFile
         dir.deleteRecursively()
-        dir.mkdirs()
 
         val generator = generator.get()
 
@@ -52,7 +53,7 @@ abstract class BuildConfigTask : DefaultTask() {
                             else -> cmp
                         }
                     },
-                    outputDir = dir
+                    outputDir = dir.also(File::mkdirs)
                 )
             )
         }
