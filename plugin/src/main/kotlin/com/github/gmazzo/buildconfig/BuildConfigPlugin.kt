@@ -42,8 +42,12 @@ class BuildConfigPlugin : Plugin<Project> {
             .convention(findProperty("com.github.gmazzo.buildconfig.generateAtSync")?.toString()?.toBoolean() ?: true)
             .finalizeValueOnRead()
 
-        rootProject.tasks.findByName("prepareKotlinBuildScriptModel")
-            ?.dependsOn(extension.generateAtSync.map { if (it) tasks.withType<BuildConfigTask>() else files() })
+        if (rootProject.tasks.names.contains("prepareKotlinBuildScriptModel")) {
+            rootProject.tasks.named("prepareKotlinBuildScriptModel") {
+                it.dependsOn(extension.generateAtSync
+                    .map { enabled -> if (enabled) tasks.withType<BuildConfigTask>() else files() })
+            }
+        }
 
         plugins.withId("java") {
             JavaHandler(project, extension).configure(sourceSets)
