@@ -1,15 +1,20 @@
+@file:Suppress("LeakingThis")
+
 package com.github.gmazzo.buildconfig
 
 import com.github.gmazzo.buildconfig.generators.BuildConfigGenerator
 import com.github.gmazzo.buildconfig.generators.BuildConfigGeneratorSpec
 import org.gradle.api.DefaultTask
+import org.gradle.api.Task
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
+import org.gradle.api.specs.Spec
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
+import org.gradle.util.GradleVersion
 import java.io.File
 
 @CacheableTask
@@ -23,6 +28,15 @@ abstract class BuildConfigTask : DefaultTask() {
 
     @get:OutputDirectory
     abstract val outputDir: DirectoryProperty
+
+    init {
+        if (GradleVersion.current() >= GradleVersion.version("7.6")) {
+            onlyIf("There are build config fields to generate", HasFields)
+
+        } else {
+            onlyIf(HasFields)
+        }
+    }
 
     @TaskAction
     fun generateBuildConfigFile() {
@@ -57,6 +71,11 @@ abstract class BuildConfigTask : DefaultTask() {
                 )
             )
         }
+    }
+
+    private object HasFields : Spec<Task> {
+        override fun isSatisfiedBy(task: Task): Boolean =
+            (task as BuildConfigTask).specs.get().any { fields -> fields.buildConfigFields.isNotEmpty() }
     }
 
 }
