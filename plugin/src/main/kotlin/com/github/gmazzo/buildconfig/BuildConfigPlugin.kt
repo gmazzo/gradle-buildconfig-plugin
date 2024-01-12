@@ -42,10 +42,10 @@ class BuildConfigPlugin : Plugin<Project> {
             .convention(findProperty("com.github.gmazzo.buildconfig.generateAtSync")?.toString()?.toBoolean() ?: true)
             .finalizeValueOnRead()
 
-        if (rootProject.tasks.names.contains("prepareKotlinBuildScriptModel")) {
-            rootProject.tasks.named("prepareKotlinBuildScriptModel") {
-                it.dependsOn(extension.generateAtSync
-                    .map { enabled -> if (enabled) tasks.withType<BuildConfigTask>() else files() })
+        // generate at sync
+        afterEvaluate {
+            if (extension.generateAtSync.get()) {
+                tasks.maybeCreate("prepareKotlinIdeaImport").dependsOn(tasks.withType<BuildConfigTask>())
             }
         }
 
