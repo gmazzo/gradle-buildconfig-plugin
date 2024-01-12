@@ -12,11 +12,14 @@ version = providers
     .exec { commandLine("git", "describe", "--tags", "--always") }
     .standardOutput.asText.get().trim().removePrefix("v")
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(libs.versions.java.get())
+// Stay at Java 8 to workaround the Gradle when compiling buildscripts and using our `inline` functions:
+// `Cannot inline bytecode built with JVM target 11 into bytecode that is being built with JVM target 1.8` issue
+// https://github.com/gmazzo/gradle-buildconfig-plugin/issues/120
+java.toolchain.languageVersion = JavaLanguageVersion.of(8)
 
 kotlin {
     compilerOptions {
-        freeCompilerArgs.add("-Xjvm-default=all",)
+        freeCompilerArgs.add("-Xjvm-default=all")
     }
 }
 
@@ -61,6 +64,7 @@ tasks.withType<Test> {
     dependsOn("publishAllPublicationsToLocalRepository")
     workingDir = temporaryDir
     useJUnitPlatform()
+    javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(libs.versions.java.get()) }
     doLast { Thread.sleep(5000) } // allows GradleRunner to store JaCoCo data before computing task outputs
 }
 
