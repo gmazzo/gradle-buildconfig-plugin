@@ -1,4 +1,4 @@
-name: release
+name: Release
 on:
   release:
     types: [published]
@@ -18,7 +18,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Setup host
-        uses: ./.github/workflows/setup-host
+        uses: ./.github/actions/setup-host
       - name: Publish
         env:
           GRADLE_PUBLISH_KEY: ${{ secrets.GRADLE_PUBLISH_KEY }}

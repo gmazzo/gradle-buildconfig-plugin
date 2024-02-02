@@ -1,4 +1,4 @@
-name: build
+name: Build
 on:
   workflow_dispatch:
   workflow_call:
@@ -23,7 +23,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Setup host
-        uses: ./.github/workflows/setup-host
+        uses: ./.github/actions/setup-host
       - name: Test & Build
         run: ./gradlew -s build
       - name: Publish Test Report
@@ -33,3 +33,16 @@ jobs:
           report_paths: '**/build/test-results/*/TEST-*.xml'
       - name: Coverage report
         uses: codecov/codecov-action@v3
+
+  actionlint:
+    name: Validate Workflows
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Download actionlint
+        shell: bash
+        run: bash <(curl https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
+      - name: Check workflow files
+        shell: bash
+        run: ./actionlint -color -format '{{range $err := .}}::error file={{$err.Filepath}},line={{$err.Line}},col={{$err.Column}}::{{$err.Message}}%0A```%0A{{replace $err.Snippet "\\n" "%0A"}}%0A```\n{{end}}' -ignore 'SC2016:'

@@ -1,6 +1,6 @@
 # https://docs.github.com/en/code-security/dependabot/working-with-dependabot/automating-dependabot-with-github-actions#enable-auto-merge-on-a-pull-request
 name: Dependabot auto-merge
-on: 
+on:
   pull_request:
     types: [ opened, synchronize, reopened, labeled ]
 
@@ -14,7 +14,6 @@ jobs:
     if: ${{ contains(github.event.pull_request.labels.*.name, 'dependencies') }}
     steps:
       - name: Enable auto-merge for Dependabot PRs
-        run: gh pr merge --auto --rebase "$PR_URL"
+        run: gh pr merge --auto --rebase ${{ github.event.pull_request.html_url }}
         env:
-          PR_URL: ${{github.event.pull_request.html_url}}
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          GITHUB_TOKEN: ${{ github.token }}
