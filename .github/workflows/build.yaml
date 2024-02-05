@@ -32,7 +32,7 @@ jobs:
         with:
           report_paths: '**/build/test-results/*/TEST-*.xml'
       - name: Coverage report
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
 
   actionlint:
     name: Validate Workflows
