@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.jacoco.testkit)
     alias(libs.plugins.publicationsReport)
     alias(libs.plugins.buildConfig)
+    jacoco
 }
 
 group = "com.github.gmazzo.buildconfig"
@@ -79,8 +80,12 @@ tasks.pluginUnderTestMetadata {
     pluginClasspath.from(pluginUnderTestDependencies)
 }
 
-tasks.check {
-    dependsOn("jacocoTestReport")
+tasks.test {
+    finalizedBy(tasks.jacocoTestReport)
+}
+
+tasks.jacocoTestReport {
+    reports.xml.required = true
 }
 
 tasks.publish {
