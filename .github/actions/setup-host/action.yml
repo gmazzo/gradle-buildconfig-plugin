@@ -1,6 +1,11 @@
 name: 'Setup Host'
 description: 'Configures the host runner to run the build'
 
+inputs:
+  gradle-encryption-key:
+    description: 'The encryption key to use for the Gradle Configuration cache'
+    required: true
+
 runs:
   using: "composite"
   steps:
@@ -11,3 +16,5 @@ runs:
         java-version: '17'
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
+      with:
+        cache-encryption-key: ${{ inputs.gradle-encryption-key }}
