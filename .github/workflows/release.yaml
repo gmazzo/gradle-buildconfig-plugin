@@ -19,6 +19,8 @@ jobs:
           fetch-depth: 0
       - name: Setup host
         uses: ./.github/actions/setup-host
+        with:
+          gradle-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
       - name: Publish
         env:
           GRADLE_PUBLISH_KEY: ${{ secrets.GRADLE_PUBLISH_KEY }}

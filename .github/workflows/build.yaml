@@ -24,6 +24,8 @@ jobs:
           fetch-depth: 0
       - name: Setup host
         uses: ./.github/actions/setup-host
+        with:
+            gradle-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
       - name: Test & Build
         run: ./gradlew -s build
       - name: Publish Test Report
