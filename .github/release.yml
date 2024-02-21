@@ -1,0 +1,9 @@
+changelog:
+  categories:
+    - title: Features
+      exclude:
+        labels:
+          - dependencies
+    - title: Dependencies
+      labels:
+        - dependencies
