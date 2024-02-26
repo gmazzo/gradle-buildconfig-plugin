@@ -35,6 +35,8 @@ jobs:
           report_paths: '**/build/test-results/*/TEST-*.xml'
       - name: Coverage report
         uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   actionlint:
     name: Validate Workflows
