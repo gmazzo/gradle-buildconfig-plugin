@@ -20,10 +20,19 @@ import org.gradle.kotlin.dsl.domainObjectContainer
 import org.gradle.kotlin.dsl.newInstance
 import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.withType
+import org.gradle.util.GradleVersion
 
 class BuildConfigPlugin : Plugin<Project> {
 
+    companion object {
+        const val MIN_GRADLE_VERSION = "7.0"
+    }
+
     override fun apply(project: Project) = with(project) {
+        check(GradleVersion.current() >= GradleVersion.version(MIN_GRADLE_VERSION)) {
+            "Gradle version must be at least $MIN_GRADLE_VERSION"
+        }
+
         val sourceSets = objects.domainObjectContainer(DefaultBuildConfigSourceSet::class)
 
         val defaultSS = sourceSets.create(SourceSet.MAIN_SOURCE_SET_NAME)

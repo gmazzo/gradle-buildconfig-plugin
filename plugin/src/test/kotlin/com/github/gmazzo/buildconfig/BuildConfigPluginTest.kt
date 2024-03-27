@@ -20,24 +20,18 @@ import java.util.stream.Stream
 class BuildConfigPluginTest {
 
     fun testBuild(): Stream<Args> {
-        val gradleMin = "7.0"
-        val gradleLatest = "8.5"
+        val gradleMin = BuildConfigPlugin.MIN_GRADLE_VERSION
+        val gradleLatest = GradleVersion.current().baseVersion.version
 
-        val kotlin6 = "1.6.+"
-        val kotlin7 = "1.7.+"
         val kotlin8 = "1.8.+"
         val kotlin9 = "1.9.+"
 
         return Stream.of(
             Args(gradleMin, null),
-            Args(gradleMin, kotlin6),
-            Args(gradleMin, kotlin7),
             Args(gradleMin, kotlin8),
             Args(gradleMin, kotlin9),
 
             Args(gradleLatest, null),
-            Args(gradleLatest, kotlin6),
-            Args(gradleLatest, kotlin7),
             Args(gradleLatest, kotlin8),
             Args(gradleLatest, kotlin9),
         ).flatMap { Stream.of(it.copy(withPackage = true), it.copy(withPackage = false)) }
