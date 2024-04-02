@@ -19,6 +19,5 @@ jobs:
       - name: Update Gradle Wrapper
         uses: gradle-update/update-gradle-wrapper-action@v1
         with:
-          repo-token: ${{ secrets.GRADLE_WRAPPER_UPDATER_TOKEN }}
           labels: dependencies
           merge-method: squash
