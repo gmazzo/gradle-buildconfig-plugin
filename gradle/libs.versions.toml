@@ -1,4 +1,5 @@
 [versions]
+agp = "8.3.1"
 java = "11"
 kotlin = "1.9.23"
 
@@ -8,9 +9,11 @@ junit = { module = "junit:junit", version = "4.13.2" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlinpoet = { module = "com.squareup:kotlinpoet", version = "1.16.0" }
 mockk = { module = "io.mockk:mockk", version = "1.13.10" }
+androidx-gradlePluginLints = "androidx.lint:lint-gradle:1.0.0-alpha01"
 
 [plugins]
-android = { id = "com.android.application", version = "8.3.1" }
+android-application = { id = "com.android.application", version.ref = "agp" }
+android-lint = { id = "com.android.lint", version.ref = "agp" }
 buildConfig = "com.github.gmazzo.buildconfig:5.3.5"
 gradle-pluginPublish = { id = "com.gradle.plugin-publish", version = "1.2.1" }
 jacoco-testkit = { id = "pl.droidsonroids.jacoco.testkit", version = "1.0.12" }

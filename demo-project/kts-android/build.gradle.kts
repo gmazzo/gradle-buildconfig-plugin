@@ -3,7 +3,7 @@ import com.android.build.gradle.internal.lint.LintModelWriterTask
 import com.github.gmazzo.buildconfig.BuildConfigTask
 
 plugins {
-    alias(libs.plugins.android)
+    alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("com.github.gmazzo.buildconfig")
 }

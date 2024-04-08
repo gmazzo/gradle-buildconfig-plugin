@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.jacoco.testkit)
     alias(libs.plugins.publicationsReport)
     alias(libs.plugins.buildConfig)
+    alias(libs.plugins.android.lint)
     jacoco
 }
 
@@ -41,6 +42,8 @@ dependencies {
     testImplementation(libs.kotlin.test)
     testImplementation(libs.mockk)
     testImplementation("org.junit.jupiter:junit-jupiter-params")
+
+    lintChecks(libs.androidx.gradlePluginLints)
 
     pluginUnderTestDependencies(plugin(libs.plugins.kotlin.jvm))
 }
