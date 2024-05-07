@@ -29,10 +29,8 @@ jobs:
       - name: Test & Build
         run: ./gradlew -s build
       - name: Publish Test Report
-        uses: mikepenz/action-junit-report@v4
+        uses: gmazzo/publish-report-annotations@v1
         if: always()
-        with:
-          report_paths: '**/build/test-results/*/TEST-*.xml'
       - name: Coverage report
         uses: codecov/codecov-action@v4
         with:
