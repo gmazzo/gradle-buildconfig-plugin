@@ -16,8 +16,8 @@ import com.squareup.javapoet.WildcardTypeName
 import org.gradle.api.logging.Logging
 import org.gradle.api.tasks.Input
 import java.io.File
-import java.net.URI
 import javax.lang.model.element.Modifier
+import java.net.URI as JavaURI
 
 data class BuildConfigJavaGenerator(
     @get:Input var defaultVisibility: Boolean = false
@@ -186,7 +186,7 @@ data class BuildConfigJavaGenerator(
         private val SET = ClassName.get(Set::class.java)
         private val MAP = ClassName.get(Map::class.java)
         private val FILE = ClassName.get(File::class.java)
-        private val URI = ClassName.get(URI::class.java)
+        private val URI = ClassName.get(JavaURI::class.java)
         private val GENERIC_LIST = ClassName.get("", "List")
         private val GENERIC_SET = ClassName.get("", "Set")
         private val GENERIC_MAP = ClassName.get("", "Map")

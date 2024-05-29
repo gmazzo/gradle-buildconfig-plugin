@@ -40,7 +40,7 @@ import com.squareup.kotlinpoet.asTypeName
 import org.gradle.api.logging.Logging
 import org.gradle.api.tasks.Input
 import java.io.File
-import java.net.URI
+import java.net.URI as JavaURI
 
 data class BuildConfigKotlinGenerator(
     @get:Input var topLevelConstants: Boolean = false,
@@ -223,7 +223,7 @@ data class BuildConfigKotlinGenerator(
         private val GENERIC_SET = ClassName("", "Set")
         private val GENERIC_MAP = ClassName("", "Map")
         private val FILE = File::class.asClassName()
-        private val URI = URI::class.asClassName()
+        private val URI = JavaURI::class.asClassName()
     }
 
 }

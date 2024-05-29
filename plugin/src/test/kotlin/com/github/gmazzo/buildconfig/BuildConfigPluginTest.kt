@@ -25,15 +25,18 @@ class BuildConfigPluginTest {
 
         val kotlin8 = "1.8.+"
         val kotlin9 = "1.9.+"
+        val kotlin20 = "2.0.+"
 
         return Stream.of(
             Args(gradleMin, null),
             Args(gradleMin, kotlin8),
             Args(gradleMin, kotlin9),
+            Args(gradleMin, kotlin20),
 
             Args(gradleLatest, null),
             Args(gradleLatest, kotlin8),
             Args(gradleLatest, kotlin9),
+            Args(gradleLatest, kotlin20),
         ).flatMap { Stream.of(it.copy(withPackage = true), it.copy(withPackage = false)) }
     }
 
