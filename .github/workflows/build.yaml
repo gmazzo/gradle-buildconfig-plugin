@@ -30,7 +30,7 @@ jobs:
         run: ./gradlew -s build
       - name: Publish Test Report
         uses: gmazzo/publish-report-annotations@v1
-        if: always()
+        if: ${{ !cancelled() }}
       - name: Coverage report
         uses: codecov/codecov-action@v4
         with:
