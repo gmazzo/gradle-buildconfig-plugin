@@ -3,7 +3,6 @@ plugins {
     alias(libs.plugins.gradle.pluginPublish)
     alias(libs.plugins.jacoco.testkit)
     alias(libs.plugins.publicationsReport)
-    alias(libs.plugins.buildConfig)
     jacoco
 }
 
@@ -70,11 +69,36 @@ tasks.withType<Test> {
 }
 
 val localRepoDir = layout.buildDirectory.dir("repo")
-val localRepo = publishing.repositories.maven(localRepoDir) { name = "Local" }
-buildConfig {
-    buildConfigField("LOCAL_REPO", localRepoDir.map { it.asFile.relativeToOrSelf(tasks.test.get().workingDir) })
-    buildConfigField("LOCAL_VERSION", provider { version.toString() })
+
+publishing.repositories.maven(localRepoDir) { name = "Local" }
+
+val generateTestLocalConstants by tasks.registering {
+    val localVersion = provider { project.version }
+    val localRepo = layout.buildDirectory.dir("repo")
+        .map { it.asFile.toRelativeString(tasks.test.get().workingDir) }
+
+    inputs.property("version", localVersion)
+    inputs.property("localRepo", localRepo)
+    outputs.dir(temporaryDir)
+    notCompatibleWithConfigurationCache("uses Task.project")
+    doLast {
+        temporaryDir.resolve("TestLocalConstants.kt").writeText(
+            """
+                package com.github.gmazzo.buildconfig
+                
+                object TestConstants {
+                    const val LOCAL_VERSION = "${localVersion.get()}"
+                    const val LOCAL_REPO = "${localRepo.get()}"
+                }
+                """.trimIndent()
+        )
+    }
 }
+
+kotlin.sourceSets.test {
+    kotlin.srcDirs(generateTestLocalConstants)
+}
+
 
 tasks.pluginUnderTestMetadata {
     pluginClasspath.from(pluginUnderTestDependencies)

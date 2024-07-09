@@ -11,7 +11,6 @@ mockk = { module = "io.mockk:mockk", version = "1.13.11" }
 
 [plugins]
 android = { id = "com.android.application", version = "8.5.0" }
-buildConfig = "com.github.gmazzo.buildconfig:5.3.5"
 gradle-pluginPublish = { id = "com.gradle.plugin-publish", version = "1.2.1" }
 jacoco-testkit = { id = "pl.droidsonroids.jacoco.testkit", version = "1.0.12" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
