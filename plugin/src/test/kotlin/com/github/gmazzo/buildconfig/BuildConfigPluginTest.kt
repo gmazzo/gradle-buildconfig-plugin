@@ -1,6 +1,5 @@
 package com.github.gmazzo.buildconfig
 
-import com.github.gmazzo.buildconfig.plugin.BuildConfig
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.gradle.tooling.internal.consumer.DefaultGradleConnector
@@ -65,7 +64,7 @@ class BuildConfigPluginTest {
             """
             pluginManagement { 
                 repositories {
-                    maven { url file("../../../../../${BuildConfig.LOCAL_REPO}") }
+                    maven { url file("../../../../../${TestConstants.LOCAL_REPO}") }
                     gradlePluginPortal()
                 }
             }
@@ -77,7 +76,7 @@ class BuildConfigPluginTest {
         projectDir.resolve("build.gradle").writeText("""
         plugins {
             id ${kotlinVersion?.let { "'org.jetbrains.kotlin.jvm' version '$kotlinVersion'" } ?: "'java'"}
-            id 'com.github.gmazzo.buildconfig' version '${BuildConfig.LOCAL_VERSION}'
+            id 'com.github.gmazzo.buildconfig' version '${TestConstants.LOCAL_VERSION}'
         }
         """ + (if (withPackage) """
         group = 'gs.test'
