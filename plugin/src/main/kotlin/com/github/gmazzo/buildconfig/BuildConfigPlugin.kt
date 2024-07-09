@@ -102,7 +102,7 @@ class BuildConfigPlugin : Plugin<Project> {
 
         sourceSet.className.convention("${prefix}BuildConfig")
         sourceSet.packageName.convention(when (sourceSet) {
-            defaultSS -> defaultPackage.map { it.replace("[^a-zA-Z._$]".toRegex(), "_") }
+            defaultSS -> defaultPackage.map(String::javaIdentifier)
             else -> defaultSS.packageName
         })
         sourceSet.generator.convention(

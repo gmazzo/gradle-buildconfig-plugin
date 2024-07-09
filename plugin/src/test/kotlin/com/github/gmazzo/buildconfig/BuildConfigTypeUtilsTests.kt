@@ -65,7 +65,20 @@ class BuildConfigTypeUtilsTests {
         assertEquals(mapStringListOfInt, nameOf("java.util.Map<String, List<Int?>>"))
         assertEquals(mapStringListOfInt.copy(nullable = true), nameOf("java.util.Map<String, List<Int?>>?"))
         assertEquals(mapStringListOfInt.copy(array = true), nameOf("java.util.Map<String, List<Int?>>[]"))
-        assertEquals(mapStringListOfInt.copy(nullable = true, array = true), nameOf("java.util.Map<String, List<Int?>>?[]"))
+        assertEquals(
+            mapStringListOfInt.copy(nullable = true, array = true),
+            nameOf("java.util.Map<String, List<Int?>>?[]")
+        )
+    }
+
+    @Test
+    fun testJavaIdentifier() {
+        assertEquals("com.example.app", "com.example.app".javaIdentifier)
+        assertEquals("com.example.app10", "com.example.app10".javaIdentifier)
+        assertEquals("com.example.my10app", "com.example.my10app".javaIdentifier)
+        assertEquals("com.example._10app", "com.example.10app".javaIdentifier)
+        assertEquals("com.example.app$10", "com.example.app$10".javaIdentifier)
+        assertEquals("com.example_app", "com.example-app".javaIdentifier)
     }
 
 }

@@ -162,3 +162,6 @@ internal fun Any?.asVarArg(): Array<*> = when (this) {
     is Map<*, *> -> entries.asSequence().flatMap { (k, v) -> sequenceOf(k, v) }.toList().toTypedArray()
     else -> arrayOf(this)
 }
+
+private val javaClassRegex = "(?<!^\\.)[^\\w.$]|(?<=^|\\.)(?=\\d)".toRegex()
+internal val String.javaIdentifier get() = replace(javaClassRegex, "_")
