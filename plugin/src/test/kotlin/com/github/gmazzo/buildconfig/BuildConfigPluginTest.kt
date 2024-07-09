@@ -84,7 +84,7 @@ class BuildConfigPluginTest {
         """ else "") + """
                 
         """ + (if (kotlinVersion != null) """
-        assert "$kotlinVersion" == org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapperKt.getKotlinPluginVersion(project).replaceFirst(/\.\d+$/, '.+')
+        assert "$kotlinVersion" == org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapperKt.getKotlinPluginVersion(project).replaceFirst(/\.\d+(-\w+)?$/, '.+')
         
         """ else "") + """
         repositories {

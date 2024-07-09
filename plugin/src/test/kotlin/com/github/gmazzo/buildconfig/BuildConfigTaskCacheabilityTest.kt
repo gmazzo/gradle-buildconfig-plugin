@@ -46,6 +46,8 @@ class BuildConfigTaskCacheabilityTest {
                     mavenCentral()
                 }
             }
+            
+            buildCache.local.directory = file("${'$'}settingsDir/.gradle/build-cache")
         """.trimIndent())
 
         buildScript.writeText(
