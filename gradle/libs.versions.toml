@@ -10,7 +10,7 @@ kotlinpoet = { module = "com.squareup:kotlinpoet", version = "1.18.0" }
 mockk = { module = "io.mockk:mockk", version = "1.13.12" }
 
 [plugins]
-android = { id = "com.android.application", version = "8.5.0" }
+android = { id = "com.android.application", version = "8.5.1" }
 gradle-pluginPublish = { id = "com.gradle.plugin-publish", version = "1.2.1" }
 jacoco-testkit = { id = "pl.droidsonroids.jacoco.testkit", version = "1.0.12" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
