@@ -25,12 +25,14 @@ jobs:
       - name: Setup host
         uses: ./.github/actions/setup-host
         with:
-            gradle-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
+          gradle-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
       - name: Test & Build
         run: ./gradlew -s build
       - name: Publish Test Report
-        uses: gmazzo/publish-report-annotations@v1
         if: ${{ !cancelled() }}
+        uses: gmazzo/publish-report-annotations@v1
+        with:
+          checkName: Test Results
       - name: Coverage report
         uses: codecov/codecov-action@v4
         with:
