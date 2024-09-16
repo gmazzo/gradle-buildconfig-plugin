@@ -17,7 +17,7 @@ jobs:
         with:
           gradle-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
       - name: Update Gradle Wrapper
-        uses: gradle-update/update-gradle-wrapper-action@v1
+        uses: gradle-update/update-gradle-wrapper-action@v2
         with:
           repo-token: ${{ secrets.GRADLE_WRAPPER_UPDATER_TOKEN }}
           labels: dependencies
