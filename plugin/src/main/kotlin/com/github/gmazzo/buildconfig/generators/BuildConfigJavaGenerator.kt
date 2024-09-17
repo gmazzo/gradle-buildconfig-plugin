@@ -19,9 +19,19 @@ import java.io.File
 import javax.lang.model.element.Modifier
 import java.net.URI as JavaURI
 
-data class BuildConfigJavaGenerator(
+open class BuildConfigJavaGenerator(
     @get:Input var defaultVisibility: Boolean = false
 ) : BuildConfigGenerator {
+
+    /**
+     * Extension point allowing to modify the final Java class output
+     */
+    protected open fun adaptSpec(spec: TypeSpec) = spec
+
+    /**
+     * Extension point allowing to modify the final Java file output
+     */
+    protected open fun adaptSpec(spec: JavaFile) = spec
 
     private val logger = Logging.getLogger(javaClass)
 
@@ -111,8 +121,10 @@ data class BuildConfigJavaGenerator(
                             .build()
                     )
                     .build()
+                    .let(::adaptSpec)
             )
             .build()
+            .let(::adaptSpec)
             .writeTo(spec.outputDir)
     }
 
