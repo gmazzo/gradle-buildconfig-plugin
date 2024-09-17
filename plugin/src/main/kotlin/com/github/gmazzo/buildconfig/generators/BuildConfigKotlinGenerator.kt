@@ -42,12 +42,22 @@ import org.gradle.api.tasks.Input
 import java.io.File
 import java.net.URI as JavaURI
 
-data class BuildConfigKotlinGenerator(
+open class BuildConfigKotlinGenerator(
     @get:Input var topLevelConstants: Boolean = false,
     @get:Input var internalVisibility: Boolean = true
 ) : BuildConfigGenerator {
 
     private val logger = Logging.getLogger(javaClass)
+
+    /**
+     * Extension point allowing to modify the final Kotlin class output
+     */
+    protected open fun adaptSpec(spec: TypeSpec) = spec
+
+    /**
+     * Extension point allowing to modify the final Kotlin file output
+     */
+    protected open fun adaptSpec(spec: FileSpec) = spec
 
     override fun execute(spec: BuildConfigGeneratorSpec) {
         logger.debug("Generating {} for fields {}", spec.className, spec.fields)
@@ -57,6 +67,7 @@ data class BuildConfigKotlinGenerator(
         FileSpec.builder(spec.packageName, spec.className)
             .addFields(fields, spec.documentation)
             .build()
+            .let(::adaptSpec)
             .writeTo(spec.outputDir)
     }
 
@@ -132,6 +143,7 @@ data class BuildConfigKotlinGenerator(
                 .addModifiers(kModifiers)
                 .addProperties(fields)
                 .build()
+                .let(::adaptSpec)
         )
     }
 
