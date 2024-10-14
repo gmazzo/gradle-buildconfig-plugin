@@ -7,7 +7,7 @@ javapoet = { module = "com.squareup:javapoet", version = "1.13.0" }
 junit = { module = "junit:junit", version = "4.13.2" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlinpoet = { module = "com.squareup:kotlinpoet", version = "1.18.1" }
-mockk = { module = "io.mockk:mockk", version = "1.13.12" }
+mockk = { module = "io.mockk:mockk", version = "1.13.13" }
 
 [plugins]
 android = { id = "com.android.application", version = "8.7.0" }
