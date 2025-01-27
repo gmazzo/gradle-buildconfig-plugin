@@ -1,6 +1,6 @@
 [versions]
 java = "11"
-kotlin = "2.1.0"
+kotlin = "2.1.10"
 
 [libraries]
 javapoet = { module = "com.squareup:javapoet", version = "1.13.0" }
