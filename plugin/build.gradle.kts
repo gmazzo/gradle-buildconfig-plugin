@@ -99,7 +99,6 @@ kotlin.sourceSets.test {
     kotlin.srcDirs(generateTestLocalConstants)
 }
 
-
 tasks.pluginUnderTestMetadata {
     pluginClasspath.from(pluginUnderTestDependencies)
 }
