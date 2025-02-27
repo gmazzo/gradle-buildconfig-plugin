@@ -1,9 +1,8 @@
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.gradle.pluginPublish)
-    alias(libs.plugins.jacoco.testkit)
     alias(libs.plugins.publicationsReport)
-    jacoco
+    io.github.gmazzo.gradle.testkit.jacoco
 }
 
 group = "com.github.gmazzo.buildconfig"
@@ -23,8 +22,6 @@ kotlin {
     }
 }
 
-val pluginUnderTestDependencies by configurations.creating
-
 dependencies {
     fun DependencyHandler.plugin(dependency: Provider<PluginDependency>) =
         dependency.get().run { create("$pluginId:$pluginId.gradle.plugin:$version") }
@@ -40,8 +37,6 @@ dependencies {
     testImplementation(libs.kotlin.test)
     testImplementation(libs.mockk)
     testImplementation("org.junit.jupiter:junit-jupiter-params")
-
-    pluginUnderTestDependencies(plugin(libs.plugins.kotlin.jvm))
 }
 
 gradlePlugin {
@@ -61,46 +56,9 @@ gradlePlugin {
 }
 
 tasks.withType<Test> {
-    dependsOn("publishAllPublicationsToLocalRepository")
     workingDir = temporaryDir
     useJUnitPlatform()
     javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(libs.versions.java.get()) }
-    doLast { Thread.sleep(5000) } // allows GradleRunner to store JaCoCo data before computing task outputs
-}
-
-val localRepoDir = layout.buildDirectory.dir("repo")
-
-publishing.repositories.maven(localRepoDir) { name = "Local" }
-
-val generateTestLocalConstants by tasks.registering {
-    val localVersion = provider { project.version }
-    val localRepo = layout.buildDirectory.dir("repo")
-        .map { it.asFile.toRelativeString(tasks.test.get().workingDir) }
-
-    inputs.property("version", localVersion)
-    inputs.property("localRepo", localRepo)
-    outputs.dir(temporaryDir)
-    notCompatibleWithConfigurationCache("uses Task.project")
-    doLast {
-        temporaryDir.resolve("TestLocalConstants.kt").writeText(
-            """
-                package com.github.gmazzo.buildconfig
-                
-                object TestConstants {
-                    const val LOCAL_VERSION = "${localVersion.get()}"
-                    const val LOCAL_REPO = "${localRepo.get()}"
-                }
-                """.trimIndent()
-        )
-    }
-}
-
-kotlin.sourceSets.test {
-    kotlin.srcDirs(generateTestLocalConstants)
-}
-
-tasks.pluginUnderTestMetadata {
-    pluginClasspath.from(pluginUnderTestDependencies)
 }
 
 tasks.test {
@@ -108,13 +66,10 @@ tasks.test {
 }
 
 tasks.jacocoTestReport {
+    dependsOn(tasks.test)
     reports.xml.required = true
 }
 
 tasks.publish {
     dependsOn(tasks.publishPlugins)
-}
-
-tasks.generateJacocoTestKitProperties {
-    notCompatibleWithConfigurationCache("uses Task.extensions")
 }
