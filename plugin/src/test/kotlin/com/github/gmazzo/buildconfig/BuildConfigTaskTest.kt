@@ -5,8 +5,8 @@ import com.github.gmazzo.buildconfig.generators.BuildConfigGeneratorSpec
 import com.github.gmazzo.buildconfig.internal.DefaultBuildConfigClassSpec
 import io.mockk.mockk
 import io.mockk.verify
-import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.newInstance
+import org.gradle.kotlin.dsl.register
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.jupiter.api.Test
 
@@ -24,7 +24,7 @@ class BuildConfigTaskTest {
 
     private val generator: BuildConfigGenerator = mockk(relaxUnitFun = true)
 
-    private val task = project.tasks.create<BuildConfigTask>("testedTask") {
+    private val task = project.tasks.register<BuildConfigTask>("testedTask") {
         generator.set(this@BuildConfigTaskTest.generator)
         outputDir.set(outDir)
         specs.add(spec)
@@ -39,7 +39,7 @@ class BuildConfigTaskTest {
             spec.buildConfigField("Int", "LAST", "9"),
         ).map { it.get() }.toList()
 
-        task.generateBuildConfigFile()
+        task.get().generateBuildConfigFile()
 
         verify {
             generator.execute(

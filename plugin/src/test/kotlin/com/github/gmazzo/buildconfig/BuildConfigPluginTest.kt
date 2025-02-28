@@ -2,9 +2,7 @@ package com.github.gmazzo.buildconfig
 
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
-import org.gradle.tooling.internal.consumer.DefaultGradleConnector
 import org.gradle.util.GradleVersion
-import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.parallel.Execution
@@ -27,6 +25,7 @@ class BuildConfigPluginTest {
         val kotlin20 = "2.0.+"
 
         return Stream.of(
+
             Args(gradleMin, null),
             Args(gradleMin, kotlin8),
             Args(gradleMin, kotlin9),
@@ -36,7 +35,13 @@ class BuildConfigPluginTest {
             Args(gradleLatest, kotlin8),
             Args(gradleLatest, kotlin9),
             Args(gradleLatest, kotlin20),
-        ).flatMap { Stream.of(it.copy(withPackage = true), it.copy(withPackage = false)) }
+
+        ).flatMap {
+            Stream.of(
+                it.copy(withPackage = true),
+                it.copy(withPackage = false),
+            )
+        }
     }
 
     @ParameterizedTest(name = "{0}")
@@ -51,6 +56,7 @@ class BuildConfigPluginTest {
 
         val result = GradleRunner.create()
             .forwardOutput()
+            .withPluginClasspath()
             .withProjectDir(projectDir)
             .withGradleVersion(gradleVersion)
             .withArguments("build", "-s")
@@ -62,11 +68,8 @@ class BuildConfigPluginTest {
     private fun Args.writeBuildGradle() {
         projectDir.resolve("settings.gradle").writeText(
             """
-            pluginManagement { 
-                repositories {
-                    maven { url file("../../../../../${TestConstants.LOCAL_REPO}") }
-                    gradlePluginPortal()
-                }
+            plugins {
+                id("jacoco-testkit-coverage")
             }
 
             rootProject.name = "$PROJECT_NAME"
@@ -76,7 +79,7 @@ class BuildConfigPluginTest {
         projectDir.resolve("build.gradle").writeText("""
         plugins {
             id ${kotlinVersion?.let { "'org.jetbrains.kotlin.jvm' version '$kotlinVersion'" } ?: "'java'"}
-            id 'com.github.gmazzo.buildconfig' version '${TestConstants.LOCAL_VERSION}'
+            id 'com.github.gmazzo.buildconfig'
         }
         """ + (if (withPackage) """
         group = 'gs.test'
@@ -313,22 +316,9 @@ class BuildConfigPluginTest {
         }
     }
 
-    // This allows to coverage data to be collected from GradleRunner instance
-    // https://github.com/koral--/jacoco-gradle-testkit-plugin
     private fun Args.writeGradleProperties() = File(projectDir, "gradle.properties").also { file ->
-        javaClass.classLoader.getResourceAsStream("testkit-gradle.properties")!!.use {
-            file.outputStream().use(it::copyTo)
-        }
-
         file.appendText("org.gradle.caching=true")
-        if (configurationCache) {
-            file.appendText("org.gradle.configuration-cache=true")
-        }
-    }
-
-    @AfterAll
-    fun tearDownGradleDaemon() {
-        DefaultGradleConnector.close()
+        file.appendText("org.gradle.configuration-cache=true")
     }
 
     data class Args(
@@ -337,20 +327,13 @@ class BuildConfigPluginTest {
         val withPackage: Boolean = true,
     ) {
 
-        // TODO there is a check on Gradle 8 preventing agents (like JaCoCo) to be added with CC
-        //  https://docs.gradle.org/8.1.1/userguide/configuration_cache.html#config_cache:not_yet_implemented:testkit_build_with_java_agent
-        val configurationCache = GradleVersion.version(gradleVersion) < GradleVersion.version("8.0")
-
         val projectDir =
             File(
                 "${BuildConfigPluginTest::class.simpleName}/" +
                         "gradle-$gradleVersion/" +
                         "kotlin-${kotlinVersion ?: "none"}/" +
-                        (if (withPackage) "withPackage/" else "withoutPackage/") +
-                        (if (configurationCache) "withCC" else "withoutCC")
+                        (if (withPackage) "withPackage/" else "withoutPackage/")
             )
-
-        val collectionsPackage = if (kotlinVersion == null) "java.util" else "kotlin.collections"
 
     }
 
