@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.gradle.pluginPublish)
     alias(libs.plugins.publicationsReport)
-    io.github.gmazzo.gradle.testkit.jacoco
+    alias(libs.plugins.jacoco.testkit)
 }
 
 group = "com.github.gmazzo.buildconfig"
