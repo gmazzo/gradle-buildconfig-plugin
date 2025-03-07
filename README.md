@@ -109,7 +109,7 @@ buildConfig {
     useJavaOutput()                                 // forces the outputType to 'java'
     useKotlinOutput()                               // forces the outputType to 'kotlin', generating an `object`
     useKotlinOutput { topLevelConstants = true }    // forces the outputType to 'kotlin', generating top-level declarations
-    useKotlinOutput { internalVisibility = true }   // adds `internal` modifier to all declarations
+    useKotlinOutput { internalVisibility = false }  // makes `BuildConfig` class `public` (defaults to `internal`)
 }
 ```
 Will generate `com.foo.MyConfig` in a `MyConfig.java` file.
