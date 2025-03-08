@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.gradle.pluginPublish)
     alias(libs.plugins.publicationsReport)
     alias(libs.plugins.jacoco.testkit)
+    signing
 }
 
 group = "com.github.gmazzo.buildconfig"
@@ -53,6 +54,15 @@ gradlePlugin {
             tags.addAll("buildconfig", "java", "kotlin", "kotlin-multiplatform")
         }
     }
+}
+
+signing {
+    val signingKey: String? by project
+    val signingPassword: String? by project
+
+    useInMemoryPgpKeys(signingKey, signingPassword)
+    publishing.publications.configureEach(::sign)
+    tasks.withType<Sign>().configureEach { enabled = signingKey != null }
 }
 
 tasks.withType<Test> {
