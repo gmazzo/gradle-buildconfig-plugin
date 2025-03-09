@@ -61,8 +61,8 @@ signing {
     val signingPassword: String? by project
 
     useInMemoryPgpKeys(signingKey, signingPassword)
-    publishing.publications.configureEach(::sign)
-    tasks.withType<Sign>().configureEach { enabled = signingKey != null }
+    sign(publishing.publications)
+    isRequired = signingKey != null || providers.environmentVariable("GRADLE_PUBLISH_KEY").isPresent
 }
 
 tasks.withType<Test> {
