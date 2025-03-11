@@ -1,27 +1,20 @@
 plugins {
     alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.axion.release)
+    alias(libs.plugins.dokka)
+    alias(libs.plugins.mavenPublish)
     alias(libs.plugins.gradle.pluginPublish)
     alias(libs.plugins.publicationsReport)
     alias(libs.plugins.jacoco.testkit)
-    signing
 }
 
 group = "com.github.gmazzo.buildconfig"
 description = "Gradle BuildConfig Plugin"
-version = providers
-    .exec { commandLine("git", "describe", "--tags", "--always") }
-    .standardOutput.asText.get().trim().removePrefix("v")
+scmVersion.repository.directory.set(rootDir.parentFile.absolutePath)
+version = scmVersion.version
 
-// Stay at Java 8 to workaround the Gradle when compiling buildscripts and using our `inline` functions:
-// `Cannot inline bytecode built with JVM target 11 into bytecode that is being built with JVM target 1.8` issue
-// https://github.com/gmazzo/gradle-buildconfig-plugin/issues/120
 java.toolchain.languageVersion = JavaLanguageVersion.of(8)
-
-kotlin {
-    compilerOptions {
-        freeCompilerArgs.add("-Xjvm-default=all")
-    }
-}
+kotlin.compilerOptions.freeCompilerArgs.add("-Xjvm-default=all")
 
 dependencies {
     fun DependencyHandler.plugin(dependency: Provider<PluginDependency>) =
@@ -40,9 +33,13 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-params")
 }
 
+val originUrl = providers
+    .exec { commandLine("git", "remote", "get-url", "origin") }
+    .standardOutput.asText.map { it.trim() }
+
 gradlePlugin {
-    vcsUrl.set("https://github.com/gmazzo/gradle-buildconfig-plugin")
-    website.set(vcsUrl)
+    vcsUrl = originUrl
+    website = originUrl
 
     plugins {
         create("buildconfig") {
@@ -56,13 +53,36 @@ gradlePlugin {
     }
 }
 
-signing {
-    val signingKey: String? by project
-    val signingPassword: String? by project
+mavenPublishing {
+    signAllPublications()
+    publishToMavenCentral("CENTRAL_PORTAL", automaticRelease = true)
 
-    useInMemoryPgpKeys(signingKey, signingPassword)
-    sign(publishing.publications)
-    isRequired = signingKey != null || providers.environmentVariable("GRADLE_PUBLISH_KEY").isPresent
+    pom {
+        name = "${rootProject.name}-${project.name}"
+        description = provider { project.description }
+        url = originUrl
+
+        licenses {
+            license {
+                name = "MIT License"
+                url = "https://opensource.org/license/mit/"
+            }
+        }
+
+        developers {
+            developer {
+                id = "gmazzo"
+                name = id
+                email = "gmazzo65@gmail.com"
+            }
+        }
+
+        scm {
+            connection = originUrl
+            developerConnection = originUrl
+            url = originUrl
+        }
+    }
 }
 
 tasks.withType<Test> {
@@ -78,6 +98,16 @@ tasks.test {
 tasks.jacocoTestReport {
     dependsOn(tasks.test)
     reports.xml.required = true
+}
+
+afterEvaluate {
+    tasks.named<Jar>("javadocJar") {
+        from(tasks.dokkaGeneratePublicationJavadoc)
+    }
+}
+
+tasks.publishPlugins {
+    enabled = !"$version".endsWith("-SNAPSHOT")
 }
 
 tasks.publish {
