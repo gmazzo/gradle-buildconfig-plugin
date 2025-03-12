@@ -108,7 +108,7 @@ tasks.withType<PublishToMavenRepository>().configureEach {
 }
 
 tasks.publishPlugins {
-    enabled = !"$version".endsWith("-SNAPSHOT")
+    enabled = "$version".matches("\\d+(\\.\\d+)+".toRegex())
 }
 
 tasks.publish {
