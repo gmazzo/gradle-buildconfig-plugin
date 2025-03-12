@@ -17,7 +17,7 @@ jobs:
         with:
           gradle-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
       - name: Update Gradle Wrapper
-        uses: gradle-update/update-gradle-wrapper-action@v2
+        uses: gmazzo/update-gradle-wrapper-action@ignore-failure-2ndtime
         with:
           repo-token: ${{ secrets.GRADLE_WRAPPER_UPDATER_TOKEN }}
           labels: dependencies
