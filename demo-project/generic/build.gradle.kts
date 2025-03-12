@@ -33,7 +33,7 @@ buildConfig {
 
 // everything below here are just helper code to allow testing the plugin as we can't rely on any framework like JUnit
 
-val generateBuildConfigTest = task<AssertGeneratedFile>("generateBuildConfigTest") {
+val generateBuildConfigTest by tasks.registering(AssertGeneratedFile::class) {
     generatedDir.set(tasks.generateBuildConfig.flatMap { it.outputDir })
     filePath.set("com/github/gmazzo/buildconfig/demos/generic/BuildConfig.java")
     expectedContent.set(
@@ -60,7 +60,7 @@ val generateBuildConfigTest = task<AssertGeneratedFile>("generateBuildConfigTest
     )
 }
 
-val generateBuildResourcesBuildConfigTest = task<AssertGeneratedFile>("generateBuildResourcesBuildConfigTest") {
+val generateBuildResourcesBuildConfigTest by tasks.registering(AssertGeneratedFile::class) {
     generatedDir.set(tasks.generateBuildConfig.flatMap { it.outputDir })
     filePath.set("com/github/gmazzo/buildconfig/demos/generic/BuildResources.java")
     expectedContent.set(

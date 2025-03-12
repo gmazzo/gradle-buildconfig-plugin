@@ -13,11 +13,11 @@ dependencies {
     jacocoAggregation("com.github.gmazzo.buildconfig:plugin")
 }
 
-val jacocoTestReport by reporting.reports.creating(JacocoCoverageReport::class) {
-    testType.set(TestSuiteType.UNIT_TEST)
-}
-
 val pluginBuild = gradle.includedBuild("plugin")
+
+val jacocoTestReport by reporting.reports.creating(JacocoCoverageReport::class) {
+    testSuiteName = pluginBuild.task(":test").name
+}
 
 tasks.build {
     dependsOn(pluginBuild.task(":$name"))
