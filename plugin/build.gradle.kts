@@ -10,7 +10,6 @@ plugins {
 
 group = "com.github.gmazzo.buildconfig"
 description = "A plugin for generating BuildConstants for any kind of Gradle projects: Java, Kotlin, Groovy, etc. Designed for KTS scripts."
-scmVersion.repository.directory.set(rootDir.parentFile.absolutePath)
 version = scmVersion.version
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(8)
@@ -53,7 +52,6 @@ gradlePlugin {
 }
 
 mavenPublishing {
-    signAllPublications()
     publishToMavenCentral("CENTRAL_PORTAL", automaticRelease = true)
 
     pom {

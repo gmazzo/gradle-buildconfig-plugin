@@ -41,6 +41,7 @@ jobs:
           files: '**/build/reports/jacoco/**/*.xml'
       - name: Publish
         env:
+          ORG_GRADLE_PROJECT_RELEASE_SIGNING_ENABLED: true
           ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.SIGNING_KEY }}
           ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_PASSWORD }}
           ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.SONARTYPE_KEY }}
