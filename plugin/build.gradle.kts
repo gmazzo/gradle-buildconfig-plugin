@@ -105,6 +105,10 @@ afterEvaluate {
     }
 }
 
+tasks.withType<PublishToMavenRepository>().configureEach {
+    mustRunAfter(tasks.publishPlugins)
+}
+
 tasks.publishPlugins {
     enabled = !"$version".endsWith("-SNAPSHOT")
 }
