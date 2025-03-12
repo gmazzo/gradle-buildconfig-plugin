@@ -19,4 +19,4 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 mavenPublish = { id = "com.vanniktech.maven.publish", version = "0.31.0" }
-publicationsReport = { id = "io.github.gmazzo.publications.report", version = "1.3.2" }
+publicationsReport = { id = "io.github.gmazzo.publications.report", version = "1.3.3" }
