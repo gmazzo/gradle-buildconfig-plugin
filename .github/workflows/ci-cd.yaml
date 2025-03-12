@@ -15,8 +15,8 @@ permissions:
   pull-requests: write
 
 jobs:
-  build:
-    name: Build
+  ci-cd:
+    name: CI/CD
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
