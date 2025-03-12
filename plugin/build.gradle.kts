@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "com.github.gmazzo.buildconfig"
-description = "Gradle BuildConfig Plugin"
+description = "A plugin for generating BuildConstants for any kind of Gradle projects: Java, Kotlin, Groovy, etc. Designed for KTS scripts."
 scmVersion.repository.directory.set(rootDir.parentFile.absolutePath)
 version = scmVersion.version
 
@@ -46,8 +46,7 @@ gradlePlugin {
             id = "com.github.gmazzo.buildconfig"
             displayName = name
             implementationClass = "com.github.gmazzo.buildconfig.BuildConfigPlugin"
-            description =
-                "A plugin for generating BuildConstants for any kind of Gradle projects: Java, Kotlin, Groovy, etc. Designed for KTS scripts."
+            description = project.description
             tags.addAll("buildconfig", "java", "kotlin", "kotlin-multiplatform")
         }
     }
