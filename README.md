@@ -1,7 +1,7 @@
 ![GitHub](https://img.shields.io/github/license/gmazzo/gradle-buildconfig-plugin)
 [![Maven Central](https://img.shields.io/maven-central/v/com.github.gmazzo.buildconfig/com.github.gmazzo.buildconfig.gradle.plugin)](https://central.sonatype.com/artifact/com.github.gmazzo.buildconfig/com.github.gmazzo.buildconfig.gradle.plugin)
 [![Gradle Plugin Portal](https://img.shields.io/gradle-plugin-portal/v/com.github.gmazzo.buildconfig)](https://plugins.gradle.org/plugin/com.github.gmazzo.buildconfig)
-[![Build Status](https://github.com/gmazzo/gradle-buildconfig-plugin/actions/workflows/build.yaml/badge.svg)](https://github.com/gmazzo/gradle-buildconfig-plugin/actions/workflows/build.yaml)
+[![Build Status](https://github.com/gmazzo/gradle-buildconfig-plugin/actions/workflows/ci-cd.yaml/badge.svg)](https://github.com/gmazzo/gradle-buildconfig-plugin/actions/workflows/ci-cd.yaml)
 [![codecov](https://codecov.io/gh/gmazzo/gradle-buildconfig-plugin/branch/master/graph/badge.svg)](https://codecov.io/gh/gmazzo/gradle-buildconfig-plugin)
 [![Users](https://img.shields.io/badge/users_by-Sourcegraph-purple)](https://sourcegraph.com/search?q=content:com.github.gmazzo.buildconfig+-repo:github.com/gmazzo/gradle-buildconfig-plugin)
 
