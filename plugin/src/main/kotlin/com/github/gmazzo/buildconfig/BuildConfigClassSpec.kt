@@ -1,5 +1,6 @@
 package com.github.gmazzo.buildconfig
 
+import java.io.Serializable
 import org.codehaus.groovy.runtime.typehandling.DefaultTypeTransformation.castToType
 import org.gradle.api.Action
 import org.gradle.api.Named
@@ -10,7 +11,6 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
-import java.io.Serializable
 
 @BuildConfigDsl
 @JvmDefaultWithoutCompatibility

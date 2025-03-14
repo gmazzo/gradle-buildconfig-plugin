@@ -2,11 +2,11 @@ package com.github.gmazzo.buildconfig.internal
 
 import com.github.gmazzo.buildconfig.BuildConfigClassSpec
 import com.github.gmazzo.buildconfig.BuildConfigTask
+import javax.inject.Inject
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.newInstance
-import javax.inject.Inject
 
 internal abstract class DefaultBuildConfigSourceSet(
     override val classSpec: BuildConfigClassSpec,

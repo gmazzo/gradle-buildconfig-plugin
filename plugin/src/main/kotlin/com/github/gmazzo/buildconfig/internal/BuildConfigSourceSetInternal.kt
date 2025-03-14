@@ -6,7 +6,7 @@ import com.github.gmazzo.buildconfig.BuildConfigTask
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.tasks.TaskProvider
 
-internal interface BuildConfigSourceSetInternal : BuildConfigSourceSet{
+internal interface BuildConfigSourceSetInternal : BuildConfigSourceSet {
 
     val classSpec: BuildConfigClassSpec
 

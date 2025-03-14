@@ -4,6 +4,7 @@ package com.github.gmazzo.buildconfig
 
 import com.github.gmazzo.buildconfig.generators.BuildConfigGenerator
 import com.github.gmazzo.buildconfig.generators.BuildConfigGeneratorSpec
+import java.io.File
 import org.gradle.api.DefaultTask
 import org.gradle.api.Task
 import org.gradle.api.file.DirectoryProperty
@@ -15,7 +16,6 @@ import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.util.GradleVersion
-import java.io.File
 
 @CacheableTask
 abstract class BuildConfigTask : DefaultTask() {

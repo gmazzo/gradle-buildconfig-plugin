@@ -9,7 +9,8 @@ plugins {
 }
 
 group = "com.github.gmazzo.buildconfig"
-description = "A plugin for generating BuildConstants for any kind of Gradle projects: Java, Kotlin, Groovy, etc. Designed for KTS scripts."
+description =
+    "A plugin for generating BuildConstants for any kind of Gradle projects: Java, Kotlin, Groovy, etc. Designed for KTS scripts."
 version = scmVersion.version
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(8)

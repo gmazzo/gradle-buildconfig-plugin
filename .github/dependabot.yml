@@ -10,12 +10,12 @@ registries:
     type: maven-repository
     url: https://dl.google.com/dl/android/maven2
 updates:
-  -   package-ecosystem: "gradle"
-      registries: "*"
-      directory: "/"
-      schedule:
-        interval: "weekly"
-  -   package-ecosystem: "github-actions"
-      directory: "/"
-      schedule:
-        interval: "weekly"
+  - package-ecosystem: "gradle"
+    registries: "*"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"

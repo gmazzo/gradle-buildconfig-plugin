@@ -10,6 +10,7 @@ interface BuildConfigExtension : BuildConfigSourceSet {
 
     val sourceSets: NamedDomainObjectContainer<out BuildConfigSourceSet>
 
-    fun sourceSets(configure: Action<NamedDomainObjectContainer<out BuildConfigSourceSet>>) = configure.execute(sourceSets)
+    fun sourceSets(configure: Action<NamedDomainObjectContainer<out BuildConfigSourceSet>>) =
+        configure.execute(sourceSets)
 
 }

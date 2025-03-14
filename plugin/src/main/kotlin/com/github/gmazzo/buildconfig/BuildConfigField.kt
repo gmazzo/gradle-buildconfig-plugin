@@ -1,14 +1,14 @@
 package com.github.gmazzo.buildconfig
 
+import java.io.Serializable
+import java.lang.reflect.Type
+import kotlin.reflect.KClass
+import kotlin.reflect.KType
 import org.gradle.api.Named
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
-import java.io.Serializable
-import java.lang.reflect.Type
-import kotlin.reflect.KClass
-import kotlin.reflect.KType
 
 interface BuildConfigField : Named {
 
