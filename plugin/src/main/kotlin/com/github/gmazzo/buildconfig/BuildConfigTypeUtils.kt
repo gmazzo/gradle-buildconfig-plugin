@@ -1,11 +1,11 @@
 package com.github.gmazzo.buildconfig
 
-import org.jetbrains.annotations.VisibleForTesting
 import java.lang.reflect.GenericArrayType
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 import kotlin.reflect.KType
 import kotlin.reflect.jvm.javaType
+import org.jetbrains.annotations.VisibleForTesting
 
 private val regEx = "([^\\[\\]?]+?)(\\?)?(\\[])?".toRegex()
 

@@ -1,9 +1,9 @@
 package com.github.gmazzo.buildconfig.demos.kts
 
 import com.github.gmazzo.buildconfig.demos.groovy.BuildConfigBaseTest
+import java.util.*
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import java.util.Properties
 
 class BuildConfigTest : BuildConfigBaseTest() {
 

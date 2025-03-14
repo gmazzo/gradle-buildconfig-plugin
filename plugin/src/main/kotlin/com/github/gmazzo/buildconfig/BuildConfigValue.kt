@@ -1,7 +1,7 @@
 package com.github.gmazzo.buildconfig
 
-import org.gradle.api.provider.Provider
 import java.io.Serializable
+import org.gradle.api.provider.Provider
 
 sealed class BuildConfigValue : Serializable {
 

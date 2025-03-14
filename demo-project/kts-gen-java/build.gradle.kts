@@ -160,7 +160,9 @@ buildConfig {
     buildConfigField("MAP", mapOf("a" to 1, "b" to 2))
     buildConfigField("MAP_PROVIDER", provider { mapOf("a" to 1, "b" to 2) })
     buildConfigField<Map<String, Int>>("MAP_BY_EXPRESSION", expression("java.util.Map.of(\"a\", 1, \"b\", 2)"))
-    buildConfigField<Map<String, Int>>("MAP_BY_EXPRESSION_PROVIDER", provider { expression("java.util.Map.of(\"a\", 1, \"b\", 2)") })
+    buildConfigField<Map<String, Int>>(
+        "MAP_BY_EXPRESSION_PROVIDER",
+        provider { expression("java.util.Map.of(\"a\", 1, \"b\", 2)") })
     buildConfigField<Map<*, *>>("MAP_GENERIC", expression("java.util.Map.of(\"a\", 1, \"b\", 2)"))
     buildConfigField<Map<*, *>>("MAP_GENERIC_PROVIDER", provider { expression("java.util.Map.of(\"a\", 1, \"b\", 2)") })
     buildConfigField("FILE", File("aFile"))

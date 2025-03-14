@@ -13,11 +13,11 @@ import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
 import com.squareup.javapoet.WildcardTypeName
+import java.io.File
+import java.net.URI as JavaURI
+import javax.lang.model.element.Modifier
 import org.gradle.api.logging.Logging
 import org.gradle.api.tasks.Input
-import java.io.File
-import javax.lang.model.element.Modifier
-import java.net.URI as JavaURI
 
 open class BuildConfigJavaGenerator(
     @get:Input var defaultVisibility: Boolean = false
@@ -94,7 +94,7 @@ open class BuildConfigJavaGenerator(
 
                                 check(count == args.size) {
                                     "Invalid number of arguments for ${field.name} of type ${nullableAwareType}: " +
-                                            "expected $count, got ${args.size}: ${args.joinToString()}"
+                                        "expected $count, got ${args.size}: ${args.joinToString()}"
                                 }
                                 initializer(format, *args)
                             }
@@ -106,7 +106,7 @@ open class BuildConfigJavaGenerator(
             } catch (e: Exception) {
                 throw IllegalArgumentException(
                     "Failed to generate field '${field.name}' of type '${field.type.get()}', " +
-                            "with value: ${field.value.get().value} (of type '${field.value.get().value?.javaClass}')",
+                        "with value: ${field.value.get().value} (of type '${field.value.get().value?.javaClass}')",
                     e
                 )
             }
@@ -175,7 +175,7 @@ open class BuildConfigJavaGenerator(
 
         return when (this) {
             TypeName.LONG, ClassName.get(String::class.java) -> singleFormat()
-            is ArrayTypeName ->elements.format("{", "}", componentType)
+            is ArrayTypeName -> elements.format("{", "}", componentType)
             LIST, GENERIC_LIST -> listFormat(null)
             SET, GENERIC_SET -> setFormat(null)
             MAP, GENERIC_MAP -> mapFormat(null, null)
@@ -185,6 +185,7 @@ open class BuildConfigJavaGenerator(
                 MAP, GENERIC_MAP -> mapFormat(
                     typeArguments[0].takeIf { it.isBoxedPrimitive },
                     typeArguments[1].takeIf { it.isBoxedPrimitive })
+
                 else -> singleFormat()
             }
 

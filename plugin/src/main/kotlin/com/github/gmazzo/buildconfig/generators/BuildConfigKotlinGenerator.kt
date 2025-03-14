@@ -37,10 +37,10 @@ import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.asTypeName
-import org.gradle.api.logging.Logging
-import org.gradle.api.tasks.Input
 import java.io.File
 import java.net.URI as JavaURI
+import org.gradle.api.logging.Logging
+import org.gradle.api.tasks.Input
 
 open class BuildConfigKotlinGenerator(
     @get:Input var topLevelConstants: Boolean = false,
@@ -88,7 +88,7 @@ open class BuildConfigKotlinGenerator(
 
                             check(count == args.size) {
                                 "Invalid number of arguments for ${field.name} of type ${nullableAwareType}: " +
-                                        "expected $count, got ${args.size}: ${args.joinToString()}"
+                                    "expected $count, got ${args.size}: ${args.joinToString()}"
                             }
                             initializer(format, *args)
                         }
@@ -101,7 +101,7 @@ open class BuildConfigKotlinGenerator(
         } catch (e: Exception) {
             throw IllegalArgumentException(
                 "Failed to generate field '${field.name}' of type '${field.type.get()}', " +
-                        "with value: ${field.value.get().value} (of type '${field.value.get().value?.javaClass}')", e
+                    "with value: ${field.value.get().value} (of type '${field.value.get().value?.javaClass}')", e
             )
         }
     }

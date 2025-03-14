@@ -163,14 +163,14 @@ buildConfig {
     buildConfigField(Map.class, "MAP", [a: 1, b: 2])
     buildConfigField(Map.class, "MAP_PROVIDER", [a: 1, b: 2])
     buildConfigField(
-            "Map<String, Integer>",
-            "MAP_BY_EXPRESSION",
-            "mapOf(\"a\" to 1, \"b\" to 2)"
+        "Map<String, Integer>",
+        "MAP_BY_EXPRESSION",
+        "mapOf(\"a\" to 1, \"b\" to 2)"
     )
     buildConfigField(
-            "Map<String, Integer>",
-            "MAP_BY_EXPRESSION_PROVIDER",
-            provider { "mapOf(\"a\" to 1, \"b\" to 2)" }
+        "Map<String, Integer>",
+        "MAP_BY_EXPRESSION_PROVIDER",
+        provider { "mapOf(\"a\" to 1, \"b\" to 2)" }
     )
     buildConfigField(Map.class, "MAP_GENERIC", expression("mapOf(\"a\" to 1, \"b\" to 2)"))
     buildConfigField(Map.class, "MAP_GENERIC_PROVIDER", provider { expression("mapOf(\"a\" to 1, \"b\" to 2)") })
@@ -179,13 +179,13 @@ buildConfig {
     buildConfigField(URI.class, "URI", uri("https://example.io"))
     buildConfigField(URI.class, "URI_PROVIDER", provider { uri("https://example.io") })
     buildConfigField(
-            "com.github.gmazzo.buildconfig.demos.groovy.SomeData",
-            "DATA",
-            "new SomeData(\"a\", 1)"
+        "com.github.gmazzo.buildconfig.demos.groovy.SomeData",
+        "DATA",
+        "new SomeData(\"a\", 1)"
     )
     buildConfigField(
-            "com.github.gmazzo.buildconfig.demos.groovy.SomeData",
-            "DATA_PROVIDER",
-            provider { "new SomeData(\"a\", 1)" }
+        "com.github.gmazzo.buildconfig.demos.groovy.SomeData",
+        "DATA_PROVIDER",
+        provider { "new SomeData(\"a\", 1)" }
     )
 }

@@ -22,9 +22,11 @@ dependencies {
 buildConfig {
     generator = object : BuildConfigKotlinGenerator() {
         override fun adaptSpec(spec: TypeSpec) = spec.toBuilder()
-            .addAnnotation(AnnotationSpec.builder(ClassName.bestGuess("kotlin.js.JsName"))
-                .addMember("name = %S", spec.name!!)
-                .build())
+            .addAnnotation(
+                AnnotationSpec.builder(ClassName.bestGuess("kotlin.js.JsName"))
+                    .addMember("name = %S", spec.name!!)
+                    .build()
+            )
             .build()
     }
 
@@ -33,12 +35,12 @@ buildConfig {
     sourceSets.named("jvmMain") {
         useKotlinOutput() // resets `generator` back to default's Kotlin generator for JVM
         buildConfigField("PLATFORM", "jvm")
-        buildConfigField( "JVM_VALUE", "aJvmValue")
+        buildConfigField("JVM_VALUE", "aJvmValue")
     }
 
     sourceSets.named("jsMain") {
-        buildConfigField( "PLATFORM", "js")
-        buildConfigField( "JS_VALUE", "aJsValue")
+        buildConfigField("PLATFORM", "js")
+        buildConfigField("JS_VALUE", "aJsValue")
     }
 }
 

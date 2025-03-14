@@ -101,10 +101,12 @@ class BuildConfigPlugin : Plugin<Project> {
         val taskPrefix = if (plugins.hasPlugin("com.android.base")) "NonAndroid" else ""
 
         sourceSet.className.convention("${prefix}BuildConfig")
-        sourceSet.packageName.convention(when (sourceSet) {
-            defaultSS -> defaultPackage.map(String::javaIdentifier)
-            else -> defaultSS.packageName
-        })
+        sourceSet.packageName.convention(
+            when (sourceSet) {
+                defaultSS -> defaultPackage.map(String::javaIdentifier)
+                else -> defaultSS.packageName
+            }
+        )
         sourceSet.generator.convention(
             when (sourceSet) {
                 defaultSS -> provider(::BuildConfigJavaGenerator)

@@ -17,7 +17,7 @@ public final class SomeData {
         if (o == null || getClass() != o.getClass()) return false;
         SomeData someData = (SomeData) o;
         return value2 == someData.value2 &&
-                Objects.equals(value1, someData.value1);
+            Objects.equals(value1, someData.value1);
     }
 
     @Override

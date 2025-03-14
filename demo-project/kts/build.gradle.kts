@@ -3,7 +3,7 @@ import com.github.gmazzo.buildconfig.BuildConfigValue
 import com.github.gmazzo.buildconfig.generators.BuildConfigGenerator
 import com.github.gmazzo.buildconfig.generators.BuildConfigGeneratorSpec
 import java.io.FileOutputStream
-import java.util.Properties
+import java.util.*
 
 plugins {
     alias(libs.plugins.kotlin.jvm)
@@ -175,7 +175,9 @@ buildConfig {
     buildConfigField("MAP", mapOf("a" to 1, "b" to 2))
     buildConfigField("MAP_PROVIDER", provider { mapOf("a" to 1, "b" to 2) })
     buildConfigField<Map<String, Int>>("MAP_BY_EXPRESSION", expression("mapOf(\"a\" to 1, \"b\" to 2)"))
-    buildConfigField<Map<String, Int>>("MAP_BY_EXPRESSION_PROVIDER", provider { expression("mapOf(\"a\" to 1, \"b\" to 2)") })
+    buildConfigField<Map<String, Int>>(
+        "MAP_BY_EXPRESSION_PROVIDER",
+        provider { expression("mapOf(\"a\" to 1, \"b\" to 2)") })
     buildConfigField<Map<*, *>>("MAP_GENERIC", expression("mapOf(\"a\" to 1, \"b\" to 2)"))
     buildConfigField<Map<*, *>>("MAP_GENERIC_PROVIDER", provider { expression("mapOf(\"a\" to 1, \"b\" to 2)") })
     buildConfigField("FILE", File("aFile"))
