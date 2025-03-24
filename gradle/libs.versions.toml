@@ -5,6 +5,8 @@ kotlin = "2.1.20"
 [libraries]
 javapoet = { module = "com.squareup:javapoet", version = "1.13.0" }
 junit = { module = "junit:junit", version = "4.13.2" }
+junit5-bom = { module = "org.junit:junit-bom", version = "5.12.1" }
+junit5-params = { module = "org.junit.jupiter:junit-jupiter-params" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlinpoet = { module = "com.squareup:kotlinpoet", version = "2.1.0" }
 mockk = { module = "io.mockk:mockk", version = "1.13.17" }

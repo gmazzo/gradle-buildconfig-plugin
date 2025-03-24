@@ -4,18 +4,14 @@ import com.github.gmazzo.buildconfig.generators.BuildConfigJavaGenerator
 import com.github.gmazzo.buildconfig.internal.BuildConfigSourceSetInternal
 import com.github.gmazzo.buildconfig.internal.DefaultBuildConfigExtension
 import com.github.gmazzo.buildconfig.internal.DefaultBuildConfigSourceSet
-import com.github.gmazzo.buildconfig.internal.bindings.JavaHandler
-import com.github.gmazzo.buildconfig.internal.bindings.KotlinHandler
-import com.github.gmazzo.buildconfig.internal.bindings.KotlinMultiplatformHandler
-import com.github.gmazzo.buildconfig.internal.bindings.PluginBindingHandler
+import com.github.gmazzo.buildconfig.internal.bindings.JavaBinder
+import com.github.gmazzo.buildconfig.internal.bindings.KotlinBinder
 import org.gradle.api.Action
-import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.PluginContainer
 import org.gradle.api.tasks.SourceSet
-import org.gradle.kotlin.dsl.add
+import org.gradle.kotlin.dsl.com.github.gmazzo.buildconfig.internal.bindings.AndroidBinder
 import org.gradle.kotlin.dsl.domainObjectContainer
 import org.gradle.kotlin.dsl.newInstance
 import org.gradle.kotlin.dsl.register
@@ -25,7 +21,7 @@ import org.gradle.util.GradleVersion
 class BuildConfigPlugin : Plugin<Project> {
 
     companion object {
-        const val MIN_GRADLE_VERSION = "7.0"
+        const val MIN_GRADLE_VERSION = "7.3"
     }
 
     override fun apply(project: Project) = with(project) {
@@ -45,55 +41,51 @@ class BuildConfigPlugin : Plugin<Project> {
             defaultSS,
         )
 
-        sourceSets.configureEach { configureSourceSet(it, defaultSS) }
+        sourceSets.all { configureSourceSet(it, defaultSS) }
 
         extension.generateAtSync
-            .convention(findProperty("com.github.gmazzo.buildconfig.generateAtSync")?.toString()?.toBoolean() ?: true)
+            .convention(findProperty("com.github.gmazzo.buildconfig.generateAtSync")?.toString()?.toBoolean() != false)
             .finalizeValueOnRead()
 
         // generate at sync
         afterEvaluate {
-            if (extension.generateAtSync.get()) {
+            if (extension.generateAtSync.get() && isGradleSync) {
                 tasks.maybeCreate("prepareKotlinIdeaImport").dependsOn(tasks.withType<BuildConfigTask>())
             }
         }
 
         plugins.withId("java") {
-            JavaHandler(project, extension).configure(sourceSets)
+            with(JavaBinder) { configure(extension) }
         }
 
         plugins.withAnyId(
-            "org.jetbrains.kotlin.android",
             "org.jetbrains.kotlin.jvm",
             "org.jetbrains.kotlin.js",
             "kotlin2js",
         ) {
-            KotlinHandler(project, extension).configure(sourceSets)
+            with(KotlinBinder) { configure(extension) }
         }
 
         plugins.withId("org.jetbrains.kotlin.multiplatform") {
-            KotlinMultiplatformHandler(KotlinHandler(project, extension)).configure(sourceSets)
+            with(KotlinBinder.Multiplatform) { configure(extension) }
+        }
+
+        plugins.withId("com.android.base") {
+            with(AndroidBinder) { configure(extension) }
         }
     }
 
-    private fun <SourceSet> PluginBindingHandler<SourceSet>.configure(
-        specs: NamedDomainObjectContainer<out BuildConfigSourceSetInternal>
-    ) {
-        onBind()
-
-        sourceSets.configureEach { ss ->
-            val spec = specs.maybeCreate(nameOf(ss))
-
-            onSourceSetAdded(ss, spec)
-
-            (ss as? ExtensionAware)?.extensions?.add(BuildConfigSourceSet::class, "buildConfig", spec)
-        }
-    }
+    private val isGradleSync
+        get() = System.getProperty("idea.sync.active") == "true"
 
     private fun Project.configureSourceSet(
         sourceSet: BuildConfigSourceSetInternal,
         defaultSS: BuildConfigSourceSetInternal,
     ) {
+        check(sourceSet.name.matches("\\w+".toRegex())) {
+            "Invalid name '$name': only alphanumeric characters are allowed"
+        }
+
         val prefix = when (sourceSet) {
             defaultSS -> ""
             else -> sourceSet.name.replaceFirstChar { it.titlecaseChar() }

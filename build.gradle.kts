@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 plugins {
     base
     `maven-publish`
@@ -10,6 +12,7 @@ plugins {
 }
 
 dependencies {
+    //noinspection UseTomlInstead
     jacocoAggregation("com.github.gmazzo.buildconfig:plugin")
 }
 

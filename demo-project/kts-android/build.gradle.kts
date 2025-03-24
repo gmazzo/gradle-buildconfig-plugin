@@ -39,7 +39,7 @@ android {
             buildConfigField("MAGIC_NUMBERS", intArrayOf(1, 2, 3, 4))
 
             buildConfigField<Boolean>("IS_DEBUG", this@variant.buildType.isDebuggable)
-            buildConfigField<String>("BRAND", this@variant.productFlavors.single().name)
+            buildConfigField<String>("BRAND", this@variant.flavorName)
         }
     }
 }
