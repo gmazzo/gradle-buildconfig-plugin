@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.axion.release)
@@ -13,7 +15,7 @@ description =
     "A plugin for generating BuildConstants for any kind of Gradle projects: Java, Kotlin, Groovy, etc. Designed for KTS scripts."
 version = scmVersion.version
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(8)
+java.toolchain.languageVersion = JavaLanguageVersion.of(libs.versions.java.get())
 kotlin.compilerOptions.freeCompilerArgs.add("-Xjvm-default=all")
 
 dependencies {
@@ -22,15 +24,18 @@ dependencies {
 
     compileOnly(gradleKotlinDsl())
     compileOnly(plugin(libs.plugins.kotlin.jvm))
+    compileOnly(plugin(libs.plugins.android))
 
     implementation(libs.javapoet)
     implementation(libs.kotlinpoet)
 
     testImplementation(gradleTestKit())
     testImplementation(gradleKotlinDsl())
+    testImplementation(platform(libs.junit5.bom))
+    testImplementation(libs.junit5.params)
+    testImplementation(plugin(libs.plugins.android))
     testImplementation(libs.kotlin.test)
     testImplementation(libs.mockk)
-    testImplementation("org.junit.jupiter:junit-jupiter-params")
 }
 
 val originUrl = providers
@@ -83,13 +88,10 @@ mavenPublishing {
     }
 }
 
-tasks.withType<Test> {
+tasks.test {
     workingDir = temporaryDir
     useJUnitPlatform()
-    javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(libs.versions.java.get()) }
-}
-
-tasks.test {
+    javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(17) } // required by AGP
     finalizedBy(tasks.jacocoTestReport)
 }
 

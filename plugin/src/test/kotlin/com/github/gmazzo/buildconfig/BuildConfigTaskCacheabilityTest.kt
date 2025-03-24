@@ -1,8 +1,5 @@
 package com.github.gmazzo.buildconfig
 
-import java.io.File
-import java.util.*
-import kotlin.test.assertEquals
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.jupiter.api.BeforeEach
@@ -10,12 +7,15 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
+import java.io.File
+import java.util.*
+import kotlin.test.assertEquals
 
 @Execution(ExecutionMode.SAME_THREAD)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class BuildConfigTaskCacheabilityTest {
 
-    private val projectDir = File("${BuildConfigTaskCacheabilityTest::class.simpleName}")
+    private val projectDir = File(BuildConfigTaskCacheabilityTest::class.simpleName!!)
 
     private val buildScript = File(projectDir, "build.gradle.kts")
 

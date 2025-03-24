@@ -1,7 +1,6 @@
 package com.github.gmazzo.buildconfig
 
-import java.io.File
-import java.util.stream.Stream
+import com.android.builder.model.Version.ANDROID_GRADLE_PLUGIN_VERSION
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.gradle.util.GradleVersion
@@ -11,38 +10,31 @@ import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
+import java.io.File
 
 @Execution(ExecutionMode.CONCURRENT)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class BuildConfigPluginTest {
 
-    fun testBuild(): Stream<Args> {
-        val gradleMin = BuildConfigPlugin.MIN_GRADLE_VERSION
-        val gradleLatest = GradleVersion.current().baseVersion.version
+    private val gradleMin = BuildConfigPlugin.MIN_GRADLE_VERSION
+    private val gradleLatest = GradleVersion.current().baseVersion.version
+    private val kotlinMin = "1.8.0"
+    private val kotlinCurrent = KotlinVersion.CURRENT.toString()
+    private val androidCurrent = ANDROID_GRADLE_PLUGIN_VERSION
 
-        val kotlin8 = "1.8.+"
-        val kotlin9 = "1.9.+"
-        val kotlin20 = "2.0.+"
+    fun testBuild() = listOf(
+        Args(gradleVersion = gradleLatest),
+        Args(gradleVersion = gradleLatest, kotlinVersion = kotlinMin),
+        Args(gradleVersion = gradleLatest, kotlinVersion = kotlinCurrent),
+        Args(gradleVersion = gradleLatest, androidVersion = androidCurrent),
+        Args(gradleVersion = gradleLatest, kotlinVersion = kotlinCurrent, androidVersion = androidCurrent),
 
-        return Stream.of(
+        Args(gradleVersion = gradleLatest, withPackage = false),
+        Args(gradleVersion = gradleLatest, kotlinVersion = kotlinCurrent, withPackage = false),
 
-            Args(gradleMin, null),
-            Args(gradleMin, kotlin8),
-            Args(gradleMin, kotlin9),
-            Args(gradleMin, kotlin20),
-
-            Args(gradleLatest, null),
-            Args(gradleLatest, kotlin8),
-            Args(gradleLatest, kotlin9),
-            Args(gradleLatest, kotlin20),
-
-            ).flatMap {
-            Stream.of(
-                it.copy(withPackage = true),
-                it.copy(withPackage = false),
-            )
-        }
-    }
+        Args(gradleVersion = gradleMin),
+        Args(gradleVersion = gradleMin, kotlinVersion = kotlinMin),
+    )
 
     @ParameterizedTest(name = "{0}")
     @MethodSource
@@ -54,20 +46,35 @@ class BuildConfigPluginTest {
         writeBuildGradle()
         writeTest()
 
-        val result = GradleRunner.create()
-            .forwardOutput()
-            .withPluginClasspath()
-            .withProjectDir(projectDir)
-            .withGradleVersion(gradleVersion)
-            .withArguments("build", "-s")
-            .build()
+        val result = synchronizedIfAndroid {
+            GradleRunner.create()
+                .forwardOutput()
+                .withPluginClasspath()
+                .withProjectDir(projectDir)
+                .withGradleVersion(gradleVersion)
+                .withArguments("build", "-s")
+                .build()
+        }
 
         assertEquals(TaskOutcome.SUCCESS, result.task(":build")?.outcome)
     }
 
+    /**
+     * AGP may download and install SDK components, doing this concurrently will break one of the builds
+     */
+    private fun <Result> Args.synchronizedIfAndroid(block: () -> Result) =
+        if (androidVersion != null) synchronized(this@BuildConfigPluginTest, block) else block()
+
     private fun Args.writeBuildGradle() {
         projectDir.resolve("settings.gradle").writeText(
             """
+            pluginManagement {
+                repositories {
+                    gradlePluginPortal()
+                    google()
+                }
+            }
+
             plugins {
                 id("jacoco-testkit-coverage")
             }
@@ -76,10 +83,37 @@ class BuildConfigPluginTest {
             """.trimIndent()
         )
 
+        val plugins = when (androidVersion) {
+            null -> when (kotlinVersion) {
+                null -> listOf("'java'")
+                else -> listOf("'org.jetbrains.kotlin.jvm' version '$kotlinVersion'")
+            }
+
+            else -> when (kotlinVersion) {
+                null -> listOf("'com.android.application' version '$androidVersion'")
+                else -> listOf(
+                    "'com.android.application' version '$androidVersion'",
+                    "'org.jetbrains.kotlin.android' version '$kotlinVersion'",
+                )
+            }
+        }
+
+        if (androidVersion != null) {
+            projectDir.resolve("src/main/AndroidManifest.xml")
+                .apply { parentFile.mkdirs() }
+                .writeText("<manifest/>")
+        }
+
+        val sourceSets = when {
+            androidVersion != null -> "android.sourceSets"
+            kotlinVersion != null -> "kotlin.sourceSets"
+            else -> "sourceSets"
+        }
+
         projectDir.resolve("build.gradle").writeText(
             """
         plugins {
-            id ${kotlinVersion?.let { "'org.jetbrains.kotlin.jvm' version '$kotlinVersion'" } ?: "'java'"}
+        ${plugins.joinToString(separator = "\n") { "    id $it" }}
             id 'com.github.gmazzo.buildconfig'
         }
         """ + (if (withPackage) """
@@ -87,24 +121,46 @@ class BuildConfigPluginTest {
         """ else "") + """
 
         """ + (if (kotlinVersion != null) """
-        assert "$kotlinVersion" == org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapperKt.getKotlinPluginVersion(project).replaceFirst(/\.\d+(-\w+)?$/, '.+')
+        assert "$kotlinVersion" == org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapperKt.getKotlinPluginVersion(project)
 
         """ else "") + """
         repositories {
             mavenCentral()
+            google()
         }
 
+        java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+        """ + (if (androidVersion != null) """
+        android {
+            compileSdkVersion(33)
+            namespace = "org.test"
+
+            compileOptions {
+                sourceCompatibility = JavaVersion.VERSION_17
+                targetCompatibility = JavaVersion.VERSION_17
+            }
+
+            publishing {
+                singleVariant("release") {
+                    withSourcesJar()
+                    withJavadocJar()
+                }
+            }
+        }
+        """ else """
         java {
             withSourcesJar()
             withJavadocJar()
         }
+        """) + """
 
         dependencies {
             testImplementation 'junit:junit:4.12'
         }
 
         buildConfig {""" +
-            (if (withPackage) """
+                    (if (withPackage) """
             packageName(group)
 
         """ else "") + """
@@ -264,14 +320,15 @@ class BuildConfigPluginTest {
 
         }
 
-        sourceSets {
+        $sourceSets {
             test {
                 buildConfig {
                     buildConfigField('String', 'TEST_CONSTANT', '"aTestValue"')
                 }
             }
         }
-        """.trimIndent())
+        """.trimIndent()
+        )
     }
 
     private fun Args.writeTest() {
@@ -324,17 +381,16 @@ class BuildConfigPluginTest {
 
     data class Args(
         val gradleVersion: String,
-        val kotlinVersion: String?,
+        val kotlinVersion: String? = null,
+        val androidVersion: String? = null,
         val withPackage: Boolean = true,
     ) {
 
-        val projectDir =
-            File(
-                "${BuildConfigPluginTest::class.simpleName}/" +
-                    "gradle-$gradleVersion/" +
-                    "kotlin-${kotlinVersion ?: "none"}/" +
-                    (if (withPackage) "withPackage/" else "withoutPackage/")
-            )
+        val projectDir = File(BuildConfigPluginTest::class.simpleName!!)
+            .resolve("gradle-$gradleVersion")
+            .resolve("kotlin-${kotlinVersion ?: "none"}")
+            .resolve("android-${androidVersion ?: "none"}")
+            .resolve(if (withPackage) "withPackage" else "withoutPackage")
 
     }
 
