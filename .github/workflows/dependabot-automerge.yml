@@ -14,6 +14,6 @@ jobs:
     if: ${{ contains(github.event.pull_request.labels.*.name, 'dependencies') }}
     steps:
       - name: Enable auto-merge for Dependabot PRs
-        run: gh pr merge --auto --rebase ${{ github.event.pull_request.html_url }}
+        run: gh pr merge --auto --squash ${{ github.event.pull_request.html_url }}
         env:
           GITHUB_TOKEN: ${{ github.token }}
