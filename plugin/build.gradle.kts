@@ -2,9 +2,9 @@
 
 plugins {
     alias(libs.plugins.kotlin.jvm)
-    alias(libs.plugins.axion.release)
     alias(libs.plugins.dokka)
     alias(libs.plugins.mavenPublish)
+    alias(libs.plugins.gitVersion)
     alias(libs.plugins.gradle.pluginPublish)
     alias(libs.plugins.publicationsReport)
     alias(libs.plugins.jacoco.testkit)
@@ -13,7 +13,6 @@ plugins {
 group = "com.github.gmazzo.buildconfig"
 description =
     "A plugin for generating BuildConstants for any kind of Gradle projects: Java, Kotlin, Groovy, etc. Designed for KTS scripts."
-version = scmVersion.version
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(libs.versions.java.get())
 kotlin.compilerOptions.freeCompilerArgs.add("-Xjvm-default=all")
