@@ -22,7 +22,12 @@ internal object AndroidBinder {
 
     fun Project.configure(extension: BuildConfigExtension) {
         androidSourceSets.all {
-            val spec = extension.sourceSets.maybeCreate(it.name)
+            val kmpAwareName = when (it.name) {
+                MAIN_SOURCE_SET_NAME -> if (isKMP) kmpAwareMainSourceSetName else it.name
+                TEST_SOURCE_SET_NAME -> if (isKMP) kmpAwareTestSourceSetName else it.name
+                else -> it.name
+            }
+            val spec = extension.sourceSets.maybeCreate(kmpAwareName)
 
             (it as ExtensionAware).registerExtension(spec)
             it.javaSrcDir(spec.generateTask.flatMap { it.outputDir })
@@ -33,16 +38,26 @@ internal object AndroidBinder {
             val androidTest = variant.androidTest
 
             for (component in listOfNotNull(variant, unitTest, androidTest)) {
-                val specNames = when(component) {
-                    variant -> sequenceOf(MAIN_SOURCE_SET_NAME, component.name, component.buildType, component.flavorName) +
-                        component.productFlavors.asSequence().map { (_, flavor) -> flavor }
-                    unitTest -> sequenceOf(TEST_SOURCE_SET_NAME, component.name)
+                val specNames = when (component) {
+                    variant -> sequenceOf(
+                        kmpAwareMainSourceSetName,
+                        component.name,
+                        component.buildType,
+                        component.flavorName
+                    ) + component.productFlavors.asSequence().map { (_, flavor) -> flavor }
+
+                    unitTest -> sequenceOf(
+                        kmpAwareTestSourceSetName,
+                        component.name
+                    )
+
                     androidTest -> sequenceOf("androidTest", component.name)
                     else -> error("Unsupported component $component")
                 }
                 val specs = specNames
                     .filterNotNull()
                     .filter(String::isNotBlank)
+                    .toSet()
                     .map(extension.sourceSets::maybeCreate)
 
                 for (spec in specs) {
@@ -87,6 +102,15 @@ internal object AndroidBinder {
         } catch (_: NoSuchMethodException) {
             null
         }
+
+    private val Project.isKMP
+        get() = plugins.hasPlugin("org.jetbrains.kotlin.multiplatform")
+
+    private val Project.kmpAwareMainSourceSetName
+        get() = if (isKMP) "androidMain" else MAIN_SOURCE_SET_NAME
+
+    private val Project.kmpAwareTestSourceSetName
+        get() = if (isKMP) "androidTest" else TEST_SOURCE_SET_NAME
 
     // Component.name
     private val Any.name
