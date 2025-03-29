@@ -5,14 +5,21 @@ import com.squareup.kotlinpoet.TypeSpec
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.android)
     id("com.github.gmazzo.buildconfig")
 }
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(libs.versions.java.get())
 
 kotlin {
+    androidTarget()
     jvm()
     js(IR) { nodejs() }
+}
+
+android {
+    compileSdk = 34
+    namespace = "com.github.gmazzo.buildconfig.demos.kts_multiplatform"
 }
 
 dependencies {
@@ -32,6 +39,12 @@ buildConfig {
 
     buildConfigField("COMMON_VALUE", "aCommonValue")
 
+    sourceSets.named("androidMain") {
+        useKotlinOutput() // resets `generator` back to default's Kotlin generator for JVM
+        buildConfigField("PLATFORM", "android")
+        buildConfigField("ANDROID_VALUE", "anAndroidValue")
+    }
+
     sourceSets.named("jvmMain") {
         useKotlinOutput() // resets `generator` back to default's Kotlin generator for JVM
         buildConfigField("PLATFORM", "jvm")
@@ -42,10 +55,6 @@ buildConfig {
         buildConfigField("PLATFORM", "js")
         buildConfigField("JS_VALUE", "aJsValue")
     }
-}
-
-tasks.register("test") {
-    dependsOn("allTests")
 }
 
 tasks.named("compileTestDevelopmentExecutableKotlinJs") {
