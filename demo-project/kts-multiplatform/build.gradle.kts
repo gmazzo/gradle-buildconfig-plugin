@@ -15,6 +15,7 @@ kotlin {
     androidTarget()
     jvm()
     js(IR) { nodejs() }
+    wasmJs { nodejs() }
 }
 
 android {
@@ -54,6 +55,11 @@ buildConfig {
     sourceSets.named("jsMain") {
         buildConfigField("PLATFORM", "js")
         buildConfigField("JS_VALUE", "aJsValue")
+    }
+
+    sourceSets.named("wasmJsMain") {
+        buildConfigField("PLATFORM", "wasmJs")
+        buildConfigField("WASM_JS_VALUE", "aWebAssemblyJsValue")
     }
 }
 
