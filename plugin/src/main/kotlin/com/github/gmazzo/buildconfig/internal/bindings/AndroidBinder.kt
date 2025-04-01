@@ -21,10 +21,24 @@ import org.gradle.api.tasks.TaskProvider
 internal object AndroidBinder {
 
     fun Project.configure(extension: BuildConfigExtension) {
+        val isKMP = isKotlinMultiplatform
+        val mainSourceSetName = if (isKMP) "androidMain" else MAIN_SOURCE_SET_NAME
+        val testSourceSetName = if (isKMP) "androidTest" else TEST_SOURCE_SET_NAME
+
+        afterEvaluate {
+            check(isKotlinMultiplatform == isKMP) {
+                """
+                Kotlin Multiplatform plugin was applied after Android plugin.
+                This is a configuration error for BuildConfig plugin since it can't determine correctly the main source set name, either `main` or `androidMain`.
+                Please change the order to continue with the build
+            """.trimIndent()
+            }
+        }
+
         androidSourceSets.all {
             val kmpAwareName = when (it.name) {
-                MAIN_SOURCE_SET_NAME -> if (isKMP) kmpAwareMainSourceSetName else it.name
-                TEST_SOURCE_SET_NAME -> if (isKMP) kmpAwareTestSourceSetName else it.name
+                MAIN_SOURCE_SET_NAME -> mainSourceSetName
+                TEST_SOURCE_SET_NAME -> testSourceSetName
                 else -> it.name
             }
             val spec = extension.sourceSets.maybeCreate(kmpAwareName)
@@ -40,14 +54,14 @@ internal object AndroidBinder {
             for (component in listOfNotNull(variant, unitTest, androidTest)) {
                 val specNames = when (component) {
                     variant -> sequenceOf(
-                        kmpAwareMainSourceSetName,
+                        mainSourceSetName,
                         component.name,
                         component.buildType,
                         component.flavorName
                     ) + component.productFlavors.asSequence().map { (_, flavor) -> flavor }
 
                     unitTest -> sequenceOf(
-                        kmpAwareTestSourceSetName,
+                        testSourceSetName,
                         component.name
                     )
 
@@ -103,14 +117,8 @@ internal object AndroidBinder {
             null
         }
 
-    private val Project.isKMP
+    private val Project.isKotlinMultiplatform
         get() = plugins.hasPlugin("org.jetbrains.kotlin.multiplatform")
-
-    private val Project.kmpAwareMainSourceSetName
-        get() = if (isKMP) "androidMain" else MAIN_SOURCE_SET_NAME
-
-    private val Project.kmpAwareTestSourceSetName
-        get() = if (isKMP) "androidTest" else TEST_SOURCE_SET_NAME
 
     // Component.name
     private val Any.name
