@@ -30,7 +30,7 @@ internal object AndroidBinder {
                 """
                 Kotlin Multiplatform plugin was applied after Android plugin.
                 This is a configuration error for BuildConfig plugin since it can't determine correctly the main source set name, either `main` or `androidMain`.
-                Please change the order to continue with the build
+                Please make sure both KMP and AGP plugins are applied before the BuildConfig one to continue with the build
             """.trimIndent()
             }
         }
