@@ -21,12 +21,12 @@ import org.gradle.api.tasks.TaskProvider
 internal object AndroidBinder {
 
     fun Project.configure(extension: BuildConfigExtension) {
-        val isKMP = isKotlinMultiplatform
-        val mainSourceSetName = if (isKMP) "androidMain" else MAIN_SOURCE_SET_NAME
-        val testSourceSetName = if (isKMP) "androidTest" else TEST_SOURCE_SET_NAME
+        val isKMP by lazy { isKotlinMultiplatform }
+        val mainSourceSetName by lazy { if (isKMP) "androidMain" else MAIN_SOURCE_SET_NAME }
+        val testSourceSetName by lazy { if (isKMP) "androidTest" else TEST_SOURCE_SET_NAME }
 
         afterEvaluate {
-            check(isKotlinMultiplatform == isKMP) {
+            check(isKMP == isKotlinMultiplatform) {
                 """
                 Kotlin Multiplatform plugin was applied after Android plugin.
                 This is a configuration error for BuildConfig plugin since it can't determine correctly the main source set name, either `main` or `androidMain`.
