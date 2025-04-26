@@ -83,7 +83,7 @@ class BuildConfigPlugin : Plugin<Project> {
         defaultSS: BuildConfigSourceSetInternal,
     ) {
         check(sourceSet.name.matches("\\w+".toRegex())) {
-            "Invalid name '$name': only alphanumeric characters are allowed"
+            "Invalid name '${sourceSet.name}': only alphanumeric characters are allowed"
         }
 
         val prefix = when (sourceSet) {
