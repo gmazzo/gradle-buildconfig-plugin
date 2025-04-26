@@ -38,7 +38,7 @@ buildConfig {
     buildConfigField("FEATURE_ENABLED", true)
     buildConfigField("MAGIC_NUMBERS", listOf(1, 2, 3))
 
-    // all possible kind for String
+    // all possible kinds for String
     buildConfigField("STRING", "aString")
     buildConfigField("STRING_NULL", null as String?)
     buildConfigField("STRING_PROVIDER", provider { "aString" })
@@ -51,7 +51,7 @@ buildConfig {
     buildConfigField("STRING_SET", setOf("a", null, "c"))
     buildConfigField("STRING_SET_PROVIDER", provider { setOf("a", null, "c") })
 
-    // all possible kind for Byte
+    // all possible kinds for Byte
     buildConfigField("BYTE", 64.toByte())
     buildConfigField("BYTE_NULL", null as Byte?)
     buildConfigField("BYTE_PROVIDER", provider { 64.toByte() })
@@ -66,7 +66,7 @@ buildConfig {
     buildConfigField("BYTE_SET", setOf(1.toByte(), null, 3.toByte()))
     buildConfigField("BYTE_SET_PROVIDER", provider { setOf(1.toByte(), null, 3.toByte()) })
 
-    // all possible kind for Short
+    // all possible kinds for Short
     buildConfigField("SHORT", 64.toShort())
     buildConfigField("SHORT_NULL", null as Short?)
     buildConfigField("SHORT_PROVIDER", provider { 64.toShort() })
@@ -81,7 +81,7 @@ buildConfig {
     buildConfigField("SHORT_SET", setOf(1.toShort(), null, 3.toShort()))
     buildConfigField("SHORT_SET_PROVIDER", provider { setOf(1.toShort(), null, 3.toShort()) })
 
-    // all possible kind for Char
+    // all possible kinds for Char
     buildConfigField("CHAR", 'a')
     buildConfigField("CHAR_NULL", null as Char?)
     buildConfigField("CHAR_PROVIDER", provider { 'a' })
@@ -96,7 +96,7 @@ buildConfig {
     buildConfigField("CHAR_SET", setOf('a', null, 'c'))
     buildConfigField("CHAR_SET_PROVIDER", provider { setOf('a', null, 'c') })
 
-    // all possible kind for Int
+    // all possible kinds for Int
     buildConfigField("INT", 1)
     buildConfigField("INT_NULL", null as Int?)
     buildConfigField("INT_PROVIDER", provider { 1 })
@@ -111,7 +111,7 @@ buildConfig {
     buildConfigField("INT_SET", setOf(1, null, 3))
     buildConfigField("INT_SET_PROVIDER", provider { setOf(1, null, 3) })
 
-    // all possible kind for Long
+    // all possible kinds for Long
     buildConfigField("LONG", 1L)
     buildConfigField("LONG_NULL", null as Long?)
     buildConfigField("LONG_PROVIDER", provider { 1L })
@@ -126,7 +126,7 @@ buildConfig {
     buildConfigField("LONG_SET", setOf(1L, null, 3L))
     buildConfigField("LONG_SET_PROVIDER", provider { setOf(1L, null, 3L) })
 
-    // all possible kind for Float
+    // all possible kinds for Float
     buildConfigField("FLOAT", 1f)
     buildConfigField("FLOAT_NULL", null as Float?)
     buildConfigField("FLOAT_PROVIDER", provider { 1f })
@@ -141,7 +141,7 @@ buildConfig {
     buildConfigField("FLOAT_SET", setOf(1f, null, 3f))
     buildConfigField("FLOAT_SET_PROVIDER", provider { setOf(1f, null, 3f) })
 
-    // all possible kind for Double
+    // all possible kinds for Double
     buildConfigField("DOUBLE", 1.0)
     buildConfigField("DOUBLE_NULL", null as Double?)
     buildConfigField("DOUBLE_PROVIDER", provider { 1.0 })
@@ -156,7 +156,7 @@ buildConfig {
     buildConfigField("DOUBLE_SET", setOf(1.0, null, 3.0))
     buildConfigField("DOUBLE_SET_PROVIDER", provider { setOf(1.0, null, 3.0) })
 
-    // all possible kind for Boolean
+    // all possible kinds for Boolean
     buildConfigField("BOOLEAN", true)
     buildConfigField("BOOLEAN_NULL", null as Boolean?)
     buildConfigField("BOOLEAN_PROVIDER", provider { true })
