@@ -1,6 +1,7 @@
 package com.github.gmazzo.buildconfig
 
 import com.android.builder.model.Version.ANDROID_GRADLE_PLUGIN_VERSION
+import java.io.File
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.gradle.util.GradleVersion
@@ -10,7 +11,6 @@ import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
-import java.io.File
 
 @Execution(ExecutionMode.CONCURRENT)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -173,7 +173,7 @@ class BuildConfigPluginTest {
                 buildConfigField('String', 'A_CONSTANT', '"aConstant"')
             }
 
-            // all possible kind for String
+            // all possible kinds for String
             buildConfigField(String, "STRING", "aString")
             buildConfigField(String, "STRING_NULL", null)
             buildConfigField(String, "STRING_PROVIDER", provider { "aString" })
@@ -186,7 +186,7 @@ class BuildConfigPluginTest {
             buildConfigField('Set<String?>', "STRING_SET", ["a", null, "c"])
             buildConfigField('Set<String?>', "STRING_SET_PROVIDER", provider { ["a", null, "c"] })
 
-            // all possible kind for Byte
+            // all possible kinds for Byte
             buildConfigField(byte, "BYTE", (byte) 64)
             buildConfigField(Byte, "BYTE_NULL", null)
             buildConfigField(byte, "BYTE_PROVIDER", provider { (byte) 64 })
@@ -201,7 +201,7 @@ class BuildConfigPluginTest {
             buildConfigField('Set<Byte?>', "BYTE_SET", [1, null, 3])
             buildConfigField('Set<Byte?>', "BYTE_SET_PROVIDER", provider { [1, null, 3] })
 
-            // all possible kind for Short
+            // all possible kinds for Short
             buildConfigField(short, "SHORT", 64)
             buildConfigField(short, "SHORT_NULL", null)
             buildConfigField(short, "SHORT_PROVIDER", provider { 64 })
@@ -216,7 +216,7 @@ class BuildConfigPluginTest {
             buildConfigField('Set<Short?>', "SHORT_SET", [1, null, 3])
             buildConfigField('Set<Short?>', "SHORT_SET_PROVIDER", provider { [1, null, 3] })
 
-            // all possible kind for Char
+            // all possible kinds for Char
             buildConfigField(char, "CHAR", 'a' as char)
             buildConfigField(Character, "CHAR_NULL", null)
             buildConfigField(char, "CHAR_PROVIDER", provider { 'a' as char })
@@ -231,7 +231,7 @@ class BuildConfigPluginTest {
             buildConfigField('Set<Char?>', "CHAR_SET", ['a' as char, null, 'c' as char])
             buildConfigField('Set<Char?>', "CHAR_SET_PROVIDER", provider { ['a' as char, null, 'c' as char] })
 
-            // all possible kind for Int
+            // all possible kinds for Int
             buildConfigField(int, "INT", 1)
             buildConfigField(Integer, "INT_NULL", null)
             buildConfigField(int, "INT_PROVIDER", provider { 1 })
@@ -246,7 +246,7 @@ class BuildConfigPluginTest {
             buildConfigField('Set<Integer?>', "INT_SET", [1, null, 3])
             buildConfigField('Set<Integer?>', "INT_SET_PROVIDER", provider { [1, null, 3] })
 
-            // all possible kind for Long
+            // all possible kinds for Long
             buildConfigField(long, "LONG", 1L)
             buildConfigField(Long, "LONG_NULL", null)
             buildConfigField(long, "LONG_PROVIDER", provider { 1L })
@@ -261,7 +261,7 @@ class BuildConfigPluginTest {
             buildConfigField('Set<Long?>', "LONG_SET", [1L, null, 3L])
             buildConfigField('Set<Long?>', "LONG_SET_PROVIDER", provider { [1L, null, 3L] })
 
-            // all possible kind for Float
+            // all possible kinds for Float
             buildConfigField(float, "FLOAT", 1f)
             buildConfigField(Float, "FLOAT_NULL", null)
             buildConfigField(float, "FLOAT_PROVIDER", provider { 1f })
@@ -276,7 +276,7 @@ class BuildConfigPluginTest {
             buildConfigField('Set<Float?>', "FLOAT_SET", [1f, null, 3f] )
             buildConfigField('Set<Float?>', "FLOAT_SET_PROVIDER", provider { [1f, null , 3f]  })
 
-            // all possible kind for Double
+            // all possible kinds for Double
             buildConfigField(double, "DOUBLE", 1.0)
             buildConfigField(Double, "DOUBLE_NULL", null)
             buildConfigField(double, "DOUBLE_PROVIDER", provider { 1.0 })
@@ -291,7 +291,7 @@ class BuildConfigPluginTest {
             buildConfigField('Set<Double?>', "DOUBLE_SET", [1.0 as double, null, 3.0 as double] )
             buildConfigField('Set<Double?>', "DOUBLE_SET_PROVIDER", provider { [1.0 as double, null, 3.0 as double]})
 
-            // all possible kind for Boolean
+            // all possible kinds for Boolean
             buildConfigField(boolean, "BOOLEAN", true)
             buildConfigField(Boolean, "BOOLEAN_NULL", null)
             buildConfigField(boolean, "BOOLEAN_PROVIDER", provider { true })
