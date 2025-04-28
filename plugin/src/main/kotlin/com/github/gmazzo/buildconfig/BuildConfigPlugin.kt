@@ -82,13 +82,13 @@ class BuildConfigPlugin : Plugin<Project> {
         sourceSet: BuildConfigSourceSetInternal,
         defaultSS: BuildConfigSourceSetInternal,
     ) {
-        check(sourceSet.name.matches("\\w+".toRegex())) {
+        check(sourceSet.name.matches("[\\w-]+".toRegex())) {
             "Invalid name '${sourceSet.name}': only alphanumeric characters are allowed"
         }
 
         val prefix = when (sourceSet) {
             defaultSS -> ""
-            else -> sourceSet.name.replaceFirstChar { it.titlecaseChar() }
+            else -> sourceSet.name.replace("[_-]".toRegex(), "").replaceFirstChar { it.titlecaseChar() }
         }
         val taskPrefix = if (plugins.hasPlugin("com.android.base")) "NonAndroid" else ""
 
