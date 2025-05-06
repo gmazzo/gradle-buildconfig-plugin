@@ -24,8 +24,6 @@ internal object KotlinBinder {
             (sourceSet as ExtensionAware).registerExtension(spec)
             sourceSet.kotlinSrcDir(spec)
         }
-
-        extension.generator.convention(BuildConfigKotlinGenerator())
     }
 
     // project.kotlin.sourceSets

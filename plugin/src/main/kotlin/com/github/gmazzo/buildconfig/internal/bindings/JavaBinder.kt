@@ -21,8 +21,6 @@ internal object JavaBinder {
             sourceSet.registerExtension(spec)
             sourceSet.java.srcDir(spec)
         }
-
-        extension.generator.convention(BuildConfigJavaGenerator())
     }
 
     internal fun ExtensionAware.registerExtension(sourceSet: BuildConfigSourceSet) =
