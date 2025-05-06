@@ -1,6 +1,7 @@
 package com.github.gmazzo.buildconfig
 
 import com.github.gmazzo.buildconfig.generators.BuildConfigJavaGenerator
+import com.github.gmazzo.buildconfig.generators.BuildConfigKotlinGenerator
 import com.github.gmazzo.buildconfig.internal.BuildConfigSourceSetInternal
 import com.github.gmazzo.buildconfig.internal.DefaultBuildConfigExtension
 import com.github.gmazzo.buildconfig.internal.DefaultBuildConfigSourceSet
@@ -61,7 +62,6 @@ class BuildConfigPlugin : Plugin<Project> {
         plugins.withAnyId(
             "org.jetbrains.kotlin.jvm",
             "org.jetbrains.kotlin.js",
-            "kotlin2js",
         ) {
             with(KotlinBinder) { configure(extension) }
         }
@@ -101,7 +101,10 @@ class BuildConfigPlugin : Plugin<Project> {
         )
         sourceSet.generator.convention(
             when (sourceSet) {
-                defaultSS -> provider(::BuildConfigJavaGenerator)
+                defaultSS -> provider {
+                    if (hasKotlinPlugin()) BuildConfigKotlinGenerator()
+                    else BuildConfigJavaGenerator()
+                }
                 else -> defaultSS.generator
             }
         )
@@ -116,6 +119,13 @@ class BuildConfigPlugin : Plugin<Project> {
             specs.addAll(provider { sourceSet.extraSpecs.map { isolate(it) } })
         }
     }
+
+    private fun Project.hasKotlinPlugin() = listOf(
+        "org.jetbrains.kotlin.android",
+        "org.jetbrains.kotlin.js",
+        "org.jetbrains.kotlin.jvm",
+        "org.jetbrains.kotlin.multiplatform",
+    ).any(plugins::hasPlugin)
 
     /**
      * Helper method to create a copy of a BuildConfigClassSpec not linked to Gradle related extensions/DSL

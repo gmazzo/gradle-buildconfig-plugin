@@ -79,11 +79,6 @@ internal object AndroidBinder {
                 }
             }
         }
-
-        extension.generator.convention(project.provider {
-            if (plugins.hasPlugin("org.jetbrains.kotlin.android")) BuildConfigKotlinGenerator()
-            else BuildConfigJavaGenerator()
-        })
     }
 
     // project.androidComponents.onVariants
