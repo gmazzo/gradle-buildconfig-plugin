@@ -5,6 +5,8 @@
 [![codecov](https://codecov.io/gh/gmazzo/gradle-buildconfig-plugin/branch/master/graph/badge.svg)](https://codecov.io/gh/gmazzo/gradle-buildconfig-plugin)
 [![Users](https://img.shields.io/badge/users_by-Sourcegraph-purple)](https://sourcegraph.com/search?q=content:com.github.gmazzo.buildconfig+-repo:github.com/gmazzo/gradle-buildconfig-plugin)
 
+[![Contributors](https://contrib.rocks/image?repo=gmazzo/gradle-buildconfig-plugin)](https://github.com/gmazzo/gradle-buildconfig-plugin/graphs/contributors)
+
 # gradle-buildconfig-plugin
 
 A plugin for generating BuildConstants for any kind of Gradle projects: Java, Kotlin, Android, Groovy, etc.
