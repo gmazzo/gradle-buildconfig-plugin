@@ -112,6 +112,8 @@ open class BuildConfigJavaGenerator(
             }
         }
 
+        java.util.Map.entry(1, "")
+
         JavaFile
             .builder(
                 spec.packageName, typeSpec
@@ -161,7 +163,7 @@ open class BuildConfigJavaGenerator(
 
         fun mapFormat(keyType: TypeName?, valueType: TypeName?) =
             elements.joinToString(
-                prefix = "java.util.Map.of(",
+                prefix = "java.util.Map.ofEntries(",
                 separator = ", ",
                 postfix = ")",
                 transform = {
@@ -169,7 +171,7 @@ open class BuildConfigJavaGenerator(
                     val keyFormat = (keyType ?: key?.let { TypeName.get(key::class.java) }).format()
                     val valueFormat = (valueType ?: value?.let { TypeName.get(value::class.java) }).format()
 
-                    "$keyFormat, $valueFormat"
+                    "java.util.Map.entry($keyFormat, $valueFormat)"
                 }
             ) to elements.size * 2
 

@@ -194,6 +194,10 @@ buildConfig {
         "DATA_PROVIDER",
         provider { "SomeData(\"a\", 1)" }
     )
+
+    buildConfigField("VERY_LONG_LIST", (1..20).toList())
+    buildConfigField("VERY_LONG_SET", (1..20).toSet())
+    buildConfigField("VERY_LONG_MAP", (1..20).associateWith { it.toString() })
 }
 
 sourceSets.test { buildConfig.buildConfigField("TEST_CONSTANT", "aTestValue") }
