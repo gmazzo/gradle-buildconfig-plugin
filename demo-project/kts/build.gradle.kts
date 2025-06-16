@@ -217,28 +217,7 @@ val versionsSS = buildConfig.sourceSets.register("Versions") {
     buildConfigField("myDependencyVersion", "1.0.1")
 }
 
-/**
- *  A task that iterates over your classpath resources and generate constants for them
- */
-buildConfig.forClass("BuildResources") {
-    buildConfigField("A_CONSTANT", "aConstant")
-
-    val files = sourceSets["main"].resources.sourceDirectories.asFileTree
-    buildConfigFields.addAllLater(provider {
-        val fields = mutableListOf<BuildConfigField>()
-        files.visit {
-            val name = path.uppercase().replace("\\W".toRegex(), "_")
-
-            fields.add(objects.newInstance<BuildConfigField>(name).apply {
-                type(File::class)
-                expression("File(\"$path\")")
-            })
-        }
-        fields
-    })
-}
-
-// example of a custom generator that builds into XML
+// Example: Custom generator that builds into XML
 val propertiesSS = buildConfig.sourceSets.register("properties") {
     buildConfigField("value1", "AAA")
     buildConfigField("value2", "BBB")
@@ -261,6 +240,19 @@ val propertiesSS = buildConfig.sourceSets.register("properties") {
         }
 
     })
+}
+
+// Example: Generate constants from resources files
+buildConfig.forClass("BuildResources") {
+    buildConfigField("A_CONSTANT", "aConstant")
+
+    sourceSets["main"].resources.asFileTree.visit {
+        if (!isDirectory) {
+            val name = path.uppercase().replace("\\W".toRegex(), "_")
+
+            buildConfigField(name, File(path))
+        }
+    }
 }
 
 sourceSets.main {

@@ -257,22 +257,16 @@ myproject
 If you add in your `build.gradle.kts`:
 
 ```kotlin
-val buildResources = buildConfig.forClass("BuildResources")
-val generateResourcesConstants by tasks.registering {
-    val resources = sourceSets["main"].resources.asFileTree
+buildConfig.forClass("BuildResources") {
+  buildConfigField("A_CONSTANT", "aConstant")
 
-    inputs.files(resources)
-    doFirst {
-        resources.visit(Action<FileVisitDetails> {
-            val name = path.toUpperCase().replace("\\W".toRegex(), "_")
+  sourceSets["main"].resources.asFileTree.visit {
+    if (!isDirectory) {
+      val name = path.uppercase().replace("\\W".toRegex(), "_")
 
-            buildResources.buildConfigField("java.io.File", name, "File(\"$path\")")
-        })
+      buildConfigField(name, File(path))
     }
-}
-
-tasks.generateBuildConfig {
-    dependsOn(generateResourcesConstants)
+  }
 }
 ```
 

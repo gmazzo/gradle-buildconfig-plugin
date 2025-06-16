@@ -208,17 +208,11 @@ sourceSets {
 buildConfig.forClass("BuildResources") {
     buildConfigField('String', 'A_CONSTANT', '"aConstant"')
 
-    def files = sourceSets.main.resources.sourceDirectories.asFileTree
-    buildConfigFields.addAllLater(provider {
-        List<BuildConfigField> fields = []
-        files.asFileTree.visit {
+    sourceSets.main.resources.asFileTree.visit {
+        if (!it.directory) {
             def name = it.path.toUpperCase().replaceAll("\\W", "_")
 
-            fields.add(objects.newInstance(BuildConfigField, name).with { _ ->
-                type(File)
-                expression("new File(\"${it.path}\")")
-            })
+            buildConfigField(File.class, name, new File(it.path))
         }
-        return fields
-    })
+    }
 }
