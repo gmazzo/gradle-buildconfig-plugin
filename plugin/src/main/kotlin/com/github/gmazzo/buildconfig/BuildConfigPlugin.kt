@@ -45,7 +45,10 @@ class BuildConfigPlugin : Plugin<Project> {
         sourceSets.all { configureSourceSet(it, defaultSS) }
 
         extension.generateAtSync
-            .convention(findProperty("com.github.gmazzo.buildconfig.generateAtSync")?.toString()?.toBoolean() != false)
+            .convention(providers.gradleProperty("com.github.gmazzo.buildconfig.generateAtSync")
+                .map { it.toBoolean() }
+                .orElse(true)
+            )
             .finalizeValueOnRead()
 
         // generate at sync
