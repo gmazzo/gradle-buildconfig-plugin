@@ -33,8 +33,6 @@ jobs:
         if: ${{ !cancelled() }}
         uses: gmazzo/publish-report-annotations@v1
         with:
-          appId: 925397
-          appSecret: ${{ secrets.GH_APP_SECRET }}
           checkName: Test Results
       - name: Coverage report
         uses: codecov/codecov-action@v5
