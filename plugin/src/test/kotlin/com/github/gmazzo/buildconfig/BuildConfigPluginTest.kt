@@ -18,7 +18,7 @@ class BuildConfigPluginTest {
 
     private val gradleMin = BuildConfigPlugin.MIN_GRADLE_VERSION
     private val gradleLatest = GradleVersion.current().baseVersion.version
-    private val kotlinMin = "1.8.0"
+    private val kotlinMin = "1.9.+"
     private val kotlinCurrent = KotlinVersion.CURRENT.toString()
     private val androidCurrent = ANDROID_GRADLE_PLUGIN_VERSION
 
@@ -121,7 +121,7 @@ class BuildConfigPluginTest {
         """ else "") + """
 
         """ + (if (kotlinVersion != null) """
-        assert "$kotlinVersion" == org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapperKt.getKotlinPluginVersion(project)
+        assert org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapperKt.getKotlinPluginVersion(project).matches(~/${kotlinVersion.replace(".", "\\.").replace("+", "\\d+")}/)
 
         """ else "") + """
         repositories {
