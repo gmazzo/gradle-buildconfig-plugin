@@ -3,7 +3,7 @@ name: Update Gradle Wrapper
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 */24 * * *"
+    - cron: "0 0 * * *"
 
 jobs:
   update-gradle-wrapper:
@@ -19,6 +19,6 @@ jobs:
       - name: Update Gradle Wrapper
         uses: gmazzo/update-gradle-wrapper-action@ignore-failure-2ndtime
         with:
-          repo-token: ${{ secrets.GRADLE_WRAPPER_UPDATER_TOKEN }}
+          repo-token: ${{ secrets.AUTOMERGE_TOKEN }}
           labels: dependencies
           merge-method: squash

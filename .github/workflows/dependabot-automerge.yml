@@ -12,4 +12,4 @@ jobs:
       - name: Enable auto-merge for Dependabot PRs
         run: gh pr merge --auto --squash ${{ github.event.pull_request.html_url }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GRADLE_WRAPPER_UPDATER_TOKEN }} # `github.token` won't trigger the CI after merge
+          GITHUB_TOKEN: ${{ secrets.AUTOMERGE_TOKEN }} # `github.token` won't trigger the CI after merge
