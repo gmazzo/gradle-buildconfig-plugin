@@ -23,7 +23,7 @@ internal object AndroidBinder {
     fun Project.configure(extension: BuildConfigExtension) {
         val isKMP by lazy { isKotlinMultiplatform }
         val mainSourceSetName by lazy { if (isKMP) "androidMain" else MAIN_SOURCE_SET_NAME }
-        val testSourceSetName by lazy { if (isKMP) "androidTest" else TEST_SOURCE_SET_NAME }
+        val testSourceSetName by lazy { if (isKMP) "androidUnitTest" else TEST_SOURCE_SET_NAME }
 
         afterEvaluate {
             check(isKMP == isKotlinMultiplatform) {
