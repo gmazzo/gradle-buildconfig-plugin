@@ -1,3 +1,5 @@
+@file:Suppress("OPT_IN_USAGE")
+
 import com.github.gmazzo.buildconfig.generators.BuildConfigKotlinGenerator
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
@@ -19,7 +21,7 @@ kotlin {
 }
 
 android {
-    compileSdk = 34
+    compileSdk = 36
     namespace = "com.github.gmazzo.buildconfig.demos.kts_multiplatform"
 }
 

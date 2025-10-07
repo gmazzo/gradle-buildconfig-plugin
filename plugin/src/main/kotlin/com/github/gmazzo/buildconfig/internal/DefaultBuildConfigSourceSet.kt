@@ -18,6 +18,7 @@ internal abstract class DefaultBuildConfigSourceSet(
     GroovyNullValueWorkaround() {
 
     @Inject
+    @Suppress("unused")
     constructor(
         name: String,
         objects: ObjectFactory,

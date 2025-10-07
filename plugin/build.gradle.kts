@@ -15,7 +15,7 @@ description =
     "A plugin for generating BuildConstants for any kind of Gradle projects: Java, Kotlin, Groovy, etc. Designed for KTS scripts."
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(libs.versions.java.get())
-kotlin.compilerOptions.freeCompilerArgs.add("-Xjvm-default=all")
+kotlin.compilerOptions.freeCompilerArgs.add("-Xjvm-default=all-compatibility")
 
 dependencies {
     fun DependencyHandler.plugin(dependency: Provider<PluginDependency>) =

@@ -33,6 +33,7 @@ interface BuildConfigSourceSet : BuildConfigClassSpec {
     /**
      * Creates a secondary build class with the given [className] in the same package
      */
+    @Suppress("unused")
     fun forClass(className: String) = forClass(null, className)
 
     /**
