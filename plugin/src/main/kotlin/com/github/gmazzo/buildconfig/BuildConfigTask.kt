@@ -2,18 +2,14 @@
 
 package com.github.gmazzo.buildconfig
 
-import com.github.gmazzo.buildconfig.generators.BuildConfigGenerator
 import com.github.gmazzo.buildconfig.generators.BuildConfigGeneratorSpec
 import java.io.File
 import org.gradle.api.DefaultTask
 import org.gradle.api.Task
 import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.provider.Property
-import org.gradle.api.provider.Provider
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.specs.Spec
 import org.gradle.api.tasks.CacheableTask
-import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
@@ -24,14 +20,6 @@ abstract class BuildConfigTask : DefaultTask() {
 
     @get:Nested
     abstract val specs: SetProperty<BuildConfigClassSpec>
-
-    @get:Nested
-    abstract val generator: Property<BuildConfigGenerator>
-
-    @get:Input
-    @Suppress("unused")
-    protected val generatorClass: Provider<Class<out BuildConfigGenerator>> =
-        generator.map { it::class.java }
 
     @get:OutputDirectory
     abstract val outputDir: DirectoryProperty
@@ -50,20 +38,18 @@ abstract class BuildConfigTask : DefaultTask() {
         val dir = outputDir.get().asFile
         dir.deleteRecursively()
 
-        val generator = generator.get()
-
         specs.get().asSequence().filter { it.buildConfigFields.isNotEmpty() }.forEach {
             val rawClassName = it.className.get()
             val (packageName, className) = when (val rawPackage = it.packageName.orNull) {
                 null -> when (val i = rawClassName.lastIndexOf('.')) {
                     -1 -> "" to rawClassName
-                    else -> rawClassName.substring(0, i) to rawClassName.substring(i + 1)
+                    else -> rawClassName.take(i) to rawClassName.substring(i + 1)
                 }
 
                 else -> rawPackage to rawClassName
             }
 
-            generator.execute(
+            it.generator.get().execute(
                 BuildConfigGeneratorSpec(
                     className = className,
                     packageName = packageName,

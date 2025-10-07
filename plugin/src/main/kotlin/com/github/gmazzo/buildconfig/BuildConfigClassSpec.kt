@@ -1,5 +1,8 @@
 package com.github.gmazzo.buildconfig
 
+import com.github.gmazzo.buildconfig.generators.BuildConfigGenerator
+import com.github.gmazzo.buildconfig.generators.BuildConfigJavaGenerator
+import com.github.gmazzo.buildconfig.generators.BuildConfigKotlinGenerator
 import java.io.Serializable
 import org.codehaus.groovy.runtime.typehandling.DefaultTypeTransformation.castToType
 import org.gradle.api.Action
@@ -18,6 +21,25 @@ interface BuildConfigClassSpec : Named {
 
     @Input
     override fun getName(): String
+
+    @get:Nested
+    val generator: Property<BuildConfigGenerator>
+
+    fun generator(generator: BuildConfigGenerator) = apply {
+        this.generator.set(generator)
+    }
+
+    fun useJavaOutput() =
+        useJavaOutput {}
+
+    fun useJavaOutput(configure: Action<BuildConfigJavaGenerator>) =
+        generator(BuildConfigJavaGenerator().apply(configure::execute))
+
+    fun useKotlinOutput() =
+        useKotlinOutput {}
+
+    fun useKotlinOutput(configure: Action<BuildConfigKotlinGenerator>) =
+        generator(BuildConfigKotlinGenerator().apply(configure::execute))
 
     @get:Input
     val className: Property<String>

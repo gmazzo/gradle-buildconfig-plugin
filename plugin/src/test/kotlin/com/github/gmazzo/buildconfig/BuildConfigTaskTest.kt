@@ -14,7 +14,10 @@ class BuildConfigTaskTest {
 
     private val project = ProjectBuilder.builder().build()
 
+    private val generator: BuildConfigGenerator = mockk(relaxUnitFun = true)
+
     private val spec: BuildConfigClassSpec = project.objects.newInstance<DefaultBuildConfigClassSpec>("spec").apply {
+        generator.set(this@BuildConfigTaskTest.generator)
         className.set("aClassName")
         packageName.set("aPackage")
         documentation.set("aJavaDoc")
@@ -22,10 +25,7 @@ class BuildConfigTaskTest {
 
     private val outDir = project.layout.buildDirectory.dir("outDir")
 
-    private val generator: BuildConfigGenerator = mockk(relaxUnitFun = true)
-
     private val task = project.tasks.register<BuildConfigTask>("testedTask") {
-        generator.set(this@BuildConfigTaskTest.generator)
         outputDir.set(outDir)
         specs.add(spec)
     }
