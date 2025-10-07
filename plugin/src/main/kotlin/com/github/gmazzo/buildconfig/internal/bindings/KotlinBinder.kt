@@ -22,7 +22,15 @@ internal object KotlinBinder {
             val spec = extension.sourceSets.maybeCreate(nameOf(sourceSet))
 
             (sourceSet as ExtensionAware).registerExtension(spec)
-            sourceSet.kotlinSrcDir(spec)
+        }
+
+        // Kotlin does some source set sanity checks which will cause an eager instantiation of the generate task
+        // while in the configuration phase.
+        // This will finalize DSL properties before the build script have a change to change them
+        afterEvaluate {
+            kotlinSourceSets.all { sourceSet ->
+                sourceSet.kotlinSrcDir(extension.sourceSets.getByName(nameOf(sourceSet)))
+            }
         }
     }
 
