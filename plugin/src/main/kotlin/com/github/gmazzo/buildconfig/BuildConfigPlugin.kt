@@ -15,7 +15,6 @@ import org.gradle.api.plugins.PluginContainer
 import org.gradle.api.tasks.SourceSet
 import org.gradle.kotlin.dsl.com.github.gmazzo.buildconfig.internal.bindings.AndroidBinder
 import org.gradle.kotlin.dsl.domainObjectContainer
-import org.gradle.kotlin.dsl.newInstance
 import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.withType
 import org.gradle.util.GradleVersion
@@ -151,10 +150,8 @@ class BuildConfigPlugin : Plugin<Project> {
             group = "BuildConfig"
             description = "Generates the build constants class for '${sourceSet.name}' source"
 
+            bindTo(sourceSet)
             outputDir.set(layout.buildDirectory.dir("generated/sources/buildConfig/${sourceSet.name}"))
-
-            specs.add(provider { isolate(sourceSet) })
-            specs.addAll(provider { sourceSet.extraSpecs.map { isolate(it) } })
         }
     }
 
@@ -170,25 +167,6 @@ class BuildConfigPlugin : Plugin<Project> {
         "org.jetbrains.kotlin.jvm",
         "org.jetbrains.kotlin.multiplatform",
     ).any(plugins::hasPlugin)
-
-    /**
-     * Helper method to create a copy of a BuildConfigClassSpec not linked to Gradle related extensions/DSL
-     * It makes it compatible with Configuration Cache
-     */
-    private fun Project.isolate(source: BuildConfigClassSpec) =
-        objects.newInstance<BuildConfigClassSpec>(source.name).apply spec@{
-            generator.value(source.generator).disallowChanges()
-            className.value(source.className).disallowChanges()
-            packageName.value(source.packageName).disallowChanges()
-            documentation.value(source.documentation).disallowChanges()
-            buildConfigFields.addAll(source.buildConfigFields.map { field ->
-                objects.newInstance<BuildConfigField>(field.name).apply field@{
-                    this@field.type.value(field.type).disallowChanges()
-                    this@field.value.value(field.value).disallowChanges()
-                    this@field.position.value(field.position).disallowChanges()
-                }
-            })
-        }
 
     private val Project.defaultPackage
         get() = provider {
