@@ -9,7 +9,7 @@ import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.newInstance
 
 internal abstract class DefaultBuildConfigSourceSet(
-    override val classSpec: BuildConfigClassSpec,
+    classSpec: BuildConfigClassSpec,
     override val extraSpecs: NamedDomainObjectContainer<out BuildConfigClassSpec>
 ) :
     BuildConfigSourceSetInternal,
@@ -33,8 +33,8 @@ internal abstract class DefaultBuildConfigSourceSet(
 
     override fun forClass(packageName: String?, className: String): BuildConfigClassSpec =
         extraSpecs.maybeCreate(className).also {
-            it.className.value(className)
-            it.packageName.value(packageName).convention(this.packageName)
+            it.className.value(className).disallowChanges()
+            it.packageName.value(packageName)
         }
 
     override fun iterator() = iterator { yield(generateTask) }

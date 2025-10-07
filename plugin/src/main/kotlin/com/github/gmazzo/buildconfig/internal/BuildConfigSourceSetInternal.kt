@@ -8,8 +8,6 @@ import org.gradle.api.tasks.TaskProvider
 
 internal interface BuildConfigSourceSetInternal : BuildConfigSourceSet {
 
-    val classSpec: BuildConfigClassSpec
-
     val extraSpecs: NamedDomainObjectContainer<out BuildConfigClassSpec>
 
     override var generateTask: TaskProvider<BuildConfigTask>

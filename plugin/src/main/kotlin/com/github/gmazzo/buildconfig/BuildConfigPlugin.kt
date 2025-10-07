@@ -8,6 +8,7 @@ import com.github.gmazzo.buildconfig.internal.DefaultBuildConfigSourceSet
 import com.github.gmazzo.buildconfig.internal.bindings.JavaBinder
 import com.github.gmazzo.buildconfig.internal.bindings.KotlinBinder
 import org.gradle.api.Action
+import org.gradle.api.DomainObjectCollection
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.PluginContainer
@@ -42,17 +43,20 @@ class BuildConfigPlugin : Plugin<Project> {
             defaultSS,
         )
 
-        sourceSets.all { configureSourceSet(it, defaultSS) }
+        sourceSets.configureEach { configureSourceSet(it, defaultSS) }
 
         extension.generateAtSync
-            .convention(providers.gradleProperty("com.github.gmazzo.buildconfig.generateAtSync")
-                .map { it.toBoolean() }
-                .orElse(true)
+            .convention(
+                providers.gradleProperty("com.github.gmazzo.buildconfig.generateAtSync")
+                    .map { it.toBoolean() }
+                    .orElse(true)
             )
             .finalizeValueOnRead()
 
-        // generate at sync
         afterEvaluate {
+            sourceSets.toList() // force configuration
+
+            // generate at sync
             if (extension.generateAtSync.get() && isGradleSync) {
                 tasks.maybeCreate("prepareKotlinIdeaImport").dependsOn(tasks.withType<BuildConfigTask>())
             }
@@ -95,22 +99,50 @@ class BuildConfigPlugin : Plugin<Project> {
         }
         val taskPrefix = if (plugins.hasPlugin("com.android.base")) "NonAndroid" else ""
 
-        sourceSet.className.convention("${prefix}BuildConfig")
-        sourceSet.packageName.convention(
-            when (sourceSet) {
-                defaultSS -> defaultPackage.map(String::javaIdentifier)
-                else -> defaultSS.packageName
-            }
-        )
-        sourceSet.generator.convention(
-            when (sourceSet) {
-                defaultSS -> provider {
-                    if (hasKotlinPlugin()) BuildConfigKotlinGenerator()
-                    else BuildConfigJavaGenerator()
+        sourceSet.className
+            .convention("${prefix}BuildConfig")
+            .finalizeValueOnRead()
+
+        sourceSet.packageName
+            .convention(
+                when (sourceSet) {
+                    defaultSS -> defaultPackage.map(String::javaIdentifier)
+                    else -> defaultSS.packageName
                 }
-                else -> defaultSS.generator
-            }
-        )
+            )
+            .finalizeValueOnRead()
+
+        sourceSet.generator
+            .convention(
+                when (sourceSet) {
+                    defaultSS -> provider {
+                        if (hasKotlinPlugin()) BuildConfigKotlinGenerator()
+                        else BuildConfigJavaGenerator()
+                    }
+
+                    else -> defaultSS.generator
+                }
+            )
+            .finalizeValueOnRead()
+
+        sourceSet.extraSpecs.configureEach {
+
+            it.className
+                .finalizeValueOnRead()
+
+            it.packageName
+                .convention(sourceSet.packageName)
+                .finalizeValueOnRead()
+
+            it.documentation
+                .finalizeValueOnRead()
+
+            configureFields(it.buildConfigFields)
+
+        }
+
+        configureFields(sourceSet.buildConfigFields)
+
         sourceSet.generateTask = tasks.register<BuildConfigTask>("generate${prefix}${taskPrefix}BuildConfig") {
             group = "BuildConfig"
             description = "Generates the build constants class for '${sourceSet.name}' source"
@@ -121,6 +153,12 @@ class BuildConfigPlugin : Plugin<Project> {
             specs.add(provider { isolate(sourceSet) })
             specs.addAll(provider { sourceSet.extraSpecs.map { isolate(it) } })
         }
+    }
+
+    private fun configureFields(fields: DomainObjectCollection<BuildConfigField>) = fields.configureEach {
+        it.type.finalizeValueOnRead()
+        it.value.finalizeValueOnRead()
+        it.position.finalizeValueOnRead()
     }
 
     private fun Project.hasKotlinPlugin() = listOf(
