@@ -2,16 +2,15 @@ package org.gradle.kotlin.dsl.com.github.gmazzo.buildconfig.internal.bindings
 
 import com.github.gmazzo.buildconfig.BuildConfigExtension
 import com.github.gmazzo.buildconfig.BuildConfigTask
+import com.github.gmazzo.buildconfig.internal.BuildConfigSourceSetInternal
 import com.github.gmazzo.buildconfig.internal.bindings.JavaBinder.registerExtension
 import org.gradle.api.Action
 import org.gradle.api.Named
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.api.Task
-import org.gradle.api.file.Directory
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.plugins.ExtensionAware
-import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.SourceSet.MAIN_SOURCE_SET_NAME
 import org.gradle.api.tasks.SourceSet.TEST_SOURCE_SET_NAME
 import org.gradle.api.tasks.TaskProvider
@@ -42,41 +41,41 @@ internal object AndroidBinder {
             val spec = extension.sourceSets.maybeCreate(kmpAwareName)
 
             (it as ExtensionAware).registerExtension(spec)
-            it.javaSrcDir(spec.generateTask.flatMap { it.outputDir })
         }
 
         androidComponentsOnVariants { variant ->
-            val unitTest = variant.unitTest
-            val androidTest = variant.androidTest
+            variant.bindToSourceSet(extension,
+                mainSourceSetName,
+                variant.buildType,
+                variant.flavorName,
+                *variant.productFlavors.map { (_, flavor) -> flavor }.toTypedArray())
 
-            for (component in listOfNotNull(variant, unitTest, androidTest)) {
-                val specNames = when (component) {
-                    variant -> sequenceOf(
-                        mainSourceSetName,
-                        component.name,
-                        component.buildType,
-                        component.flavorName
-                    ) + component.productFlavors.asSequence().map { (_, flavor) -> flavor }
+            variant.unitTest?.bindToSourceSet(extension, testSourceSetName)
+            variant.androidTest?.bindToSourceSet(extension, "androidTest")
+        }
+    }
 
-                    unitTest -> sequenceOf(
-                        testSourceSetName,
-                        component.name
-                    )
+    private fun Any/*Component*/.bindToSourceSet(
+        extension: BuildConfigExtension,
+        vararg extras: String?,
+    ) {
+        val ss = extension.sourceSets.maybeCreate(this@bindToSourceSet.name!!)
+        val extraSSs = extras.asSequence()
+            .filterNotNull()
+            .filter { it.isNotBlank() && it != ss.name }
+            .distinct()
+            .map(extension.sourceSets::maybeCreate)
 
-                    androidTest -> sequenceOf("androidTest", component.name)
-                    else -> error("Unsupported component $component")
-                }
-                val specs = specNames
-                    .filterNotNull()
-                    .filter(String::isNotBlank)
-                    .toSet()
-                    .map(extension.sourceSets::maybeCreate)
-
-                for (spec in specs) {
-                    component.sourcesJavaAddGeneratedSourceDirectory(spec.generateTask, BuildConfigTask::outputDir)
-                }
+        for (extraSS in extraSSs) {
+            extraSS.generateTask.configure {
+                it.onlyIf("It was superseded by ${ss.name} source set") { false }
+            }
+            ss.generateTask.configure {
+                it.bindTo(extraSS as BuildConfigSourceSetInternal)
             }
         }
+
+        sourcesJavaAddGeneratedSourceDirectory(ss.generateTask, BuildConfigTask::outputDir)
     }
 
     // project.androidComponents.onVariants
@@ -148,13 +147,5 @@ internal object AndroidBinder {
             javaClass.getMethod("getSourceSets")
                 .invoke(this) as NamedDomainObjectContainer<Named>
         }
-
-    // AndroidSourceSet.java.srcDir(dir)
-    private fun Named.javaSrcDir(dir: Provider<Directory>) {
-        with(javaClass.getMethod("getJava").invoke(this)) {
-            javaClass.getMethod("srcDir", Any::class.java)
-                .invoke(this, dir)
-        }
-    }
 
 }
