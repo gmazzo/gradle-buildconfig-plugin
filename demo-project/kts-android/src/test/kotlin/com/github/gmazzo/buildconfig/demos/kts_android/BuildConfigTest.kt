@@ -1,9 +1,9 @@
 package com.github.gmazzo.buildconfig.demos.kts_android
 
+import com.github.gmazzo.buildconfig.demos.android.BuildConfig as AndroidBuildConfig
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-import com.github.gmazzo.buildconfig.demos.android.BuildConfig as AndroidBuildConfig
 
 class BuildConfigTest {
 

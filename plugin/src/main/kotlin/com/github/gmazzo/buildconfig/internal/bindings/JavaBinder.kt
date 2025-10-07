@@ -2,7 +2,6 @@ package com.github.gmazzo.buildconfig.internal.bindings
 
 import com.github.gmazzo.buildconfig.BuildConfigExtension
 import com.github.gmazzo.buildconfig.BuildConfigSourceSet
-import com.github.gmazzo.buildconfig.generators.BuildConfigJavaGenerator
 import org.gradle.api.Project
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.tasks.SourceSetContainer

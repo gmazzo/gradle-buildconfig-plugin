@@ -2,7 +2,6 @@ package com.github.gmazzo.buildconfig.internal.bindings
 
 import com.github.gmazzo.buildconfig.BuildConfigExtension
 import com.github.gmazzo.buildconfig.BuildConfigSourceSet
-import com.github.gmazzo.buildconfig.generators.BuildConfigKotlinGenerator
 import com.github.gmazzo.buildconfig.internal.bindings.JavaBinder.registerExtension
 import org.gradle.api.Named
 import org.gradle.api.NamedDomainObjectContainer

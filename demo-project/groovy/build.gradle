@@ -1,5 +1,3 @@
-import com.github.gmazzo.buildconfig.BuildConfigField
-
 plugins {
     id 'java'
     id 'com.github.gmazzo.buildconfig'

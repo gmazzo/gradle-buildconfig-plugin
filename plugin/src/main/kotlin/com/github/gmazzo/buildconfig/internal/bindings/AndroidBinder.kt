@@ -2,8 +2,6 @@ package org.gradle.kotlin.dsl.com.github.gmazzo.buildconfig.internal.bindings
 
 import com.github.gmazzo.buildconfig.BuildConfigExtension
 import com.github.gmazzo.buildconfig.BuildConfigTask
-import com.github.gmazzo.buildconfig.generators.BuildConfigJavaGenerator
-import com.github.gmazzo.buildconfig.generators.BuildConfigKotlinGenerator
 import com.github.gmazzo.buildconfig.internal.bindings.JavaBinder.registerExtension
 import org.gradle.api.Action
 import org.gradle.api.Named
