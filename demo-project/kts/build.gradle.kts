@@ -1,4 +1,3 @@
-import com.github.gmazzo.buildconfig.BuildConfigField
 import com.github.gmazzo.buildconfig.BuildConfigValue
 import com.github.gmazzo.buildconfig.generators.BuildConfigGenerator
 import com.github.gmazzo.buildconfig.generators.BuildConfigGeneratorSpec
@@ -244,6 +243,7 @@ val propertiesSS = buildConfig.sourceSets.register("properties") {
 
 // Example: Generate constants from resources files
 buildConfig.forClass("BuildResources") {
+    useKotlinOutput { internalVisibility = false }
     buildConfigField("A_CONSTANT", "aConstant")
 
     sourceSets["main"].resources.asFileTree.visit {

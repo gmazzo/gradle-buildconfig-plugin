@@ -127,6 +127,10 @@ class BuildConfigPlugin : Plugin<Project> {
 
         sourceSet.extraSpecs.configureEach {
 
+            it.generator
+                .convention(sourceSet.generator)
+                .finalizeValueOnRead()
+
             it.className
                 .finalizeValueOnRead()
 
@@ -147,7 +151,6 @@ class BuildConfigPlugin : Plugin<Project> {
             group = "BuildConfig"
             description = "Generates the build constants class for '${sourceSet.name}' source"
 
-            generator.set(sourceSet.generator)
             outputDir.set(layout.buildDirectory.dir("generated/sources/buildConfig/${sourceSet.name}"))
 
             specs.add(provider { isolate(sourceSet) })
@@ -174,14 +177,15 @@ class BuildConfigPlugin : Plugin<Project> {
      */
     private fun Project.isolate(source: BuildConfigClassSpec) =
         objects.newInstance<BuildConfigClassSpec>(source.name).apply spec@{
-            className.set(source.className)
-            packageName.set(source.packageName)
-            documentation.set(source.documentation)
+            generator.value(source.generator).disallowChanges()
+            className.value(source.className).disallowChanges()
+            packageName.value(source.packageName).disallowChanges()
+            documentation.value(source.documentation).disallowChanges()
             buildConfigFields.addAll(source.buildConfigFields.map { field ->
                 objects.newInstance<BuildConfigField>(field.name).apply field@{
-                    this@field.type.set(field.type)
-                    this@field.value.set(field.value)
-                    this@field.position.set(field.position)
+                    this@field.type.value(field.type).disallowChanges()
+                    this@field.value.value(field.value).disallowChanges()
+                    this@field.position.value(field.position).disallowChanges()
                 }
             })
         }
