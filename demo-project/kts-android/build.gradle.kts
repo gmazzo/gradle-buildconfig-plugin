@@ -12,7 +12,7 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(libs.versions.java.get()
 
 android {
     namespace = "com.github.gmazzo.buildconfig.demos.android"
-    compileSdkVersion = "android-30"
+    compileSdk = 36
 
     buildFeatures.buildConfig = true
 

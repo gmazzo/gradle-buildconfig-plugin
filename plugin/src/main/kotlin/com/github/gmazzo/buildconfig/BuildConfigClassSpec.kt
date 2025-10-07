@@ -41,6 +41,7 @@ interface BuildConfigClassSpec : Named {
         this.packageName.set(packageName)
     }
 
+    @Suppress("unused")
     fun withoutPackage() = apply {
         packageName("")
     }
