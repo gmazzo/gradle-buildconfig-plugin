@@ -1,4 +1,4 @@
-name: Build
+name: CI/CD
 on:
   workflow_dispatch:
   push:
@@ -29,7 +29,7 @@ jobs:
           PROJECTS_JSON=$(echo "$PROJECTS" | jq -R . | sort | jq -sc .)
           echo "projects=$PROJECTS_JSON" >> "$GITHUB_OUTPUT"
 
-  ci-cd:
+  build:
     name: Build `${{ matrix.project }}`
     needs: compute-projects
     runs-on: ${{ matrix.os || 'ubuntu' }}-latest
@@ -56,16 +56,16 @@ jobs:
         with:
           checkName: Test Results - `${{ matrix.project }}`
 
-  ci-cd-passed:
-    name: CI/CD passed
+  publish:
+    name: Publish
     runs-on: ubuntu-latest
-    needs: ci-cd
+    needs: build
     if: ${{ !cancelled() }}
     steps:
-      - name: Check CI-CD has passed
-        if: ${{ needs.ci-cd.result != 'success' }}
+      - name: Build has passed
+        if: ${{ needs.build.result != 'success' }}
         run: |
-          echo "CI/CD was not successful!"
+          echo "Build was not successful!"
           exit 1
       - name: Checkout
         uses: actions/checkout@v5
