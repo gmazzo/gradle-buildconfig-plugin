@@ -16,8 +16,11 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(libs.versions.java.get()
 kotlin {
     androidTarget()
     jvm()
+    iosArm64()
+    iosSimulatorArm64()
     js(IR) { nodejs() }
     wasmJs { nodejs() }
+    applyDefaultHierarchyTemplate()
 }
 
 android {
@@ -52,6 +55,12 @@ buildConfig {
         useKotlinOutput() // resets `generator` back to default's Kotlin generator for JVM
         buildConfigField("PLATFORM", "jvm")
         buildConfigField("JVM_VALUE", "aJvmValue")
+    }
+
+    sourceSets.named("iosMain") {
+        useKotlinOutput() // resets `generator` back to default's Kotlin generator for JVM
+        buildConfigField("PLATFORM", "ios")
+        buildConfigField("IOS_VALUE", "anIOSValue")
     }
 
     sourceSets.named("jsMain") {
