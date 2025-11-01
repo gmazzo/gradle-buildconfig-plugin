@@ -7,6 +7,7 @@ data class BuildConfigType @JvmOverloads constructor(
     val typeArguments: List<BuildConfigType> = emptyList(),
     val nullable: Boolean = false,
     val array: Boolean = false,
+    val arrayNullable: Boolean = false,
 ) : Serializable {
 
     private val text by lazy {
@@ -19,6 +20,7 @@ data class BuildConfigType @JvmOverloads constructor(
             }
             if (nullable) append("?")
             if (array) append("[]")
+            if (arrayNullable) append("?")
         }
     }
 

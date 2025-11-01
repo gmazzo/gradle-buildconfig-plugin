@@ -7,21 +7,25 @@ import kotlin.reflect.KType
 import kotlin.reflect.jvm.javaType
 import org.jetbrains.annotations.VisibleForTesting
 
-private val regEx = "([^\\[\\]?]+?)(\\?)?(\\[])?".toRegex()
+private val regEx = "([^\\[\\]?]+?)(\\?)?(\\[](\\?)?)?".toRegex()
 
 @VisibleForTesting
-internal fun String.parseTypename(): Triple<String, Boolean, Boolean> {
+internal fun String.parseTypename(): BuildConfigType {
     val match = regEx.matchEntire(this)
     checkNotNull(match) {
         "Class name must be of one of these formats: 'ClassName', 'ClassName?', 'ClassName[]' or 'ClassName?[]'"
     }
 
-    val (type, nullable, array) = match.destructured
+    val (type, nullable, array, arrayNullable) = match.destructured
 
-    return Triple(type, nullable.isNotEmpty(), array.isNotEmpty())
+    return BuildConfigType(
+        className = type,
+        nullable = nullable.isNotEmpty(),
+        array = array.isNotEmpty(),
+        arrayNullable = arrayNullable.isNotEmpty(),
+    )
 }
 
-@Suppress("RecursivePropertyAccessor")
 private val Type.genericName: String
     get() = when (this) {
         Boolean::class.java, Boolean::class.javaObjectType, BooleanArray::class.java -> "Boolean"
@@ -57,14 +61,16 @@ internal fun nameOf(type: Type): BuildConfigType = when (type) {
             })
         },
         nullable = false,
-        array = type.isArray
+        array = type.isArray,
+        arrayNullable = false,
     )
 
     is ParameterizedType -> BuildConfigType(
         className = type.rawType.genericName,
         typeArguments = type.actualTypeArguments.map { nameOf(it) },
         nullable = false,
-        array = false
+        array = false,
+        arrayNullable = false,
     )
 
     is GenericArrayType -> BuildConfigType(
@@ -73,7 +79,8 @@ internal fun nameOf(type: Type): BuildConfigType = when (type) {
             "Unsupported type: $type"
         }.actualTypeArguments.map { nameOf(it) },
         nullable = false,
-        array = true
+        array = true,
+        arrayNullable = false,
     )
 
     else -> error("Unsupported type: $type")
@@ -87,7 +94,8 @@ internal fun nameOf(type: KType): BuildConfigType {
         className = type.javaType.genericName,
         typeArguments = targetType.arguments.map { it.type?.let(::nameOf) ?: nameOf("*") },
         nullable = targetType.isMarkedNullable,
-        array = isArray
+        array = isArray,
+        arrayNullable = isArray && type.isMarkedNullable,
     )
 }
 
@@ -126,8 +134,7 @@ private fun parseName(
         }
     }
 
-    val (typeName, nullable, array) = name.parseTypename()
-    return BuildConfigType(typeName, parameters, nullable, array)
+    return name.parseTypename().copy(typeArguments = parameters)
 }
 
 internal val Any?.elements: List<Any?>
@@ -148,6 +155,7 @@ internal val Any?.elements: List<Any?>
     }
 
 internal fun Any?.asVarArg(): Array<*> = when (this) {
+    null -> emptyArray<Any>()
     is Array<*> -> this
     is ByteArray -> toTypedArray()
     is ShortArray -> toTypedArray()

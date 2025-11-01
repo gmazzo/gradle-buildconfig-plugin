@@ -19,6 +19,7 @@ interface BuildConfigField : Named {
     val type: Property<BuildConfigType>
 
     @get:Input
+    @get:Optional
     val value: Property<BuildConfigValue>
 
     @get:Input

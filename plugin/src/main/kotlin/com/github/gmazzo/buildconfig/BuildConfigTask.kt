@@ -80,6 +80,8 @@ abstract class BuildConfigTask : DefaultTask() {
      */
     private fun Project.isolate(source: BuildConfigClassSpec) =
         objects.newInstance<BuildConfigClassSpec>(source.name).apply spec@{
+            val nullLiteral = BuildConfigValue.Literal(null)
+
             generator.value(source.generator).disallowChanges()
             className.value(source.className).disallowChanges()
             packageName.value(source.packageName).disallowChanges()
@@ -87,7 +89,7 @@ abstract class BuildConfigTask : DefaultTask() {
             buildConfigFields.addAll(source.buildConfigFields.map { field ->
                 objects.newInstance<BuildConfigField>(field.name).apply field@{
                     this@field.type.value(field.type).disallowChanges()
-                    this@field.value.value(field.value).disallowChanges()
+                    this@field.value.value(field.value.orElse(nullLiteral)).disallowChanges()
                     this@field.position.value(field.position).disallowChanges()
                 }
             })

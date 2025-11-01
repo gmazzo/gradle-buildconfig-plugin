@@ -131,6 +131,8 @@ open class BuildConfigJavaGenerator(
     }
 
     private fun TypeName.format(forValue: Any?): Pair<String, Int> {
+        if (forValue == null) { return "null" to 0 }
+
         fun TypeName?.format() = when (if (this?.isBoxedPrimitive == true) unbox() else this) {
             TypeName.BYTE -> "(byte) \$L"
             TypeName.CHAR -> "'\$L'"
