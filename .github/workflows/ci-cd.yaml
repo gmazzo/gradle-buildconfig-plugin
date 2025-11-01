@@ -30,7 +30,7 @@ jobs:
           echo "projects=$PROJECTS_JSON" >> "$GITHUB_OUTPUT"
 
   build:
-    name: Build `${{ matrix.project }}`
+    name: Build (${{ matrix.project }})
     needs: compute-projects
     runs-on: ${{ matrix.os || 'ubuntu' }}-latest
     strategy:
@@ -54,7 +54,7 @@ jobs:
         if: ${{ !cancelled() }}
         uses: gmazzo/publish-report-annotations@v1
         with:
-          checkName: Test Results - `${{ matrix.project }}`
+          checkName: Test Results (${{ matrix.project }})
 
   publish:
     name: Publish
