@@ -1,9 +1,9 @@
 package com.github.gmazzo.buildconfig.generators
 
 import com.github.gmazzo.buildconfig.parseTypename
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
 class BuildConfigGeneratorUtilsTest {
 
@@ -21,7 +21,7 @@ class BuildConfigGeneratorUtilsTest {
 
     @Test
     fun testParseTypenameError() {
-        assertFailsWith<IllegalStateException> { "int[]?".parseTypename() }
+        assertThrows<IllegalStateException> { "int[]?".parseTypename() }
     }
 
 

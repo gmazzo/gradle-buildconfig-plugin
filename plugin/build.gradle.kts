@@ -32,8 +32,9 @@ dependencies {
     testImplementation(gradleKotlinDsl())
     testImplementation(platform(libs.junit5.bom))
     testImplementation(libs.junit5.params)
+    testRuntimeOnly(libs.junit5.engine)
+    testRuntimeOnly(libs.junit5.platformLauncher)
     testImplementation(plugin(libs.plugins.android))
-    testImplementation(libs.kotlin.test)
     testImplementation(libs.mockk)
 }
 

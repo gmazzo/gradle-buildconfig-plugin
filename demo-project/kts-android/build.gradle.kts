@@ -45,7 +45,7 @@ android {
 }
 
 dependencies {
-    testImplementation(libs.kotlin.test)
+    testImplementation(testFixtures(projects.demoProject.groovy))
 }
 
 // workaround of AGP issue failing to pick test sources correctly
