@@ -15,10 +15,58 @@ permissions:
   pull-requests: write
 
 jobs:
-  ci-cd:
-    name: CI/CD
+  compute-projects:
+    name: Compute projects
     runs-on: ubuntu-latest
+    outputs:
+      projects: ${{ steps.compute-projects.outputs.projects }}
     steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - id: compute-projects
+        run: |
+          PROJECTS=$(echo "plugin"; find "demo-project" -mindepth 1 -maxdepth 1 -type d | tr '/' ':')
+          PROJECTS_JSON=$(echo "$PROJECTS" | jq -R . | sort | jq -sc .)
+          echo "projects=$PROJECTS_JSON" >> "$GITHUB_OUTPUT"
+
+  ci-cd:
+    name: Build `${{ matrix.project }}`
+    needs: compute-projects
+    runs-on: ${{ matrix.os || 'ubuntu' }}-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        project: ${{ fromJSON(needs.compute-projects.outputs.projects) }}
+        include:
+          - project: 'demo-project:kts-multiplatform'
+            os: 'macos'
+          - project: 'plugin'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Setup host
+        uses: ./.github/actions/setup-host
+        with:
+          gradle-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
+      - name: Test & Build
+        run: ./gradlew ${{ matrix.project }}:build
+      - name: Publish Test Report
+        if: ${{ !cancelled() }}
+        uses: gmazzo/publish-report-annotations@v1
+        with:
+          checkName: Test Results
+
+  ci-cd-passed:
+    name: CI/CD passed
+    runs-on: ubuntu-latest
+    needs: ci-cd
+    if: ${{ !cancelled() }}
+    steps:
+      - name: Check CI-CD has passed
+        if: ${{ needs.ci-cd.result != 'success' }}
+        run: |
+          echo "CI/CD was not successful!"
+          exit 1
       - name: Checkout
         uses: actions/checkout@v5
         with:
@@ -27,13 +75,8 @@ jobs:
         uses: ./.github/actions/setup-host
         with:
           gradle-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
-      - name: Test & Build
+      - name: Build
         run: ./gradlew build
-      - name: Publish Test Report
-        if: ${{ !cancelled() }}
-        uses: gmazzo/publish-report-annotations@v1
-        with:
-          checkName: Test Results
       - name: Coverage report
         uses: codecov/codecov-action@v5
         with:
