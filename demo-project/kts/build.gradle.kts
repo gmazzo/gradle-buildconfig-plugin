@@ -16,10 +16,12 @@ val integrationTest by testing.suites.registering(JvmTestSuite::class) {
 }
 
 dependencies {
-    testImplementation(libs.kotlin.test)
     testImplementation(testFixtures(projects.demoProject.groovy))
     "integrationTestImplementation"(project)
-    "integrationTestImplementation"(libs.kotlin.test)
+    "integrationTestImplementation"(platform(libs.junit5.bom))
+    "integrationTestImplementation"(libs.junit5.params)
+    "integrationTestRuntimeOnly"(libs.junit5.engine)
+    "integrationTestRuntimeOnly"(libs.junit5.platformLauncher)
 }
 
 tasks.check {

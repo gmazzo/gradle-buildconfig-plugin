@@ -1,27 +1,23 @@
 package com.github.gmazzo.buildconfig.demos.kts_android
 
 import com.github.gmazzo.buildconfig.demos.android.BuildConfig as AndroidBuildConfig
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
+import com.github.gmazzo.buildconfig.demos.groovy.BuildConfigBaseTest
 
-class BuildConfigTest {
+class BuildConfigTest : BuildConfigBaseTest() {
 
-    @Test
-    fun testBuildConfigProperties() {
-        assertEquals("com.github.gmazzo.buildconfig.demos.android", AndroidBuildConfig.APPLICATION_ID)
+    override fun extraCases() = arrayOf(
+        // properties cases
+        arrayOf("com.github.gmazzo.buildconfig.demos.android", AndroidBuildConfig.APPLICATION_ID),
 
-        assertEquals("kts-android", BuildConfig.APP_NAME)
-        assertEquals("Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu", BuildConfig.APP_SECRET)
-        assertTrue(System.currentTimeMillis() >= BuildConfig.BUILD_TIME)
-        assertTrue(BuildConfig.FEATURE_ENABLED)
-        assertEquals(listOf(1, 2, 3, 4), BuildConfig.MAGIC_NUMBERS.toList())
-    }
+        arrayOf("kts-android", BuildConfig.APP_NAME),
+        arrayOf("Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu", BuildConfig.APP_SECRET),
+        arrayOf(true, System.currentTimeMillis() >= BuildConfig.BUILD_TIME),
+        arrayOf(true, BuildConfig.FEATURE_ENABLED),
+        arrayOf(listOf(1, 2, 3, 4), BuildConfig.MAGIC_NUMBERS.toList()),
 
-    @Test
-    fun testFlavoredBuildConfigProperties() {
-        assertEquals(AndroidBuildConfig.DEBUG, BuildConfig.IS_DEBUG)
-        assertEquals(AndroidBuildConfig.FLAVOR, BuildConfig.BRAND)
-    }
+        // flavor cases
+        arrayOf(AndroidBuildConfig.DEBUG, BuildConfig.IS_DEBUG),
+        arrayOf(AndroidBuildConfig.FLAVOR, BuildConfig.BRAND),
+    )
 
 }

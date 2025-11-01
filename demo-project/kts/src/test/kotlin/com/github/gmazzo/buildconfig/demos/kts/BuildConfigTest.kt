@@ -7,34 +7,30 @@ import org.junit.Test
 
 class BuildConfigTest : BuildConfigBaseTest() {
 
-    @Test
-    fun testBuildConfigTestProperties() {
-        assertEquals("aTestValue", TestBuildConfig.TEST_CONSTANT)
-    }
-
-    @Test
-    fun testBuildConfigVersionsProperties() {
-        assertEquals("1.0.1", myDependencyVersion)
-    }
-
-    @Test
-    fun testResourcesConfigProperties() {
-        assertEquals("aConstant", BuildResources.A_CONSTANT)
-        assertEquals("file1.json", BuildResources.FILE1_JSON.path)
-        assertEquals("file2.json", BuildResources.FILE2_JSON.path)
-        assertEquals("config/local.properties", BuildResources.CONFIG_LOCAL_PROPERTIES.path)
-        assertEquals("config/prod.properties", BuildResources.CONFIG_PROD_PROPERTIES.path)
-    }
-
-    @Test
-    fun testCustomXMLGeneratorProperties() {
-        val props = javaClass.getResourceAsStream("/PropertiesBuildConfig.xml").use {
+    private val props by lazy {
+        javaClass.getResourceAsStream("/PropertiesBuildConfig.xml").use {
             Properties().apply { loadFromXML(it) }
         }
-
-        assertEquals("AAA", props["value1"])
-        assertEquals("BBB", props["value2"])
-        assertEquals("CCC", props["value3"])
     }
+
+    override fun extraCases() = arrayOf(
+        // test properties
+        arrayOf("aTestValue", TestBuildConfig.TEST_CONSTANT),
+
+        // version properties
+        arrayOf("1.0.1", myDependencyVersion),
+
+        // resource properties
+        arrayOf("aConstant", BuildResources.A_CONSTANT),
+        arrayOf("file1.json", BuildResources.FILE1_JSON.path),
+        arrayOf("file2.json", BuildResources.FILE2_JSON.path),
+        arrayOf("config/local.properties", BuildResources.CONFIG_LOCAL_PROPERTIES.path),
+        arrayOf("config/prod.properties", BuildResources.CONFIG_PROD_PROPERTIES.path),
+
+        // custom XML properties
+        arrayOf("AAA", props["value1"]),
+        arrayOf("BBB", props["value2"]),
+        arrayOf("CCC", props["value3"]),
+    )
 
 }

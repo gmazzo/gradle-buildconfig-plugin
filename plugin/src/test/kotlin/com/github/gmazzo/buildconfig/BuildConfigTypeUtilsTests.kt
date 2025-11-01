@@ -1,8 +1,8 @@
 package com.github.gmazzo.buildconfig
 
 import kotlin.reflect.typeOf
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 
 class BuildConfigTypeUtilsTests {
 

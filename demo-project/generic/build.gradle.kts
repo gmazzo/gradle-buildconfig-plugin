@@ -1,10 +1,11 @@
 import com.github.gmazzo.buildconfig.BuildConfigField
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 
 buildscript {
     dependencies {
-        classpath(libs.kotlin.test)
+        classpath(platform(libs.junit5.bom))
+        classpath(libs.junit5.params)
     }
 }
 

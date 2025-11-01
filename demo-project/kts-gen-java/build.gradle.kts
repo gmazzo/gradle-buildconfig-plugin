@@ -7,7 +7,6 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(libs.versions.java.get()
 
 dependencies {
     implementation(projects.demoProject.kts)
-    testImplementation(libs.kotlin.test)
     testImplementation(testFixtures(projects.demoProject.groovy))
 }
 
