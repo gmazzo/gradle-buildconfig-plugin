@@ -309,7 +309,7 @@ tasks.generateBuildConfig {
 Will generate in `BuildResources.java`:
 
 ```java
-  public static final File CONFIG_LOCAL_PROPERTIES = new File("config/local.properties");
+public static final File CONFIG_LOCAL_PROPERTIES = new File("config/local.properties");
 
 public static final File CONFIG_PROD_PROPERTIES = new File("config/prod.properties");
 
