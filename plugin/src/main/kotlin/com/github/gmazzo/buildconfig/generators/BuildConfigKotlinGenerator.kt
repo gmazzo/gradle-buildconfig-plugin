@@ -83,7 +83,7 @@ open class BuildConfigKotlinGenerator(
                 .apply {
                     when (value) {
                         is BuildConfigValue.Literal -> {
-                            val (format, count) = nullableAwareType.format(value.value)
+                            val (format, count) = typeName.format(value.value)
                             val args = value.value.asVarArg()
 
                             check(count == args.size) {
@@ -128,6 +128,7 @@ open class BuildConfigKotlinGenerator(
             type = (type as ClassName).parameterizedBy(*typeArguments.map { it.toTypeName() }.toTypedArray())
         if (nullable) type = type.copy(nullable = true)
         if (array && !type.isPrimitiveArray) type = ARRAY.parameterizedBy(type)
+        if (array && arrayNullable) type = type.copy(nullable = true)
         return type
     }
 
@@ -152,6 +153,8 @@ open class BuildConfigKotlinGenerator(
 
 
     private fun TypeName.format(forValue: Any?): Pair<String, Int> {
+        if (forValue == null) { return "null" to 0 }
+
         fun TypeName?.format() = when (this?.copy(nullable = false)) {
             CHAR -> "'%L'"
             LONG -> "%LL"
