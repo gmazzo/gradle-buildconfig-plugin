@@ -1,0 +1,224 @@
+public abstract interface class com/github/gmazzo/buildconfig/BuildConfigClassSpec : org/gradle/api/Named {
+	public fun buildConfigField (Ljava/lang/Class;Ljava/lang/String;Lcom/github/gmazzo/buildconfig/BuildConfigValue$Expression;)Lorg/gradle/api/NamedDomainObjectProvider;
+	public fun buildConfigField (Ljava/lang/Class;Ljava/lang/String;Ljava/io/Serializable;)Lorg/gradle/api/NamedDomainObjectProvider;
+	public fun buildConfigField (Ljava/lang/Class;Ljava/lang/String;Lorg/gradle/api/provider/Provider;)Lorg/gradle/api/NamedDomainObjectProvider;
+	public fun buildConfigField (Ljava/lang/String;Ljava/lang/String;Ljava/io/Serializable;)Lorg/gradle/api/NamedDomainObjectProvider;
+	public fun buildConfigField (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lorg/gradle/api/NamedDomainObjectProvider;
+	public fun buildConfigField (Ljava/lang/String;Ljava/lang/String;Lorg/gradle/api/provider/Provider;)Lorg/gradle/api/NamedDomainObjectProvider;
+	public fun buildConfigField (Ljava/lang/String;Lorg/gradle/api/Action;)Lorg/gradle/api/NamedDomainObjectProvider;
+	public fun className (Ljava/lang/String;)Lcom/github/gmazzo/buildconfig/BuildConfigClassSpec;
+	public fun expression (Ljava/lang/String;)Lcom/github/gmazzo/buildconfig/BuildConfigValue$Expression;
+	public fun generator (Lcom/github/gmazzo/buildconfig/generators/BuildConfigGenerator;)Lcom/github/gmazzo/buildconfig/BuildConfigClassSpec;
+	public abstract fun getBuildConfigFields ()Lorg/gradle/api/NamedDomainObjectContainer;
+	public abstract fun getClassName ()Lorg/gradle/api/provider/Property;
+	public abstract fun getDocumentation ()Lorg/gradle/api/provider/Property;
+	public abstract fun getGenerator ()Lorg/gradle/api/provider/Property;
+	public abstract fun getName ()Ljava/lang/String;
+	public abstract fun getPackageName ()Lorg/gradle/api/provider/Property;
+	public fun packageName (Ljava/lang/String;)Lcom/github/gmazzo/buildconfig/BuildConfigClassSpec;
+	public fun useJavaOutput ()Lcom/github/gmazzo/buildconfig/BuildConfigClassSpec;
+	public fun useJavaOutput (Lorg/gradle/api/Action;)Lcom/github/gmazzo/buildconfig/BuildConfigClassSpec;
+	public fun useKotlinOutput ()Lcom/github/gmazzo/buildconfig/BuildConfigClassSpec;
+	public fun useKotlinOutput (Lorg/gradle/api/Action;)Lcom/github/gmazzo/buildconfig/BuildConfigClassSpec;
+	public fun withoutPackage ()Lcom/github/gmazzo/buildconfig/BuildConfigClassSpec;
+}
+
+public abstract interface annotation class com/github/gmazzo/buildconfig/BuildConfigDsl : java/lang/annotation/Annotation {
+}
+
+public abstract interface class com/github/gmazzo/buildconfig/BuildConfigExtension : com/github/gmazzo/buildconfig/BuildConfigSourceSet {
+	public abstract fun getGenerateAtSync ()Lorg/gradle/api/provider/Property;
+	public abstract fun getSourceSets ()Lorg/gradle/api/NamedDomainObjectContainer;
+	public fun sourceSets (Lorg/gradle/api/Action;)V
+}
+
+public final class com/github/gmazzo/buildconfig/BuildConfigExtension$DefaultImpls {
+	public static fun buildConfigField (Lcom/github/gmazzo/buildconfig/BuildConfigExtension;Ljava/lang/Class;Ljava/lang/String;Lcom/github/gmazzo/buildconfig/BuildConfigValue$Expression;)Lorg/gradle/api/NamedDomainObjectProvider;
+	public static fun buildConfigField (Lcom/github/gmazzo/buildconfig/BuildConfigExtension;Ljava/lang/Class;Ljava/lang/String;Ljava/io/Serializable;)Lorg/gradle/api/NamedDomainObjectProvider;
+	public static fun buildConfigField (Lcom/github/gmazzo/buildconfig/BuildConfigExtension;Ljava/lang/Class;Ljava/lang/String;Lorg/gradle/api/provider/Provider;)Lorg/gradle/api/NamedDomainObjectProvider;
+	public static fun buildConfigField (Lcom/github/gmazzo/buildconfig/BuildConfigExtension;Ljava/lang/String;Ljava/lang/String;Ljava/io/Serializable;)Lorg/gradle/api/NamedDomainObjectProvider;
+	public static fun buildConfigField (Lcom/github/gmazzo/buildconfig/BuildConfigExtension;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lorg/gradle/api/NamedDomainObjectProvider;
+	public static fun buildConfigField (Lcom/github/gmazzo/buildconfig/BuildConfigExtension;Ljava/lang/String;Ljava/lang/String;Lorg/gradle/api/provider/Provider;)Lorg/gradle/api/NamedDomainObjectProvider;
+	public static fun buildConfigField (Lcom/github/gmazzo/buildconfig/BuildConfigExtension;Ljava/lang/String;Lorg/gradle/api/Action;)Lorg/gradle/api/NamedDomainObjectProvider;
+	public static fun className (Lcom/github/gmazzo/buildconfig/BuildConfigExtension;Ljava/lang/String;)Lcom/github/gmazzo/buildconfig/BuildConfigClassSpec;
+	public static fun expression (Lcom/github/gmazzo/buildconfig/BuildConfigExtension;Ljava/lang/String;)Lcom/github/gmazzo/buildconfig/BuildConfigValue$Expression;
+	public static fun forClass (Lcom/github/gmazzo/buildconfig/BuildConfigExtension;Ljava/lang/String;)Lcom/github/gmazzo/buildconfig/BuildConfigClassSpec;
+	public static fun forClass (Lcom/github/gmazzo/buildconfig/BuildConfigExtension;Ljava/lang/String;Ljava/lang/String;Lorg/gradle/api/Action;)Lcom/github/gmazzo/buildconfig/BuildConfigClassSpec;
+	public static fun forClass (Lcom/github/gmazzo/buildconfig/BuildConfigExtension;Ljava/lang/String;Lorg/gradle/api/Action;)Lcom/github/gmazzo/buildconfig/BuildConfigClassSpec;
+	public static fun generator (Lcom/github/gmazzo/buildconfig/BuildConfigExtension;Lcom/github/gmazzo/buildconfig/generators/BuildConfigGenerator;)Lcom/github/gmazzo/buildconfig/BuildConfigClassSpec;
+	public static fun packageName (Lcom/github/gmazzo/buildconfig/BuildConfigExtension;Ljava/lang/String;)Lcom/github/gmazzo/buildconfig/BuildConfigClassSpec;
+	public static fun sourceSets (Lcom/github/gmazzo/buildconfig/BuildConfigExtension;Lorg/gradle/api/Action;)V
+	public static fun useJavaOutput (Lcom/github/gmazzo/buildconfig/BuildConfigExtension;)Lcom/github/gmazzo/buildconfig/BuildConfigClassSpec;
+	public static fun useJavaOutput (Lcom/github/gmazzo/buildconfig/BuildConfigExtension;Lorg/gradle/api/Action;)Lcom/github/gmazzo/buildconfig/BuildConfigClassSpec;
+	public static fun useKotlinOutput (Lcom/github/gmazzo/buildconfig/BuildConfigExtension;)Lcom/github/gmazzo/buildconfig/BuildConfigClassSpec;
+	public static fun useKotlinOutput (Lcom/github/gmazzo/buildconfig/BuildConfigExtension;Lorg/gradle/api/Action;)Lcom/github/gmazzo/buildconfig/BuildConfigClassSpec;
+	public static fun withoutPackage (Lcom/github/gmazzo/buildconfig/BuildConfigExtension;)Lcom/github/gmazzo/buildconfig/BuildConfigClassSpec;
+}
+
+public abstract interface class com/github/gmazzo/buildconfig/BuildConfigField : org/gradle/api/Named {
+	public fun expression (Ljava/lang/String;)Lcom/github/gmazzo/buildconfig/BuildConfigField;
+	public fun expression (Lorg/gradle/api/provider/Provider;)Lcom/github/gmazzo/buildconfig/BuildConfigField;
+	public abstract fun getName ()Ljava/lang/String;
+	public abstract fun getPosition ()Lorg/gradle/api/provider/Property;
+	public abstract fun getType ()Lorg/gradle/api/provider/Property;
+	public abstract fun getValue ()Lorg/gradle/api/provider/Property;
+	public fun type (Ljava/lang/String;)Lcom/github/gmazzo/buildconfig/BuildConfigField;
+	public fun type (Ljava/lang/String;[Lcom/github/gmazzo/buildconfig/BuildConfigType;)Lcom/github/gmazzo/buildconfig/BuildConfigField;
+	public fun type (Ljava/lang/String;[Ljava/lang/String;)Lcom/github/gmazzo/buildconfig/BuildConfigField;
+	public fun type (Ljava/lang/reflect/Type;)Lcom/github/gmazzo/buildconfig/BuildConfigField;
+	public fun type (Lkotlin/reflect/KClass;)Lcom/github/gmazzo/buildconfig/BuildConfigField;
+	public fun type (Lkotlin/reflect/KType;)Lcom/github/gmazzo/buildconfig/BuildConfigField;
+	public fun value (Ljava/io/Serializable;)Lcom/github/gmazzo/buildconfig/BuildConfigField;
+	public fun value (Lorg/gradle/api/provider/Provider;)Lcom/github/gmazzo/buildconfig/BuildConfigField;
+}
+
+public final class com/github/gmazzo/buildconfig/BuildConfigField$DefaultImpls {
+	public static fun expression (Lcom/github/gmazzo/buildconfig/BuildConfigField;Ljava/lang/String;)Lcom/github/gmazzo/buildconfig/BuildConfigField;
+	public static fun expression (Lcom/github/gmazzo/buildconfig/BuildConfigField;Lorg/gradle/api/provider/Provider;)Lcom/github/gmazzo/buildconfig/BuildConfigField;
+	public static fun type (Lcom/github/gmazzo/buildconfig/BuildConfigField;Ljava/lang/String;)Lcom/github/gmazzo/buildconfig/BuildConfigField;
+	public static fun type (Lcom/github/gmazzo/buildconfig/BuildConfigField;Ljava/lang/String;[Lcom/github/gmazzo/buildconfig/BuildConfigType;)Lcom/github/gmazzo/buildconfig/BuildConfigField;
+	public static fun type (Lcom/github/gmazzo/buildconfig/BuildConfigField;Ljava/lang/String;[Ljava/lang/String;)Lcom/github/gmazzo/buildconfig/BuildConfigField;
+	public static fun type (Lcom/github/gmazzo/buildconfig/BuildConfigField;Ljava/lang/reflect/Type;)Lcom/github/gmazzo/buildconfig/BuildConfigField;
+	public static fun type (Lcom/github/gmazzo/buildconfig/BuildConfigField;Lkotlin/reflect/KClass;)Lcom/github/gmazzo/buildconfig/BuildConfigField;
+	public static fun type (Lcom/github/gmazzo/buildconfig/BuildConfigField;Lkotlin/reflect/KType;)Lcom/github/gmazzo/buildconfig/BuildConfigField;
+	public static fun value (Lcom/github/gmazzo/buildconfig/BuildConfigField;Ljava/io/Serializable;)Lcom/github/gmazzo/buildconfig/BuildConfigField;
+	public static fun value (Lcom/github/gmazzo/buildconfig/BuildConfigField;Lorg/gradle/api/provider/Provider;)Lcom/github/gmazzo/buildconfig/BuildConfigField;
+}
+
+public final class com/github/gmazzo/buildconfig/BuildConfigPlugin : org/gradle/api/Plugin {
+	public static final field Companion Lcom/github/gmazzo/buildconfig/BuildConfigPlugin$Companion;
+	public static final field MIN_GRADLE_VERSION Ljava/lang/String;
+	public fun <init> ()V
+	public synthetic fun apply (Ljava/lang/Object;)V
+	public fun apply (Lorg/gradle/api/Project;)V
+}
+
+public final class com/github/gmazzo/buildconfig/BuildConfigPlugin$Companion {
+}
+
+public abstract interface class com/github/gmazzo/buildconfig/BuildConfigSourceSet : com/github/gmazzo/buildconfig/BuildConfigClassSpec {
+	public fun forClass (Ljava/lang/String;)Lcom/github/gmazzo/buildconfig/BuildConfigClassSpec;
+	public abstract fun forClass (Ljava/lang/String;Ljava/lang/String;)Lcom/github/gmazzo/buildconfig/BuildConfigClassSpec;
+	public fun forClass (Ljava/lang/String;Ljava/lang/String;Lorg/gradle/api/Action;)Lcom/github/gmazzo/buildconfig/BuildConfigClassSpec;
+	public fun forClass (Ljava/lang/String;Lorg/gradle/api/Action;)Lcom/github/gmazzo/buildconfig/BuildConfigClassSpec;
+	public abstract fun getGenerateTask ()Lorg/gradle/api/tasks/TaskProvider;
+}
+
+public abstract class com/github/gmazzo/buildconfig/BuildConfigTask : org/gradle/api/DefaultTask {
+	public fun <init> ()V
+	public final fun generateBuildConfigFile ()V
+	public abstract fun getOutputDir ()Lorg/gradle/api/file/DirectoryProperty;
+	public abstract fun getSpecs ()Lorg/gradle/api/provider/SetProperty;
+}
+
+public final class com/github/gmazzo/buildconfig/BuildConfigType : java/io/Serializable {
+	public fun <init> (Ljava/lang/String;)V
+	public fun <init> (Ljava/lang/String;Ljava/util/List;)V
+	public fun <init> (Ljava/lang/String;Ljava/util/List;Z)V
+	public fun <init> (Ljava/lang/String;Ljava/util/List;ZZ)V
+	public fun <init> (Ljava/lang/String;Ljava/util/List;ZZZ)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/util/List;ZZZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/util/List;
+	public final fun component3 ()Z
+	public final fun component4 ()Z
+	public final fun component5 ()Z
+	public final fun copy (Ljava/lang/String;Ljava/util/List;ZZZ)Lcom/github/gmazzo/buildconfig/BuildConfigType;
+	public static synthetic fun copy$default (Lcom/github/gmazzo/buildconfig/BuildConfigType;Ljava/lang/String;Ljava/util/List;ZZZILjava/lang/Object;)Lcom/github/gmazzo/buildconfig/BuildConfigType;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getArray ()Z
+	public final fun getArrayNullable ()Z
+	public final fun getClassName ()Ljava/lang/String;
+	public final fun getNullable ()Z
+	public final fun getTypeArguments ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract class com/github/gmazzo/buildconfig/BuildConfigValue : java/io/Serializable {
+	public abstract fun getValue ()Ljava/io/Serializable;
+}
+
+public final class com/github/gmazzo/buildconfig/BuildConfigValue$Expression : com/github/gmazzo/buildconfig/BuildConfigValue {
+	public fun <init> (Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;)Lcom/github/gmazzo/buildconfig/BuildConfigValue$Expression;
+	public static synthetic fun copy$default (Lcom/github/gmazzo/buildconfig/BuildConfigValue$Expression;Ljava/lang/String;ILjava/lang/Object;)Lcom/github/gmazzo/buildconfig/BuildConfigValue$Expression;
+	public fun equals (Ljava/lang/Object;)Z
+	public synthetic fun getValue ()Ljava/io/Serializable;
+	public fun getValue ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/github/gmazzo/buildconfig/BuildConfigValue$Literal : com/github/gmazzo/buildconfig/BuildConfigValue {
+	public fun <init> (Ljava/io/Serializable;)V
+	public final fun component1 ()Ljava/io/Serializable;
+	public final fun copy (Ljava/io/Serializable;)Lcom/github/gmazzo/buildconfig/BuildConfigValue$Literal;
+	public static synthetic fun copy$default (Lcom/github/gmazzo/buildconfig/BuildConfigValue$Literal;Ljava/io/Serializable;ILjava/lang/Object;)Lcom/github/gmazzo/buildconfig/BuildConfigValue$Literal;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getValue ()Ljava/io/Serializable;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class com/github/gmazzo/buildconfig/generators/BuildConfigGenerator : org/gradle/api/Action {
+	public fun getType ()Ljava/lang/Class;
+}
+
+public final class com/github/gmazzo/buildconfig/generators/BuildConfigGeneratorSpec {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/Collection;Ljava/io/File;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun component4 ()Ljava/util/Collection;
+	public final fun component5 ()Ljava/io/File;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/Collection;Ljava/io/File;)Lcom/github/gmazzo/buildconfig/generators/BuildConfigGeneratorSpec;
+	public static synthetic fun copy$default (Lcom/github/gmazzo/buildconfig/generators/BuildConfigGeneratorSpec;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/Collection;Ljava/io/File;ILjava/lang/Object;)Lcom/github/gmazzo/buildconfig/generators/BuildConfigGeneratorSpec;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getClassName ()Ljava/lang/String;
+	public final fun getDocumentation ()Ljava/lang/String;
+	public final fun getFields ()Ljava/util/Collection;
+	public final fun getOutputDir ()Ljava/io/File;
+	public final fun getPackageName ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public class com/github/gmazzo/buildconfig/generators/BuildConfigJavaGenerator : com/github/gmazzo/buildconfig/generators/BuildConfigGenerator {
+	public fun <init> ()V
+	public fun <init> (Z)V
+	public synthetic fun <init> (ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	protected fun adaptSpec (Lcom/squareup/javapoet/JavaFile;)Lcom/squareup/javapoet/JavaFile;
+	protected fun adaptSpec (Lcom/squareup/javapoet/TypeSpec;)Lcom/squareup/javapoet/TypeSpec;
+	public fun execute (Lcom/github/gmazzo/buildconfig/generators/BuildConfigGeneratorSpec;)V
+	public synthetic fun execute (Ljava/lang/Object;)V
+	public final fun getDefaultVisibility ()Z
+	public fun getType ()Ljava/lang/Class;
+	public final fun setDefaultVisibility (Z)V
+}
+
+public class com/github/gmazzo/buildconfig/generators/BuildConfigKotlinGenerator : com/github/gmazzo/buildconfig/generators/BuildConfigGenerator {
+	public static final field Companion Lcom/github/gmazzo/buildconfig/generators/BuildConfigKotlinGenerator$Companion;
+	public fun <init> ()V
+	public fun <init> (ZZ)V
+	public synthetic fun <init> (ZZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	protected fun adaptSpec (Lcom/squareup/kotlinpoet/FileSpec;)Lcom/squareup/kotlinpoet/FileSpec;
+	protected fun adaptSpec (Lcom/squareup/kotlinpoet/TypeSpec;)Lcom/squareup/kotlinpoet/TypeSpec;
+	public fun execute (Lcom/github/gmazzo/buildconfig/generators/BuildConfigGeneratorSpec;)V
+	public synthetic fun execute (Ljava/lang/Object;)V
+	public final fun getInternalVisibility ()Z
+	public final fun getTopLevelConstants ()Z
+	public fun getType ()Ljava/lang/Class;
+	public final fun setInternalVisibility (Z)V
+	public final fun setTopLevelConstants (Z)V
+}
+
+public final class com/github/gmazzo/buildconfig/generators/BuildConfigKotlinGenerator$Companion {
+}
+
+public final class org/gradle/kotlin/dsl/BuildConfigClassSpecDSLKt {
+	public static final fun getBuildConfig (Lorg/jetbrains/kotlin/gradle/plugin/KotlinSourceSet;)Lcom/github/gmazzo/buildconfig/BuildConfigSourceSet;
+	public static final fun invoke (Lcom/github/gmazzo/buildconfig/BuildConfigSourceSet;Lorg/gradle/api/Action;)V
+}
+

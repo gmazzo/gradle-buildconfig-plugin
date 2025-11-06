@@ -1,5 +1,8 @@
 @file:Suppress("UnstableApiUsage")
 
+import org.jetbrains.kotlin.gradle.dsl.abi.ExperimentalAbiValidation
+
+
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.dokka)
@@ -15,7 +18,14 @@ description =
     "A plugin for generating BuildConstants for any kind of Gradle projects: Java, Kotlin, Groovy, etc. Designed for KTS scripts."
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(libs.versions.java.get())
-kotlin.compilerOptions.freeCompilerArgs.add("-Xjvm-default=all-compatibility")
+
+kotlin {
+    @OptIn(ExperimentalAbiValidation::class)
+    abiValidation {
+        enabled = true
+    }
+    compilerOptions.freeCompilerArgs.add("-Xjvm-default=all-compatibility")
+}
 
 dependencies {
     fun DependencyHandler.plugin(dependency: Provider<PluginDependency>) =
@@ -116,4 +126,11 @@ tasks.publishPlugins {
 
 tasks.publish {
     dependsOn(tasks.publishPlugins)
+}
+
+tasks.check {
+    dependsOn(
+        // TODO: https://youtrack.jetbrains.com/issue/KT-78525
+        tasks.checkLegacyAbi,
+    )
 }
