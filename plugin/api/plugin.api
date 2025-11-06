@@ -32,29 +32,6 @@ public abstract interface class com/github/gmazzo/buildconfig/BuildConfigExtensi
 	public fun sourceSets (Lorg/gradle/api/Action;)V
 }
 
-public final class com/github/gmazzo/buildconfig/BuildConfigExtension$DefaultImpls {
-	public static fun buildConfigField (Lcom/github/gmazzo/buildconfig/BuildConfigExtension;Ljava/lang/Class;Ljava/lang/String;Lcom/github/gmazzo/buildconfig/BuildConfigValue$Expression;)Lorg/gradle/api/NamedDomainObjectProvider;
-	public static fun buildConfigField (Lcom/github/gmazzo/buildconfig/BuildConfigExtension;Ljava/lang/Class;Ljava/lang/String;Ljava/io/Serializable;)Lorg/gradle/api/NamedDomainObjectProvider;
-	public static fun buildConfigField (Lcom/github/gmazzo/buildconfig/BuildConfigExtension;Ljava/lang/Class;Ljava/lang/String;Lorg/gradle/api/provider/Provider;)Lorg/gradle/api/NamedDomainObjectProvider;
-	public static fun buildConfigField (Lcom/github/gmazzo/buildconfig/BuildConfigExtension;Ljava/lang/String;Ljava/lang/String;Ljava/io/Serializable;)Lorg/gradle/api/NamedDomainObjectProvider;
-	public static fun buildConfigField (Lcom/github/gmazzo/buildconfig/BuildConfigExtension;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lorg/gradle/api/NamedDomainObjectProvider;
-	public static fun buildConfigField (Lcom/github/gmazzo/buildconfig/BuildConfigExtension;Ljava/lang/String;Ljava/lang/String;Lorg/gradle/api/provider/Provider;)Lorg/gradle/api/NamedDomainObjectProvider;
-	public static fun buildConfigField (Lcom/github/gmazzo/buildconfig/BuildConfigExtension;Ljava/lang/String;Lorg/gradle/api/Action;)Lorg/gradle/api/NamedDomainObjectProvider;
-	public static fun className (Lcom/github/gmazzo/buildconfig/BuildConfigExtension;Ljava/lang/String;)Lcom/github/gmazzo/buildconfig/BuildConfigClassSpec;
-	public static fun expression (Lcom/github/gmazzo/buildconfig/BuildConfigExtension;Ljava/lang/String;)Lcom/github/gmazzo/buildconfig/BuildConfigValue$Expression;
-	public static fun forClass (Lcom/github/gmazzo/buildconfig/BuildConfigExtension;Ljava/lang/String;)Lcom/github/gmazzo/buildconfig/BuildConfigClassSpec;
-	public static fun forClass (Lcom/github/gmazzo/buildconfig/BuildConfigExtension;Ljava/lang/String;Ljava/lang/String;Lorg/gradle/api/Action;)Lcom/github/gmazzo/buildconfig/BuildConfigClassSpec;
-	public static fun forClass (Lcom/github/gmazzo/buildconfig/BuildConfigExtension;Ljava/lang/String;Lorg/gradle/api/Action;)Lcom/github/gmazzo/buildconfig/BuildConfigClassSpec;
-	public static fun generator (Lcom/github/gmazzo/buildconfig/BuildConfigExtension;Lcom/github/gmazzo/buildconfig/generators/BuildConfigGenerator;)Lcom/github/gmazzo/buildconfig/BuildConfigClassSpec;
-	public static fun packageName (Lcom/github/gmazzo/buildconfig/BuildConfigExtension;Ljava/lang/String;)Lcom/github/gmazzo/buildconfig/BuildConfigClassSpec;
-	public static fun sourceSets (Lcom/github/gmazzo/buildconfig/BuildConfigExtension;Lorg/gradle/api/Action;)V
-	public static fun useJavaOutput (Lcom/github/gmazzo/buildconfig/BuildConfigExtension;)Lcom/github/gmazzo/buildconfig/BuildConfigClassSpec;
-	public static fun useJavaOutput (Lcom/github/gmazzo/buildconfig/BuildConfigExtension;Lorg/gradle/api/Action;)Lcom/github/gmazzo/buildconfig/BuildConfigClassSpec;
-	public static fun useKotlinOutput (Lcom/github/gmazzo/buildconfig/BuildConfigExtension;)Lcom/github/gmazzo/buildconfig/BuildConfigClassSpec;
-	public static fun useKotlinOutput (Lcom/github/gmazzo/buildconfig/BuildConfigExtension;Lorg/gradle/api/Action;)Lcom/github/gmazzo/buildconfig/BuildConfigClassSpec;
-	public static fun withoutPackage (Lcom/github/gmazzo/buildconfig/BuildConfigExtension;)Lcom/github/gmazzo/buildconfig/BuildConfigClassSpec;
-}
-
 public abstract interface class com/github/gmazzo/buildconfig/BuildConfigField : org/gradle/api/Named {
 	public fun expression (Ljava/lang/String;)Lcom/github/gmazzo/buildconfig/BuildConfigField;
 	public fun expression (Lorg/gradle/api/provider/Provider;)Lcom/github/gmazzo/buildconfig/BuildConfigField;
@@ -70,19 +47,6 @@ public abstract interface class com/github/gmazzo/buildconfig/BuildConfigField :
 	public fun type (Lkotlin/reflect/KType;)Lcom/github/gmazzo/buildconfig/BuildConfigField;
 	public fun value (Ljava/io/Serializable;)Lcom/github/gmazzo/buildconfig/BuildConfigField;
 	public fun value (Lorg/gradle/api/provider/Provider;)Lcom/github/gmazzo/buildconfig/BuildConfigField;
-}
-
-public final class com/github/gmazzo/buildconfig/BuildConfigField$DefaultImpls {
-	public static fun expression (Lcom/github/gmazzo/buildconfig/BuildConfigField;Ljava/lang/String;)Lcom/github/gmazzo/buildconfig/BuildConfigField;
-	public static fun expression (Lcom/github/gmazzo/buildconfig/BuildConfigField;Lorg/gradle/api/provider/Provider;)Lcom/github/gmazzo/buildconfig/BuildConfigField;
-	public static fun type (Lcom/github/gmazzo/buildconfig/BuildConfigField;Ljava/lang/String;)Lcom/github/gmazzo/buildconfig/BuildConfigField;
-	public static fun type (Lcom/github/gmazzo/buildconfig/BuildConfigField;Ljava/lang/String;[Lcom/github/gmazzo/buildconfig/BuildConfigType;)Lcom/github/gmazzo/buildconfig/BuildConfigField;
-	public static fun type (Lcom/github/gmazzo/buildconfig/BuildConfigField;Ljava/lang/String;[Ljava/lang/String;)Lcom/github/gmazzo/buildconfig/BuildConfigField;
-	public static fun type (Lcom/github/gmazzo/buildconfig/BuildConfigField;Ljava/lang/reflect/Type;)Lcom/github/gmazzo/buildconfig/BuildConfigField;
-	public static fun type (Lcom/github/gmazzo/buildconfig/BuildConfigField;Lkotlin/reflect/KClass;)Lcom/github/gmazzo/buildconfig/BuildConfigField;
-	public static fun type (Lcom/github/gmazzo/buildconfig/BuildConfigField;Lkotlin/reflect/KType;)Lcom/github/gmazzo/buildconfig/BuildConfigField;
-	public static fun value (Lcom/github/gmazzo/buildconfig/BuildConfigField;Ljava/io/Serializable;)Lcom/github/gmazzo/buildconfig/BuildConfigField;
-	public static fun value (Lcom/github/gmazzo/buildconfig/BuildConfigField;Lorg/gradle/api/provider/Provider;)Lcom/github/gmazzo/buildconfig/BuildConfigField;
 }
 
 public final class com/github/gmazzo/buildconfig/BuildConfigPlugin : org/gradle/api/Plugin {
@@ -194,7 +158,6 @@ public class com/github/gmazzo/buildconfig/generators/BuildConfigJavaGenerator :
 	public fun execute (Lcom/github/gmazzo/buildconfig/generators/BuildConfigGeneratorSpec;)V
 	public synthetic fun execute (Ljava/lang/Object;)V
 	public final fun getDefaultVisibility ()Z
-	public fun getType ()Ljava/lang/Class;
 	public final fun setDefaultVisibility (Z)V
 }
 
@@ -209,7 +172,6 @@ public class com/github/gmazzo/buildconfig/generators/BuildConfigKotlinGenerator
 	public synthetic fun execute (Ljava/lang/Object;)V
 	public final fun getInternalVisibility ()Z
 	public final fun getTopLevelConstants ()Z
-	public fun getType ()Ljava/lang/Class;
 	public final fun setInternalVisibility (Z)V
 	public final fun setTopLevelConstants (Z)V
 }

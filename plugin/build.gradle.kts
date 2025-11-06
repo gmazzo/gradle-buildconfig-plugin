@@ -1,6 +1,7 @@
 @file:OptIn(ExperimentalAbiValidation::class)
 @file:Suppress("UnstableApiUsage")
 
+import org.jetbrains.kotlin.gradle.dsl.JvmDefaultMode
 import org.jetbrains.kotlin.gradle.dsl.abi.ExperimentalAbiValidation
 
 plugins {
@@ -21,7 +22,7 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(libs.versions.java.get()
 
 kotlin {
     abiValidation.enabled = true
-    compilerOptions.freeCompilerArgs.add("-Xjvm-default=all-compatibility")
+    compilerOptions.jvmDefault = JvmDefaultMode.NO_COMPATIBILITY
 }
 
 dependencies {
