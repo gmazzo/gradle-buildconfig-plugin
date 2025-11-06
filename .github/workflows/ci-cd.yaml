@@ -54,7 +54,7 @@ jobs:
         if: ${{ !cancelled() }}
         uses: gmazzo/publish-report-annotations@v1
         with:
-          checkName: Test Results (${{ matrix.project }})
+          checkName: ${{ github.event.repository.fork && '' || format('Test Results ({0})', matrix.project) }} }
 
   publish:
     name: Publish
