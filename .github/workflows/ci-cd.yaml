@@ -10,7 +10,7 @@ on:
   release:
     types: [ published ]
 
-permissions: 
+permissions:
   checks: write
   pull-requests: write
 
