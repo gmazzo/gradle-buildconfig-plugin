@@ -129,7 +129,6 @@ tasks.publish {
 
 tasks.check {
     dependsOn(
-        // TODO: https://youtrack.jetbrains.com/issue/KT-78525
         tasks.checkLegacyAbi,
     )
 }
