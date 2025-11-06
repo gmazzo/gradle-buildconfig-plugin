@@ -117,3 +117,8 @@ tasks.publishPlugins {
 tasks.publish {
     dependsOn(tasks.publishPlugins)
 }
+
+tasks.validatePlugins {
+    // TODO: https://github.com/gradle/gradle/issues/22600
+    enableStricterValidation = true
+}
