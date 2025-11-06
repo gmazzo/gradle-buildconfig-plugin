@@ -20,7 +20,6 @@ description =
 java.toolchain.languageVersion = JavaLanguageVersion.of(libs.versions.java.get())
 
 kotlin {
-    @OptIn(ExperimentalAbiValidation::class)
     abiValidation {
         enabled = true
     }
