@@ -20,9 +20,7 @@ description =
 java.toolchain.languageVersion = JavaLanguageVersion.of(libs.versions.java.get())
 
 kotlin {
-    abiValidation {
-        enabled = true
-    }
+    abiValidation.enabled = true
     compilerOptions.freeCompilerArgs.add("-Xjvm-default=all-compatibility")
 }
 
