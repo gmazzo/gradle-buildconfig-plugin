@@ -10,7 +10,9 @@ on:
   release:
     types: [ published ]
 
-permissions: write-all
+permissions: 
+  checks: write
+  pull-requests: write
 
 jobs:
   compute-projects:
