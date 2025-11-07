@@ -16,7 +16,6 @@ import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
 
 @BuildConfigDsl
-@JvmDefaultWithoutCompatibility
 interface BuildConfigClassSpec : Named {
 
     @Input

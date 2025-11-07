@@ -3,7 +3,6 @@ package com.github.gmazzo.buildconfig
 import org.gradle.api.Action
 import org.gradle.api.tasks.TaskProvider
 
-@JvmDefaultWithoutCompatibility
 interface BuildConfigSourceSet : BuildConfigClassSpec {
 
     val generateTask: TaskProvider<BuildConfigTask>
