@@ -126,6 +126,10 @@ tasks.publish {
     dependsOn(tasks.publishPlugins)
 }
 
+tasks.validatePlugins {
+    enableStricterValidation = true
+}
+
 tasks.check {
     dependsOn(
         tasks.checkLegacyAbi,
