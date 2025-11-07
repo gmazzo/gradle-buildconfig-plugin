@@ -131,7 +131,5 @@ tasks.validatePlugins {
 }
 
 tasks.check {
-    dependsOn(
-        tasks.checkLegacyAbi,
-    )
+    dependsOn(tasks.checkLegacyAbi)
 }
