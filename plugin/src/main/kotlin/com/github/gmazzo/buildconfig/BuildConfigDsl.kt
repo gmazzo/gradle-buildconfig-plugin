@@ -1,4 +1,4 @@
 package com.github.gmazzo.buildconfig
 
 @DslMarker
-annotation class BuildConfigDsl
+public annotation class BuildConfigDsl

@@ -16,89 +16,89 @@ import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
 
 @BuildConfigDsl
-interface BuildConfigClassSpec : Named {
+public interface BuildConfigClassSpec : Named {
 
     @Input
     override fun getName(): String
 
     @get:Nested
-    val generator: Property<BuildConfigGenerator>
+    public val generator: Property<BuildConfigGenerator>
 
-    fun generator(generator: BuildConfigGenerator) = apply {
+    public fun generator(generator: BuildConfigGenerator): BuildConfigClassSpec = apply {
         this.generator.set(generator)
     }
 
-    fun useJavaOutput() =
+    public fun useJavaOutput(): BuildConfigClassSpec =
         useJavaOutput {}
 
-    fun useJavaOutput(configure: Action<BuildConfigJavaGenerator>) =
+    public fun useJavaOutput(configure: Action<BuildConfigJavaGenerator>): BuildConfigClassSpec =
         generator(BuildConfigJavaGenerator().apply(configure::execute))
 
-    fun useKotlinOutput() =
+    public fun useKotlinOutput(): BuildConfigClassSpec =
         useKotlinOutput {}
 
-    fun useKotlinOutput(configure: Action<BuildConfigKotlinGenerator>) =
+    public fun useKotlinOutput(configure: Action<BuildConfigKotlinGenerator>): BuildConfigClassSpec =
         generator(BuildConfigKotlinGenerator().apply(configure::execute))
 
     @get:Input
-    val className: Property<String>
+    public val className: Property<String>
 
     @get:Input
     @get:Optional
-    val packageName: Property<String>
+    public val packageName: Property<String>
 
     @get:Nested
-    val buildConfigFields: NamedDomainObjectContainer<BuildConfigField>
+    public val buildConfigFields: NamedDomainObjectContainer<BuildConfigField>
 
     @get:Input
     @get:Optional
-    val documentation: Property<String>
+    public val documentation: Property<String>
 
-    fun className(className: String) = apply {
+    public fun className(className: String): BuildConfigClassSpec = apply {
         this.className.set(className)
     }
 
-    fun packageName(packageName: String) = apply {
+    public fun packageName(packageName: String): BuildConfigClassSpec = apply {
         this.packageName.set(packageName)
     }
 
     @Suppress("unused")
-    fun withoutPackage() = apply {
+    public fun withoutPackage(): BuildConfigClassSpec = apply {
         packageName("")
     }
 
-    fun buildConfigField(
+    public fun buildConfigField(
         type: String,
         name: String,
         expression: String,
-    ) = buildConfigField(name) {
+    ): NamedDomainObjectProvider<BuildConfigField> = buildConfigField(name) {
         it.type(type)
         it.expression(expression)
     }
 
-    fun buildConfigField(
+    public fun buildConfigField(
         type: String,
         name: String,
         value: Serializable?,
-    ) = buildConfigField(name) {
+    ): NamedDomainObjectProvider<BuildConfigField> = buildConfigField(name) {
         it.type(type)
         it.value(value)
     }
 
-    fun <Type : Serializable> buildConfigField(
+    public fun <Type : Serializable> buildConfigField(
         type: Class<out Type>,
         name: String,
         value: Type?,
-    ) = buildConfigField(name) {
+    ): NamedDomainObjectProvider<BuildConfigField> = buildConfigField(name) {
         it.type(type)
         it.value(castToType(value, type) as Serializable?)
     }
 
-    fun buildConfigField(
+    public fun buildConfigField(
         type: Class<*>,
         name: String,
         expression: BuildConfigValue.Expression
-    ) = buildConfigField(name) {
+    ): NamedDomainObjectProvider<BuildConfigField> = buildConfigField(name) {
         it.type(type)
         it.value.value(expression)
     }
@@ -111,11 +111,11 @@ interface BuildConfigClassSpec : Named {
      So we assume that if the value is a String, it's an expression, otherwise it's a literal.
      Literal strings values has a dedicated `buildConfigField(String, 'NAME', provider { 'aValue' })` method
      */
-    fun buildConfigField(
+    public fun buildConfigField(
         type: String,
         name: String,
         value: Provider<out Serializable>
-    ) = buildConfigField(name) {
+    ): NamedDomainObjectProvider<BuildConfigField> = buildConfigField(name) {
         it.type(type)
         it.value
             .value(value.map { v ->
@@ -128,11 +128,11 @@ interface BuildConfigClassSpec : Named {
             .disallowChanges()
     }
 
-    fun <Type : Serializable> buildConfigField(
+    public fun <Type : Serializable> buildConfigField(
         type: Class<out Type>,
         name: String,
         value: Provider<out Type>,
-    ) = buildConfigField(name) {
+    ): NamedDomainObjectProvider<BuildConfigField> = buildConfigField(name) {
         it.type(type)
         it.value.value(value.map { v ->
             when (v) {
@@ -147,7 +147,7 @@ interface BuildConfigClassSpec : Named {
         })
     }
 
-    fun buildConfigField(
+    public fun buildConfigField(
         name: String,
         configure: Action<BuildConfigField>
     ): NamedDomainObjectProvider<BuildConfigField> = buildConfigFields.size.let { position ->
@@ -157,7 +157,7 @@ interface BuildConfigClassSpec : Named {
         }
     }
 
-    fun expression(expression: String) =
+    public fun expression(expression: String): BuildConfigValue.Expression =
         BuildConfigValue.Expression(expression)
 
 }

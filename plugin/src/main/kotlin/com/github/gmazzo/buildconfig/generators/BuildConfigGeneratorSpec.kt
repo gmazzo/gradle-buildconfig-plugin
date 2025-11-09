@@ -3,10 +3,10 @@ package com.github.gmazzo.buildconfig.generators
 import com.github.gmazzo.buildconfig.BuildConfigField
 import java.io.File
 
-data class BuildConfigGeneratorSpec(
-    val className: String,
-    val packageName: String,
-    val documentation: String?,
-    val fields: Collection<BuildConfigField>,
-    val outputDir: File,
+public data class BuildConfigGeneratorSpec(
+    public val className: String,
+    public val packageName: String,
+    public val documentation: String?,
+    public val fields: Collection<BuildConfigField>,
+    public val outputDir: File,
 )

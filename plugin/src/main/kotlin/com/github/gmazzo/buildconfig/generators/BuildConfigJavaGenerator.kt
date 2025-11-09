@@ -2,8 +2,8 @@ package com.github.gmazzo.buildconfig.generators
 
 import com.github.gmazzo.buildconfig.BuildConfigType
 import com.github.gmazzo.buildconfig.BuildConfigValue
-import com.github.gmazzo.buildconfig.asVarArg
-import com.github.gmazzo.buildconfig.elements
+import com.github.gmazzo.buildconfig.internal.asVarArg
+import com.github.gmazzo.buildconfig.internal.elements
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.FieldSpec
@@ -19,19 +19,19 @@ import javax.lang.model.element.Modifier
 import org.gradle.api.logging.Logging
 import org.gradle.api.tasks.Input
 
-open class BuildConfigJavaGenerator(
-    @get:Input var defaultVisibility: Boolean = false
+public open class BuildConfigJavaGenerator(
+    @get:Input public var defaultVisibility: Boolean = false
 ) : BuildConfigGenerator {
 
     /**
      * Extension point allowing to modify the final Java class output
      */
-    protected open fun adaptSpec(spec: TypeSpec) = spec
+    protected open fun adaptSpec(spec: TypeSpec): TypeSpec = spec
 
     /**
      * Extension point allowing to modify the final Java file output
      */
-    protected open fun adaptSpec(spec: JavaFile) = spec
+    protected open fun adaptSpec(spec: JavaFile): JavaFile = spec
 
     private val logger = Logging.getLogger(javaClass)
 

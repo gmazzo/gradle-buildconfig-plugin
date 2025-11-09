@@ -4,13 +4,13 @@ import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.provider.Property
 
-interface BuildConfigExtension : BuildConfigSourceSet {
+public interface BuildConfigExtension : BuildConfigSourceSet {
 
-    val generateAtSync: Property<Boolean>
+    public val generateAtSync: Property<Boolean>
 
-    val sourceSets: NamedDomainObjectContainer<out BuildConfigSourceSet>
+    public val sourceSets: NamedDomainObjectContainer<out BuildConfigSourceSet>
 
-    fun sourceSets(configure: Action<NamedDomainObjectContainer<out BuildConfigSourceSet>>) =
+    public fun sourceSets(configure: Action<NamedDomainObjectContainer<out BuildConfigSourceSet>>): Unit =
         configure.execute(sourceSets)
 
 }

@@ -7,6 +7,7 @@ import com.github.gmazzo.buildconfig.internal.DefaultBuildConfigExtension
 import com.github.gmazzo.buildconfig.internal.DefaultBuildConfigSourceSet
 import com.github.gmazzo.buildconfig.internal.bindings.JavaBinder
 import com.github.gmazzo.buildconfig.internal.bindings.KotlinBinder
+import com.github.gmazzo.buildconfig.internal.javaIdentifier
 import org.gradle.api.Action
 import org.gradle.api.DomainObjectCollection
 import org.gradle.api.Plugin
@@ -19,13 +20,13 @@ import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.withType
 import org.gradle.util.GradleVersion
 
-class BuildConfigPlugin : Plugin<Project> {
+public class BuildConfigPlugin : Plugin<Project> {
 
-    companion object {
-        const val MIN_GRADLE_VERSION = "7.3"
+    public companion object {
+        public const val MIN_GRADLE_VERSION: String = "7.3"
     }
 
-    override fun apply(project: Project) = with(project) {
+    override fun apply(project: Project): Unit = with(project) {
         check(GradleVersion.current() >= GradleVersion.version(MIN_GRADLE_VERSION)) {
             "Gradle version must be at least $MIN_GRADLE_VERSION"
         }

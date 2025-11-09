@@ -2,12 +2,12 @@ package com.github.gmazzo.buildconfig
 
 import java.io.Serializable
 
-data class BuildConfigType @JvmOverloads constructor(
-    val className: String,
-    val typeArguments: List<BuildConfigType> = emptyList(),
-    val nullable: Boolean = false,
-    val array: Boolean = false,
-    val arrayNullable: Boolean = false,
+public data class BuildConfigType @JvmOverloads constructor(
+    public val className: String,
+    public val typeArguments: List<BuildConfigType> = emptyList(),
+    public val nullable: Boolean = false,
+    public val array: Boolean = false,
+    public val arrayNullable: Boolean = false,
 ) : Serializable {
 
     private val text by lazy {

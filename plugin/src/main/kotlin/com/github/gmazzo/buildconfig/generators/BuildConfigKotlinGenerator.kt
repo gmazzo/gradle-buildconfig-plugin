@@ -3,8 +3,8 @@ package com.github.gmazzo.buildconfig.generators
 import com.github.gmazzo.buildconfig.BuildConfigField
 import com.github.gmazzo.buildconfig.BuildConfigType
 import com.github.gmazzo.buildconfig.BuildConfigValue
-import com.github.gmazzo.buildconfig.asVarArg
-import com.github.gmazzo.buildconfig.elements
+import com.github.gmazzo.buildconfig.internal.asVarArg
+import com.github.gmazzo.buildconfig.internal.elements
 import com.squareup.kotlinpoet.ARRAY
 import com.squareup.kotlinpoet.BOOLEAN
 import com.squareup.kotlinpoet.BOOLEAN_ARRAY
@@ -42,9 +42,9 @@ import java.net.URI as JavaURI
 import org.gradle.api.logging.Logging
 import org.gradle.api.tasks.Input
 
-open class BuildConfigKotlinGenerator(
-    @get:Input var topLevelConstants: Boolean = false,
-    @get:Input var internalVisibility: Boolean = true
+public open class BuildConfigKotlinGenerator(
+    @get:Input public var topLevelConstants: Boolean = false,
+    @get:Input public var internalVisibility: Boolean = true
 ) : BuildConfigGenerator {
 
     private val logger = Logging.getLogger(javaClass)
@@ -52,12 +52,12 @@ open class BuildConfigKotlinGenerator(
     /**
      * Extension point allowing to modify the final Kotlin class output
      */
-    protected open fun adaptSpec(spec: TypeSpec) = spec
+    protected open fun adaptSpec(spec: TypeSpec): TypeSpec = spec
 
     /**
      * Extension point allowing to modify the final Kotlin file output
      */
-    protected open fun adaptSpec(spec: FileSpec) = spec
+    protected open fun adaptSpec(spec: FileSpec): FileSpec = spec
 
     override fun execute(spec: BuildConfigGeneratorSpec) {
         logger.debug("Generating {} for fields {}", spec.className, spec.fields)
@@ -232,7 +232,7 @@ open class BuildConfigKotlinGenerator(
             else -> false
         }
 
-    companion object {
+    private companion object {
         private val CONST_TYPES = setOf(STRING, BOOLEAN, BYTE, SHORT, INT, LONG, CHAR, FLOAT, DOUBLE)
         private val GENERIC_LIST = ClassName("", "List")
         private val GENERIC_SET = ClassName("", "Set")
