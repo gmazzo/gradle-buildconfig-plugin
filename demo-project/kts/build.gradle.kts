@@ -211,7 +211,12 @@ buildConfig {
 }
 
 sourceSets.test { buildConfig.buildConfigField("TEST_CONSTANT", "aTestValue") }
-kotlin.sourceSets.test { buildConfig.buildConfigField("TEST_CONSTANT2", "anotherValue") }
+kotlin.sourceSets.test {
+    buildConfig.buildConfigField("TEST_CONSTANT2", "anotherValue")
+    buildConfig {
+        buildConfigField("TEST_CONSTANT3", "anotherValue")
+    }
+}
 
 sourceSets["integrationTest"].buildConfig {
     buildConfigField("INTEGRATION_TEST_CONSTANT", "aIntTestValue")
