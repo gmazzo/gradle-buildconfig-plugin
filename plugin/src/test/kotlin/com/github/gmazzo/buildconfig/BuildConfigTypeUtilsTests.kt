@@ -1,5 +1,7 @@
 package com.github.gmazzo.buildconfig
 
+import com.github.gmazzo.buildconfig.internal.javaIdentifier
+import com.github.gmazzo.buildconfig.internal.nameOf
 import kotlin.reflect.KType
 import kotlin.reflect.typeOf
 import org.junit.jupiter.api.Assertions.assertEquals

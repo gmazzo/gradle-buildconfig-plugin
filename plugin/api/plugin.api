@@ -162,7 +162,6 @@ public class com/github/gmazzo/buildconfig/generators/BuildConfigJavaGenerator :
 }
 
 public class com/github/gmazzo/buildconfig/generators/BuildConfigKotlinGenerator : com/github/gmazzo/buildconfig/generators/BuildConfigGenerator {
-	public static final field Companion Lcom/github/gmazzo/buildconfig/generators/BuildConfigKotlinGenerator$Companion;
 	public fun <init> ()V
 	public fun <init> (ZZ)V
 	public synthetic fun <init> (ZZILkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -174,9 +173,6 @@ public class com/github/gmazzo/buildconfig/generators/BuildConfigKotlinGenerator
 	public final fun getTopLevelConstants ()Z
 	public final fun setInternalVisibility (Z)V
 	public final fun setTopLevelConstants (Z)V
-}
-
-public final class com/github/gmazzo/buildconfig/generators/BuildConfigKotlinGenerator$Companion {
 }
 
 public final class org/gradle/kotlin/dsl/BuildConfigClassSpecDSLKt {

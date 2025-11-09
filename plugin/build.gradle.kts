@@ -23,6 +23,7 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(libs.versions.java.get()
 kotlin {
     abiValidation.enabled = true
     compilerOptions.jvmDefault = JvmDefaultMode.NO_COMPATIBILITY
+    explicitApi()
 }
 
 dependencies {

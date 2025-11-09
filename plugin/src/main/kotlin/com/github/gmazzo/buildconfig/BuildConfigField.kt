@@ -1,5 +1,6 @@
 package com.github.gmazzo.buildconfig
 
+import com.github.gmazzo.buildconfig.internal.nameOf
 import java.io.Serializable
 import java.lang.reflect.Type
 import kotlin.reflect.KClass
@@ -10,59 +11,59 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
-interface BuildConfigField : Named {
+public interface BuildConfigField : Named {
 
     @Input
     override fun getName(): String
 
     @get:Input
-    val type: Property<BuildConfigType>
+    public val type: Property<BuildConfigType>
 
     @get:Input
     @get:Optional
-    val value: Property<BuildConfigValue>
+    public val value: Property<BuildConfigValue>
 
     @get:Input
     @get:Optional
-    val position: Property<Int>
+    public val position: Property<Int>
 
-    fun type(classLiteral: String) = apply {
+    public fun type(classLiteral: String): BuildConfigField = apply {
         this.type.value(nameOf(classLiteral)).disallowChanges()
     }
 
-    fun type(className: String, vararg typeArguments: String) = apply {
+    public fun type(className: String, vararg typeArguments: String): BuildConfigField = apply {
         this.type.value(BuildConfigType(className, typeArguments.map(::nameOf).toList())).disallowChanges()
     }
 
-    fun type(className: String, vararg typeArguments: BuildConfigType) = apply {
+    public fun type(className: String, vararg typeArguments: BuildConfigType): BuildConfigField = apply {
         this.type.value(BuildConfigType(className, typeArguments.toList())).disallowChanges()
     }
 
-    fun type(type: Type) = apply {
+    public fun type(type: Type): BuildConfigField = apply {
         this.type.value(nameOf(type)).disallowChanges()
     }
 
-    fun type(type: KClass<*>) = apply {
+    public fun type(type: KClass<*>): BuildConfigField = apply {
         type(type.java)
     }
 
-    fun type(type: KType) = apply {
+    public fun type(type: KType): BuildConfigField = apply {
         this.type.value(nameOf(type)).disallowChanges()
     }
 
-    fun value(literal: Serializable?) = apply {
+    public fun value(literal: Serializable?): BuildConfigField = apply {
         value.value(BuildConfigValue.Literal(literal)).disallowChanges()
     }
 
-    fun <Type : Serializable> value(literal: Provider<out Type>) = apply {
+    public fun <Type : Serializable> value(literal: Provider<out Type>): BuildConfigField = apply {
         value.value(literal.map(BuildConfigValue::Literal)).disallowChanges()
     }
 
-    fun expression(expression: String) = apply {
+    public fun expression(expression: String): BuildConfigField = apply {
         value.value(BuildConfigValue.Expression(expression)).disallowChanges()
     }
 
-    fun expression(expression: Provider<String>) = apply {
+    public fun expression(expression: Provider<String>): BuildConfigField = apply {
         value.value(expression.map(BuildConfigValue::Expression)).disallowChanges()
     }
 

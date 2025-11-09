@@ -1,5 +1,6 @@
-package com.github.gmazzo.buildconfig
+package com.github.gmazzo.buildconfig.internal
 
+import com.github.gmazzo.buildconfig.BuildConfigType
 import java.lang.reflect.GenericArrayType
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type

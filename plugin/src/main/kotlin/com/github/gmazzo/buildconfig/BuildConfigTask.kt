@@ -19,13 +19,13 @@ import org.gradle.kotlin.dsl.newInstance
 import org.gradle.util.GradleVersion
 
 @CacheableTask
-abstract class BuildConfigTask : DefaultTask() {
+public abstract class BuildConfigTask : DefaultTask() {
 
     @get:Nested
-    abstract val specs: SetProperty<BuildConfigClassSpec>
+    public abstract val specs: SetProperty<BuildConfigClassSpec>
 
     @get:OutputDirectory
-    abstract val outputDir: DirectoryProperty
+    public abstract val outputDir: DirectoryProperty
 
     init {
         if (GradleVersion.current() >= GradleVersion.version("7.6")) {
@@ -37,7 +37,7 @@ abstract class BuildConfigTask : DefaultTask() {
     }
 
     @TaskAction
-    fun generateBuildConfigFile() {
+    public fun generateBuildConfigFile() {
         val dir = outputDir.get().asFile
         dir.deleteRecursively()
 
