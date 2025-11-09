@@ -24,4 +24,13 @@ public sealed class BuildConfigValue : Serializable {
 
     }
 
+    data object Expect : BuildConfigValue() {
+
+        @Suppress("unused")
+        private fun readResolve(): Any = Expect
+
+        override val value = null
+
+    }
+
 }

@@ -38,6 +38,7 @@ import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.asTypeName
 import java.io.File
+import java.io.Serializable
 import java.net.URI as JavaURI
 import org.gradle.api.logging.Logging
 import org.gradle.api.tasks.Input
@@ -77,10 +78,14 @@ public open class BuildConfigKotlinGenerator(
 
             val value = field.value.get()
             val nullableAwareType = if (value.value != null) typeName else typeName.copy(nullable = true)
+            val modifiers = listOfNotNull(
+                kModifiers,
+                KModifier.CONST.takeIf { value.value != null && typeName in CONST_TYPES },
+                KModifier.EXPECT.takeIf { value is BuildConfigValue.Expect },
+                KModifier.ACTUAL.takeIf { ActualField in field.tags.getOrElse(emptySet()) }
+            )
 
-            return@map PropertySpec.builder(field.name, nullableAwareType, kModifiers)
-                .apply { if (value.value != null && typeName in CONST_TYPES) addModifiers(KModifier.CONST) }
-                .apply {
+            return@map PropertySpec.builder(field.name, nullableAwareType, kModifiers, *modifiers.toTypedArray()).apply {
                     when (value) {
                         is BuildConfigValue.Literal -> {
                             val (format, count) = typeName.format(value.value)
@@ -94,6 +99,7 @@ public open class BuildConfigKotlinGenerator(
                         }
 
                         is BuildConfigValue.Expression -> initializer("%L", value.value)
+                        is BuildConfigValue.Expect -> { } // expect declaration has no initializer
                     }
 
                 }
@@ -150,7 +156,6 @@ public open class BuildConfigKotlinGenerator(
 
     private val kModifiers
         get() = if (internalVisibility) KModifier.INTERNAL else KModifier.PUBLIC
-
 
     private fun TypeName.format(forValue: Any?): Pair<String, Int> {
         if (forValue == null) { return "null" to 0 }
@@ -239,6 +244,11 @@ public open class BuildConfigKotlinGenerator(
         private val GENERIC_MAP = ClassName("", "Map")
         private val FILE = File::class.asClassName()
         private val URI = JavaURI::class.asClassName()
+    }
+
+    data object ActualField : Serializable {
+        @Suppress("unused")
+        private fun readResolve(): Any = ActualField
     }
 
 }

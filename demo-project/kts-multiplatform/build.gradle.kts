@@ -44,6 +44,7 @@ buildConfig {
     }
 
     buildConfigField("COMMON_VALUE", "aCommonValue")
+    buildConfigField<String>("PLATFORM") { expect() }
 
     sourceSets.named("androidMain") {
         useKotlinOutput() // resets `generator` back to default's Kotlin generator for JVM
