@@ -17,7 +17,7 @@ internal object KotlinBinder {
         configure(extension) { it.name }
 
     private fun Project.configure(extension: BuildConfigExtension, nameOf: (Named) -> String = { it.name }) {
-        kotlinSourceSets.all { sourceSet ->
+        kotlinSourceSets.configureEach { sourceSet ->
             val spec = extension.sourceSets.maybeCreate(nameOf(sourceSet))
 
             (sourceSet as ExtensionAware).registerExtension(spec)
@@ -27,7 +27,7 @@ internal object KotlinBinder {
         // while in the configuration phase.
         // This will finalize DSL properties before the build script have a change to change them
         afterEvaluate {
-            kotlinSourceSets.all { sourceSet ->
+            kotlinSourceSets.configureEach { sourceSet ->
                 sourceSet.kotlinSrcDir(extension.sourceSets.getByName(nameOf(sourceSet)))
             }
         }

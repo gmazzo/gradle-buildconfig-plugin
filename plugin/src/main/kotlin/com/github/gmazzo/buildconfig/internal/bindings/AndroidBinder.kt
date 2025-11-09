@@ -32,7 +32,7 @@ internal object AndroidBinder {
             }
         }
 
-        androidSourceSets.all {
+        androidSourceSets.configureEach {
             val kmpAwareName = when (it.name) {
                 MAIN_SOURCE_SET_NAME -> mainSourceSetName
                 TEST_SOURCE_SET_NAME -> testSourceSetName

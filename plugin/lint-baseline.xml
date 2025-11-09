@@ -2,39 +2,6 @@
 <issues format="6" by="lint 8.10.1" type="baseline" client="gradle" dependencies="false" name="AGP (8.10.1)" variant="all" version="8.10.1">
 
     <issue
-        id="EagerGradleConfiguration"
-        message="Use configureEach instead of all"
-        errorLine1="        androidSourceSets.all {"
-        errorLine2="                          ~~~">
-        <location
-            file="src/main/kotlin/com/github/gmazzo/buildconfig/internal/bindings/AndroidBinder.kt"
-            line="35"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="EagerGradleConfiguration"
-        message="Use configureEach instead of all"
-        errorLine1="        kotlinSourceSets.all { sourceSet ->"
-        errorLine2="                         ~~~">
-        <location
-            file="src/main/kotlin/com/github/gmazzo/buildconfig/internal/bindings/KotlinBinder.kt"
-            line="20"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="EagerGradleConfiguration"
-        message="Use configureEach instead of all"
-        errorLine1="            kotlinSourceSets.all { sourceSet ->"
-        errorLine2="                             ~~~">
-        <location
-            file="src/main/kotlin/com/github/gmazzo/buildconfig/internal/bindings/KotlinBinder.kt"
-            line="30"
-            column="30"/>
-    </issue>
-
-    <issue
         id="InternalGradleApiUsage"
         message="Avoid using internal Gradle APIs (method bindToSourceSet from org.gradle.kotlin.dsl.com.github.gmazzo.buildconfig.internal.bindings.AndroidBinder)"
         errorLine1="            variant.bindToSourceSet(extension,"
