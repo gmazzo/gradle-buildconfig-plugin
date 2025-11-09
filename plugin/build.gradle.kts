@@ -6,6 +6,7 @@ import org.jetbrains.kotlin.gradle.dsl.abi.ExperimentalAbiValidation
 
 plugins {
     alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.android.lint)
     alias(libs.plugins.dokka)
     alias(libs.plugins.mavenPublish)
     alias(libs.plugins.gitVersion)
@@ -32,7 +33,7 @@ dependencies {
 
     compileOnly(gradleKotlinDsl())
     compileOnly(plugin(libs.plugins.kotlin.jvm))
-    compileOnly(plugin(libs.plugins.android))
+    compileOnly(plugin(libs.plugins.android.application))
 
     implementation(libs.javapoet)
     implementation(libs.kotlinpoet)
@@ -43,8 +44,20 @@ dependencies {
     testImplementation(libs.junit5.params)
     testRuntimeOnly(libs.junit5.engine)
     testRuntimeOnly(libs.junit5.platformLauncher)
-    testImplementation(plugin(libs.plugins.android))
+    testImplementation(plugin(libs.plugins.android.application))
     testImplementation(libs.mockk)
+
+    lintChecks(libs.androidx.gradlePluginLints)
+}
+
+lint {
+    baseline = file("lint-baseline.xml")
+    ignoreTestFixturesSources = true
+    ignoreTestSources = true
+    warningsAsErrors = true
+    disable += "NewerVersionAvailable"
+    disable += "GradleDependency"
+    disable += "AndroidGradlePluginVersion"
 }
 
 val originUrl = providers
