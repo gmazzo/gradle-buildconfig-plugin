@@ -1,13 +1,4 @@
 import com.github.gmazzo.buildconfig.BuildConfigField
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
-
-buildscript {
-    dependencies {
-        classpath(platform(libs.junit5.bom))
-        classpath(libs.junit5.params)
-    }
-}
 
 plugins {
     base
@@ -107,11 +98,11 @@ abstract class AssertGeneratedFile : DefaultTask() {
     fun performAssert() {
         val actualFile = File(generatedDir.asFile.get(), filePath.get())
 
-        assertTrue(actualFile.isFile, "Expected file doesn't exist: $actualFile")
+        check(actualFile.isFile) { "Expected file doesn't exist: $actualFile" }
 
         val expected = expectedContent.get().trimIndent().trim()
         val actualContent = actualFile.readText().trim()
-        assertEquals(expected, actualContent)
+        check(expected == actualContent)
     }
 
 }
