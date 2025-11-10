@@ -38,7 +38,6 @@ import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.asTypeName
 import java.io.File
-import java.io.Serializable
 import java.net.URI as JavaURI
 import org.gradle.api.logging.Logging
 import org.gradle.api.tasks.Input
@@ -81,13 +80,15 @@ public open class BuildConfigKotlinGenerator(
             val modifiers = listOfNotNull(
                 kModifiers,
                 KModifier.CONST.takeIf { value.value != null && typeName in CONST_TYPES },
-                KModifier.EXPECT.takeIf { value is BuildConfigValue.Expect },
-                KModifier.ACTUAL.takeIf { ActualField in field.tags.getOrElse(emptySet()) }
+                KModifier.EXPECT.takeIf { value is BuildConfigValue.MultiplatformExpect<*> },
+                KModifier.ACTUAL.takeIf { value is BuildConfigValue.MultiplatformActual }
             )
 
-            return@map PropertySpec.builder(field.name, nullableAwareType, kModifiers, *modifiers.toTypedArray()).apply {
+            return@map PropertySpec.builder(field.name, nullableAwareType, kModifiers, *modifiers.toTypedArray())
+                .apply {
                     when (value) {
-                        is BuildConfigValue.Literal -> {
+                        is BuildConfigValue.Literal,
+                        is BuildConfigValue.MultiplatformActual -> {
                             val (format, count) = typeName.format(value.value)
                             val args = value.value.asVarArg()
 
@@ -99,7 +100,7 @@ public open class BuildConfigKotlinGenerator(
                         }
 
                         is BuildConfigValue.Expression -> initializer("%L", value.value)
-                        is BuildConfigValue.Expect -> { } // expect declaration has no initializer
+                        is BuildConfigValue.MultiplatformExpect<*> -> {} // expect declaration has no initializer
                     }
 
                 }
@@ -147,8 +148,12 @@ public open class BuildConfigKotlinGenerator(
         else -> addType(
             TypeSpec.objectBuilder(name)
                 .apply { if (kdoc != null) addKdoc("%L", kdoc) }
-                .addModifiers(kModifiers)
                 .addProperties(fields)
+                .addModifiers(listOfNotNull(
+                    kModifiers,
+                    KModifier.ACTUAL.takeIf { fields.any { it.modifiers.contains(KModifier.ACTUAL) } },
+                    KModifier.EXPECT.takeIf { fields.any { it.modifiers.contains(KModifier.EXPECT) } },
+                ))
                 .build()
                 .let(::adaptSpec)
         )
@@ -158,7 +163,9 @@ public open class BuildConfigKotlinGenerator(
         get() = if (internalVisibility) KModifier.INTERNAL else KModifier.PUBLIC
 
     private fun TypeName.format(forValue: Any?): Pair<String, Int> {
-        if (forValue == null) { return "null" to 0 }
+        if (forValue == null) {
+            return "null" to 0
+        }
 
         fun TypeName?.format() = when (this?.copy(nullable = false)) {
             CHAR -> "'%L'"
@@ -244,11 +251,6 @@ public open class BuildConfigKotlinGenerator(
         private val GENERIC_MAP = ClassName("", "Map")
         private val FILE = File::class.asClassName()
         private val URI = JavaURI::class.asClassName()
-    }
-
-    data object ActualField : Serializable {
-        @Suppress("unused")
-        private fun readResolve(): Any = ActualField
     }
 
 }

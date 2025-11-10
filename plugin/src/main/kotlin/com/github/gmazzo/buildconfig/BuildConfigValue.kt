@@ -7,12 +7,12 @@ public sealed class BuildConfigValue : Serializable {
 
     public abstract val value: Serializable?
 
-    public data class Literal(override val value: Serializable?) : BuildConfigValue() {
+    init {
+        check(value !is BuildConfigValue) { "$value is already a Value" }
+        check(value !is Provider<*>) { "$value is a Gradle provider" }
+    }
 
-        init {
-            check(value !is BuildConfigValue) { "$value is already a Value" }
-            check(value !is Provider<*>) { "$value is a Gradle provider" }
-        }
+    public data class Literal(override val value: Serializable?) : BuildConfigValue() {
 
         override fun toString(): String = value.toString()
 
@@ -24,13 +24,21 @@ public sealed class BuildConfigValue : Serializable {
 
     }
 
-    data object Expect : BuildConfigValue() {
+    public data class MultiplatformExpect<Type : Serializable>(
+        @Transient val producer: MultiplatformProducer<Type>,
+    ) : BuildConfigValue() {
 
-        @Suppress("unused")
-        private fun readResolve(): Any = Expect
+        override val value: Nothing? = null
 
-        override val value = null
+        override fun toString(): String = "expect <provider>"
+    }
 
+    public data class MultiplatformActual(override val value: Serializable?) : BuildConfigValue() {
+        override fun toString(): String = "actual $value"
+    }
+
+    public fun interface MultiplatformProducer<Type : Serializable> {
+        public fun resolveValue(forTarget: String): Type?
     }
 
 }

@@ -160,4 +160,9 @@ public interface BuildConfigClassSpec : Named {
     public fun expression(expression: String): BuildConfigValue.Expression =
         BuildConfigValue.Expression(expression)
 
+    public fun <Type : Serializable> multiplatform(
+        producer: BuildConfigValue.MultiplatformProducer<Type>,
+    ): BuildConfigValue.MultiplatformExpect<Type> =
+        BuildConfigValue.MultiplatformExpect(producer)
+
 }

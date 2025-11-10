@@ -43,34 +43,31 @@ buildConfig {
             .build()
     }
 
-    buildConfigField("COMMON_VALUE", "aCommonValue")
-    buildConfigField<String>("PLATFORM") { expect() }
+    buildConfigField("COMMON_VALUE",  multiplatform { "aCommonValue" })
+    buildConfigField("PLATFORM", multiplatform { targetName ->
+        targetName.removeSuffix("Main") // androidMain -> android, jvmMain -> jvm, etc.
+    })
 
     sourceSets.named("androidMain") {
         useKotlinOutput() // resets `generator` back to default's Kotlin generator for JVM
-        buildConfigField("PLATFORM", "android")
         buildConfigField("ANDROID_VALUE", "anAndroidValue")
     }
 
     sourceSets.named("jvmMain") {
         useKotlinOutput() // resets `generator` back to default's Kotlin generator for JVM
-        buildConfigField("PLATFORM", "jvm")
         buildConfigField("JVM_VALUE", "aJvmValue")
     }
 
     sourceSets.named("iosMain") {
         useKotlinOutput() // resets `generator` back to default's Kotlin generator for JVM
-        buildConfigField("PLATFORM", "ios")
         buildConfigField("IOS_VALUE", "anIOSValue")
     }
 
     sourceSets.named("jsMain") {
-        buildConfigField("PLATFORM", "js")
         buildConfigField("JS_VALUE", "aJsValue")
     }
 
     sourceSets.named("wasmJsMain") {
-        buildConfigField("PLATFORM", "wasmJs")
         buildConfigField("WASM_JS_VALUE", "aWebAssemblyJsValue")
     }
 }

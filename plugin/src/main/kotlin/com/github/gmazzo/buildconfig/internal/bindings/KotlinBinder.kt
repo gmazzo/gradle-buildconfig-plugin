@@ -3,18 +3,16 @@ package com.github.gmazzo.buildconfig.internal.bindings
 import com.github.gmazzo.buildconfig.BuildConfigClassSpec
 import com.github.gmazzo.buildconfig.BuildConfigExtension
 import com.github.gmazzo.buildconfig.BuildConfigSourceSet
-import com.github.gmazzo.buildconfig.generators.BuildConfigKotlinGenerator
+import com.github.gmazzo.buildconfig.BuildConfigValue
 import com.github.gmazzo.buildconfig.internal.BuildConfigSourceSetInternal
 import com.github.gmazzo.buildconfig.internal.bindings.JavaBinder.registerExtension
 import org.gradle.api.Named
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.api.file.SourceDirectorySet
-import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.tasks.SourceSet
 import org.gradle.kotlin.dsl.getByName
-import org.gradle.kotlin.dsl.setProperty
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinMetadataTarget
 
@@ -93,64 +91,90 @@ internal object KotlinBinder {
                     .invoke(this) as Named
             }
 
-        fun Project.configure(extension: BuildConfigExtension) {
-            configure(extension) {
-                when (val name = it.name) {
-                    KotlinSourceSet.COMMON_MAIN_SOURCE_SET_NAME -> SourceSet.MAIN_SOURCE_SET_NAME
-                    KotlinSourceSet.COMMON_TEST_SOURCE_SET_NAME -> SourceSet.TEST_SOURCE_SET_NAME
-                    else -> name
-                }
+        // KotlinSourceSet.dependsOn
+        private val Named.dependsOn: Set<Named>
+            get() {
+                @Suppress("UNCHECKED_CAST")
+                return javaClass.getMethod("getDependsOn")
+                    .invoke(this) as Set<Named>
             }
 
-            targets.all target@{ target ->
-                val targetName = target.name
+        fun Project.configure(extension: BuildConfigExtension) {
+            configure(extension) { it.name.regularSourceSetName }
 
-                if (targetName != KotlinMetadataTarget.METADATA_TARGET_NAME) {
-                    target.compilations.all { compilation ->
-                        val spec =
-                            extension.sourceSets.maybeCreate(compilation.defaultSourceSet.name) as BuildConfigSourceSetInternal
+            afterEvaluate {
+                targets.all target@{ target ->
+                    val targetName = target.name
 
-                        val commonSpecs =
-                            compilation.allKotlinSourceSets.asSequence()
-                                .map { it.name }
-                                .filter { it != spec.name }
-                                .mapNotNull { extension.sourceSets.findByName(it) as BuildConfigSourceSetInternal? }
-                                .toList()
+                    if (targetName != KotlinMetadataTarget.METADATA_TARGET_NAME) {
+                        target.compilations.all { compilation ->
+                            val spec =
+                                extension.sourceSets.maybeCreate(compilation.defaultSourceSet.name) as BuildConfigSourceSetInternal
 
-                        spec.fillActualFields(objects, commonSpecs)
-                        spec.extraSpecs.all {
-                            spec.fillActualFields(objects, commonSpecs, forExtra = it)
+                            val commonSpecs =
+                                (
+                                    compilation.allKotlinSourceSets.asSequence()
+                                        .flatMap { it.allDependsOn }
+                                        .map { it.name.regularSourceSetName }
+                                        .flatMap { it.includingCommonsForAndroid }
+                                        .filter { it != spec.name })
+                                    .mapNotNull { extension.sourceSets.findByName(it) as BuildConfigSourceSetInternal? }
+                                    .filter { it.buildConfigFields.any { field -> field.value.orNull is BuildConfigValue.MultiplatformExpect<*> } }
+                                    .toSet()
+
+                            for (common in commonSpecs) {
+                                spec.fillActualFields(targetName, common)
+                                common.extraSpecs.all {
+                                    spec.fillActualFields(targetName, it)
+                                }
+                            }
                         }
                     }
                 }
             }
         }
 
-        private fun BuildConfigSourceSetInternal.fillActualFields(
-            objects: ObjectFactory,
-            commonSourceSets: List<BuildConfigSourceSetInternal>,
-            forExtra: BuildConfigClassSpec? = null,
-        ) {
-
-            val commonSpec = when (forExtra) {
-                null -> commonSourceSets
-                else -> commonSourceSets.mapNotNull { it.extraSpecs.findByName(forExtra.name) }
+        private fun BuildConfigSourceSetInternal.fillActualFields(targetName: String, from: BuildConfigClassSpec) {
+            check(extraSpecs.findByName(from.name) == null) {
+                "You can't define a class with name '${from.name}' at target '$targetName' if it's already defined as common"
             }
-            val commonFields = objects.setProperty<String>()
-            for (common in commonSpec) {
-                common.buildConfigFields.all {
-                    commonFields.add(it.name)
+
+            forClass(packageName = from.packageName.orNull, className = from.className.get()) {
+                className.value(from.className).disallowChanges()
+                packageName.value(from.packageName).disallowChanges()
+                documentation.value(from.documentation).disallowChanges()
+                generator.convention(from.generator).disallowChanges()
+
+                from.buildConfigFields.all { commonField ->
+                    val commonValue = commonField.value.orNull as? BuildConfigValue.MultiplatformExpect<*> ?: return@all
+                    val targetValue = commonValue.producer.resolveValue(forTarget = targetName)
+
+                    buildConfigField(commonField.name) { actualField ->
+                        actualField.type.value(commonField.type).disallowChanges()
+                        actualField.value.value(BuildConfigValue.MultiplatformActual(targetValue)).disallowChanges()
+                        actualField.position.value(commonField.position).disallowChanges()
+                    }
                 }
             }
-            commonFields.finalizeValueOnRead()
-
-            buildConfigFields.all { field ->
-                field.tags.addAll(commonFields.map { commons ->
-                    if (field.name in commons) listOf(BuildConfigKotlinGenerator.ActualField)
-                    else emptyList()
-                })
-            }
         }
+
+        // Named stands for KotlinSourceSet here
+        private val Named.allDependsOn: Sequence<Named>
+            get() = sequenceOf(this) + dependsOn.flatMap { it.allDependsOn }
+
+        private val String.includingCommonsForAndroid: Sequence<String>
+            get() = when (this) {
+                "androidMain" -> sequenceOf(this, SourceSet.MAIN_SOURCE_SET_NAME)
+                "androidUnitTest" -> sequenceOf(this, SourceSet.TEST_SOURCE_SET_NAME)
+                else -> sequenceOf(this)
+            }
+
+        private val String.regularSourceSetName: String
+            get() = when (this) {
+                KotlinSourceSet.COMMON_MAIN_SOURCE_SET_NAME -> SourceSet.MAIN_SOURCE_SET_NAME
+                KotlinSourceSet.COMMON_TEST_SOURCE_SET_NAME -> SourceSet.TEST_SOURCE_SET_NAME
+                else -> this
+            }
 
     }
 
