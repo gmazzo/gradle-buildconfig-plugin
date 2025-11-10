@@ -15,7 +15,7 @@ mockk = { module = "io.mockk:mockk", version = "1.14.6" }
 
 [plugins]
 android = { id = "com.android.application", version = "8.13.0" }
-dokka = { id = "org.jetbrains.dokka-javadoc", version = "2.0.0" }
+dokka = { id = "org.jetbrains.dokka-javadoc", version = "2.1.0" }
 gitVersion = { id = "io.github.gmazzo.gitversion", version = "1.5.1" }
 gradle-pluginPublish = { id = "com.gradle.plugin-publish", version = "2.0.0" }
 jacoco-testkit = { id = "io.github.gmazzo.gradle.testkit.jacoco", version = "1.0.4" }
