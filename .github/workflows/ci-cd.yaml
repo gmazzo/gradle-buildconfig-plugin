@@ -99,7 +99,7 @@ jobs:
           ORG_GRADLE_PROJECT_gitVersionForceSnapshot: ${{ github.event_name != 'release' }}
           GRADLE_PUBLISH_KEY: ${{ secrets.GRADLE_PUBLISH_KEY }}
           GRADLE_PUBLISH_SECRET: ${{ secrets.GRADLE_PUBLISH_SECRET }}
-        run: ./gradlew --no-configuration-cache publish
+        run: ./gradlew publish
 
   actionlint:
     name: Validate Workflows
