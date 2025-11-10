@@ -80,8 +80,16 @@ val generateBuildResourcesBuildConfigTest by tasks.registering(AssertGeneratedFi
     )
 }
 
-tasks.check {
-    dependsOn(generateBuildConfigTest, generateBuildResourcesBuildConfigTest)
+tasks {
+
+    val test by registering {
+        dependsOn(generateBuildConfigTest, generateBuildResourcesBuildConfigTest)
+    }
+
+    check {
+        dependsOn(test)
+    }
+
 }
 
 abstract class AssertGeneratedFile : DefaultTask() {
