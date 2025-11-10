@@ -86,7 +86,7 @@ tasks {
         dependsOn(generateBuildConfigTest, generateBuildResourcesBuildConfigTest)
     }
 
-    build {
+    check {
         dependsOn(test)
     }
 
@@ -94,7 +94,7 @@ tasks {
 
 abstract class AssertGeneratedFile : DefaultTask() {
 
-    @get:InputFiles
+    @get:InputDirectory
     abstract val generatedDir: DirectoryProperty
 
     @get:Input
