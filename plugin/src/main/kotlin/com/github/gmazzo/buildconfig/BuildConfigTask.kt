@@ -16,7 +16,6 @@ import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.newInstance
-import org.gradle.util.GradleVersion
 
 @CacheableTask
 public abstract class BuildConfigTask : DefaultTask() {
@@ -28,11 +27,8 @@ public abstract class BuildConfigTask : DefaultTask() {
     public abstract val outputDir: DirectoryProperty
 
     init {
-        if (GradleVersion.current() >= GradleVersion.version("7.6")) {
-            onlyIf("There are build config fields to generate", HasFields)
-
-        } else {
-            onlyIf(HasFields)
+        onlyIf("There are build config fields to generate") { task ->
+            (task as BuildConfigTask).specs.get().any { fields -> fields.buildConfigFields.isNotEmpty() }
         }
     }
 
@@ -94,10 +90,4 @@ public abstract class BuildConfigTask : DefaultTask() {
                 }
             })
         }
-
-    private object HasFields : Spec<Task> {
-        override fun isSatisfiedBy(task: Task): Boolean =
-            (task as BuildConfigTask).specs.get().any { fields -> fields.buildConfigFields.isNotEmpty() }
-    }
-
 }
