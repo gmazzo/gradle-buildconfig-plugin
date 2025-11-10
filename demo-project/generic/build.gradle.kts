@@ -77,7 +77,7 @@ tasks.check {
 
 abstract class AssertGeneratedFile : DefaultTask() {
 
-    @get:InputFiles
+    @get:InputDirectory
     abstract val generatedDir: DirectoryProperty
 
     @get:Input
