@@ -14,7 +14,7 @@ kotlinpoet = { module = "com.squareup:kotlinpoet", version = "2.2.0" }
 mockk = { module = "io.mockk:mockk", version = "1.14.6" }
 
 [plugins]
-android = { id = "com.android.application", version = "8.10.1" }
+android = { id = "com.android.application", version = "8.13.0" }
 dokka = { id = "org.jetbrains.dokka-javadoc", version = "2.0.0" }
 gitVersion = { id = "io.github.gmazzo.gitversion", version = "1.5.1" }
 gradle-pluginPublish = { id = "com.gradle.plugin-publish", version = "1.3.1" }
