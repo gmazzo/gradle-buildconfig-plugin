@@ -2,6 +2,7 @@
 @file:Suppress("UnstableApiUsage")
 
 import org.jetbrains.kotlin.gradle.dsl.JvmDefaultMode
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.dsl.abi.ExperimentalAbiValidation
 
 plugins {
@@ -22,7 +23,12 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(libs.versions.java.get()
 
 kotlin {
     abiValidation.enabled = true
-    compilerOptions.jvmDefault = JvmDefaultMode.NO_COMPATIBILITY
+    compilerOptions {
+        // https://docs.gradle.org/current/userguide/compatibility.html#kotlin
+        apiVersion = KotlinVersion.KOTLIN_1_8
+        languageVersion = apiVersion
+        jvmDefault = JvmDefaultMode.NO_COMPATIBILITY
+    }
     explicitApi()
 }
 
