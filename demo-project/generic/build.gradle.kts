@@ -94,7 +94,9 @@ abstract class AssertGeneratedFile : DefaultTask() {
 
         val expected = expectedContent.get().trimIndent().trim()
         val actualContent = actualFile.readText().trim()
-        check(expected == actualContent)
+        check(expected == actualContent) {
+            "Generated file content does not match expected content.\n\nExpected:\n$expected\n\nActual:\n$actualContent"
+        }
     }
 
 }
