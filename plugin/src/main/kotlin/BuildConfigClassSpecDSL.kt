@@ -69,16 +69,6 @@ public inline fun <reified Type : Any?> BuildConfigClassSpec.buildConfigField(
 }
 
 @BuildConfigDsl
-@JvmName("buildConfigFieldExpression")
-public inline fun <reified Type : Serializable> BuildConfigClassSpec.buildConfigField(
-    name: String,
-    producer: BuildConfigValue.MultiplatformExpect<Type>,
-): NamedDomainObjectProvider<BuildConfigField> = buildConfigField(name) {
-    it.type(typeOf<Type>())
-    it.value.set(producer)
-}
-
-@BuildConfigDsl
 @JvmName("buildConfigFieldArray")
 public inline fun <reified Type : Serializable?> BuildConfigClassSpec.buildConfigField(
     name: String,

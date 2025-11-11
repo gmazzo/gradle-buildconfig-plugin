@@ -4,6 +4,7 @@ import com.github.gmazzo.buildconfig.BuildConfigClassSpec
 import com.github.gmazzo.buildconfig.BuildConfigExtension
 import com.github.gmazzo.buildconfig.BuildConfigSourceSet
 import com.github.gmazzo.buildconfig.BuildConfigValue
+import com.github.gmazzo.buildconfig.generators.BuildConfigKotlinGenerator
 import com.github.gmazzo.buildconfig.internal.BuildConfigSourceSetInternal
 import com.github.gmazzo.buildconfig.internal.bindings.JavaBinder.registerExtension
 import org.gradle.api.Named
@@ -14,7 +15,6 @@ import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.tasks.SourceSet
 import org.gradle.kotlin.dsl.getByName
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinMetadataTarget
 
 internal object KotlinBinder {
 
@@ -59,38 +59,6 @@ internal object KotlinBinder {
 
     object Multiplatform {
 
-        // project.kotlin.targets
-        private val Project.targets
-            get() = with(kotlin) {
-                @Suppress("UNCHECKED_CAST")
-                javaClass.getMethod("getTargets")
-                    .invoke(this) as NamedDomainObjectContainer<Named>
-            }
-
-        // KotlinTarget.compilations
-        private val Named.compilations: NamedDomainObjectContainer<Named>
-            get() {
-                @Suppress("UNCHECKED_CAST")
-                return javaClass.getMethod("getCompilations")
-                    .invoke(this) as NamedDomainObjectContainer<Named>
-            }
-
-        // KotlinCompilation.allKotlinSourceSets
-        private val Named.allKotlinSourceSets: Set<Named>
-            get() {
-                @Suppress("UNCHECKED_CAST")
-                return javaClass.getMethod("getAllKotlinSourceSets")
-                    .invoke(this) as Set<Named>
-            }
-
-        // KotlinCompilation.defaultSourceSet
-        private val Named.defaultSourceSet: Named
-            get() {
-                @Suppress("UNCHECKED_CAST")
-                return javaClass.getMethod("getDefaultSourceSet")
-                    .invoke(this) as Named
-            }
-
         // KotlinSourceSet.dependsOn
         private val Named.dependsOn: Set<Named>
             get() {
@@ -103,63 +71,83 @@ internal object KotlinBinder {
             configure(extension) { it.name.regularSourceSetName }
 
             afterEvaluate {
-                targets.all target@{ target ->
-                    val targetName = target.name
+                kotlinSourceSets.all { ss ->
+                    val spec =
+                        extension.sourceSets.getByName(ss.name.regularSourceSetName) as BuildConfigSourceSetInternal
+                    val dependsOnSpecs = ss.allDependsOn
+                        .map { it.name.regularSourceSetName }
+                        .let { it + ss.name.includingCommonsForAndroid }
+                        .toSet()
+                        .mapNotNull { extension.sourceSets.findByName(it) as BuildConfigSourceSetInternal? }
 
-                    if (targetName != KotlinMetadataTarget.METADATA_TARGET_NAME) {
-                        target.compilations.all { compilation ->
-                            val spec =
-                                extension.sourceSets.maybeCreate(compilation.defaultSourceSet.name) as BuildConfigSourceSetInternal
-
-                            val commonSpecs = compilation.allKotlinSourceSets.asSequence()
-                                .flatMap { it.allDependsOn }
-                                .map { it.name.regularSourceSetName }
-                                .flatMap { it.includingCommonsForAndroid }
-                                .filter { it != spec.name }
-                                .mapNotNull { extension.sourceSets.findByName(it) as BuildConfigSourceSetInternal? }
-                                .filter { it.buildConfigFields.any { field -> field.value.orNull is BuildConfigValue.MultiplatformExpect<*> } }
-                                .toSet()
-
-                            for (common in commonSpecs) {
-                                fillActualFields(targetName, from = common, into = spec)
-                                common.extraSpecs.all { fillActualFields(targetName, from = it, into = spec) }
-                            }
-                        }
+                    lookForExpectFields(spec, dependsOnSpecs)
+                    spec.extraSpecs.all { extra ->
+                        lookForExpectFields(extra, dependsOnSpecs) { it.extraSpecs.findByName(extra.name) }
                     }
                 }
             }
         }
 
-        private fun fillActualFields(targetName: String, from: BuildConfigClassSpec, into: BuildConfigSourceSetInternal) {
-            val spec by lazy {
-                into.forClass(packageName = from.packageName.orNull, className = from.className.get()) {
-                    it.className.convention(from.className)
-                    it.packageName.convention(from.packageName)
-                    it.documentation.convention(from.documentation)
-                }
+        private fun lookForExpectFields(
+            spec: BuildConfigClassSpec,
+            dependsOnSpecs: List<BuildConfigSourceSetInternal>,
+            forExtra: ((BuildConfigSourceSetInternal) -> BuildConfigClassSpec?)? = null,
+        ) {
+            val target = forExtra?.invoke(spec as BuildConfigSourceSetInternal) ?: spec
+
+            val expectSpecs = mutableSetOf<BuildConfigClassSpec>()
+            for (field in spec.buildConfigFields) {
+                val (expectSpec, expectField) = dependsOnSpecs.asSequence()
+                    .mapNotNull { if (forExtra != null) forExtra(it) else it }
+                    .mapNotNull { it.buildConfigFields.findByName(field.name)?.let { ef -> it to ef } }
+                    .find { (_, it) -> it.value.orNull is BuildConfigValue.Expect }
+                    ?: continue
+
+                expectField.tags.add(BuildConfigKotlinGenerator.TagExpect)
+                field.tags.add(BuildConfigKotlinGenerator.TagActual)
+
+                // also makes sure that the actual class matches the expect declaration
+                target.className.convention(expectSpec.className)
+                target.packageName.convention(expectSpec.packageName)
+                target.documentation.convention(expectSpec.documentation)
+
+                expectSpecs.add(expectSpec)
             }
 
-            from.buildConfigFields.all { commonField ->
-                val commonValue = commonField.value.orNull as? BuildConfigValue.MultiplatformExpect<*> ?: return@all
-                val targetValue = commonValue.producer.resolveValue(forTarget = targetName)
+            // finally, in case we have mixed expect and regular constants in the same spec, we promote them all to this spec
+            for (expectSpec in expectSpecs) {
+                for (expectField in expectSpec.buildConfigFields) {
+                    val expectDefault = when (val value = expectField.value.orNull) {
+                        is BuildConfigValue.Expect -> when (val defaultValue = value.value) {
+                            is BuildConfigValue.NoDefault -> continue
+                            else -> BuildConfigValue.Literal(defaultValue)
+                        }
+                        else -> value
+                    }
 
-                spec.buildConfigField(commonField.name) { actualField ->
-                    actualField.type.value(commonField.type).disallowChanges()
-                    actualField.value.value(BuildConfigValue.MultiplatformActual(targetValue)).disallowChanges()
-                    actualField.position.value(commonField.position).disallowChanges()
+                    expectField.tags.add(BuildConfigKotlinGenerator.TagExpect)
+
+                    if (target.buildConfigFields.names.contains(expectField.name)) continue
+
+                    target.buildConfigFields.create(expectField.name) { field ->
+                        field.type.value(expectField.type).disallowChanges()
+                        field.value.value(expectDefault).disallowChanges()
+                        field.position.value(expectField.position).disallowChanges()
+                        field.tags.add(BuildConfigKotlinGenerator.TagActual)
+                    }
                 }
             }
         }
 
         // Named stands for KotlinSourceSet here
         private val Named.allDependsOn: Sequence<Named>
-            get() = sequenceOf(this) + dependsOn.flatMap { it.allDependsOn }
+            get() = dependsOn.asSequence().flatMap { sequenceOf(it) + it.allDependsOn }
 
         private val String.includingCommonsForAndroid: Sequence<String>
             get() = when (this) {
-                "androidMain" -> sequenceOf(this, SourceSet.MAIN_SOURCE_SET_NAME)
-                "androidUnitTest" -> sequenceOf(this, SourceSet.TEST_SOURCE_SET_NAME)
-                else -> sequenceOf(this)
+                "androidMain" -> sequenceOf(SourceSet.MAIN_SOURCE_SET_NAME)
+                "androidUnitTest" -> sequenceOf(SourceSet.TEST_SOURCE_SET_NAME)
+                else -> emptySequence()
             }
 
         private val String.regularSourceSetName: String

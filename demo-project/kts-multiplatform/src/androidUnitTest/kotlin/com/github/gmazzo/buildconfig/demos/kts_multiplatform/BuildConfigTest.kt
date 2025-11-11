@@ -7,9 +7,10 @@ class BuildConfigTest {
 
     @Test
     fun testBuildConfigProperties() {
-        assertEquals("android", AndroidMainBuildConfig.PLATFORM)
+        assertEquals("android", BuildConfig.PLATFORM)
+        assertEquals(true, BuildConfig.IS_MOBILE)
         assertEquals("aCommonValue", BuildConfig.COMMON_VALUE)
-        assertEquals("anAndroidValue", AndroidMainBuildConfig.ANDROID_VALUE)
+        assertEquals("anAndroidValue", BuildConfig.ANDROID_VALUE)
     }
 
 }

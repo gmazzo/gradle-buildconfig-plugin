@@ -8,6 +8,7 @@ import kotlin.reflect.KType
 import org.gradle.api.Named
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
+import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
@@ -26,6 +27,10 @@ public interface BuildConfigField : Named {
     @get:Input
     @get:Optional
     public val position: Property<Int>
+
+    @get:Input
+    @get:Optional
+    public val tags: SetProperty<Serializable>
 
     public fun type(classLiteral: String): BuildConfigField = apply {
         this.type.value(nameOf(classLiteral)).disallowChanges()
@@ -52,7 +57,10 @@ public interface BuildConfigField : Named {
     }
 
     public fun value(literal: Serializable?): BuildConfigField = apply {
-        value.value(BuildConfigValue.Literal(literal)).disallowChanges()
+        value.value(when (literal) {
+            is BuildConfigValue.Expect -> literal
+            else -> BuildConfigValue.Literal(literal)
+        }).disallowChanges()
     }
 
     public fun <Type : Serializable> value(literal: Provider<out Type>): BuildConfigField = apply {

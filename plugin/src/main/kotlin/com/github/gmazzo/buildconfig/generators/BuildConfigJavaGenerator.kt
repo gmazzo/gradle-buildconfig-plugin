@@ -100,8 +100,7 @@ public open class BuildConfigJavaGenerator(
                             }
 
                             is BuildConfigValue.Expression -> initializer($$"$L", value.value)
-                            is BuildConfigValue.MultiplatformExpect<*>,
-                            is BuildConfigValue.MultiplatformActual -> error("`expect/actual` values are not supported in Java: $value")
+                            is BuildConfigValue.Expect -> error("`expect/actual` values are not supported in Java: $value")
                         }
                     }.build()
                 )

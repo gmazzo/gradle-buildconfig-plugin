@@ -33,41 +33,45 @@ dependencies {
 }
 
 buildConfig {
-    generator = object : BuildConfigKotlinGenerator() {
-        override fun adaptSpec(spec: TypeSpec) = spec.toBuilder()
-            .addAnnotation(
-                AnnotationSpec.builder(ClassName.bestGuess("kotlin.js.JsName"))
-                    .addMember("name = %S", spec.name!!)
-                    .build()
-            )
-            .build()
-    }
-
-    buildConfigField("COMMON_VALUE",  multiplatform { "aCommonValue" })
-    buildConfigField("PLATFORM", multiplatform { targetName ->
-        targetName.removeSuffix("Main") // androidMain -> android, jvmMain -> jvm, etc.
-    })
+    buildConfigField("COMMON_VALUE",  "aCommonValue")
+    buildConfigField("IS_MOBILE", expect(false)) // with a default
+    buildConfigField("PLATFORM", expect<String>()) // without a default
 
     sourceSets.named("androidMain") {
-        useKotlinOutput() // resets `generator` back to default's Kotlin generator for JVM
+        buildConfigField("PLATFORM", "android")
+        buildConfigField("IS_MOBILE", true)
         buildConfigField("ANDROID_VALUE", "anAndroidValue")
     }
 
     sourceSets.named("jvmMain") {
-        useKotlinOutput() // resets `generator` back to default's Kotlin generator for JVM
+        buildConfigField("PLATFORM", "jvm")
         buildConfigField("JVM_VALUE", "aJvmValue")
     }
 
     sourceSets.named("iosMain") {
-        useKotlinOutput() // resets `generator` back to default's Kotlin generator for JVM
+        buildConfigField("PLATFORM", "ios")
+        buildConfigField("IS_MOBILE", true)
         buildConfigField("IOS_VALUE", "anIOSValue")
     }
 
     sourceSets.named("jsMain") {
+        // Customize the generator to add @JsName annotations to the generated object
+        generator = object : BuildConfigKotlinGenerator() {
+            override fun adaptSpec(spec: TypeSpec) = spec.toBuilder()
+                .addAnnotation(
+                    AnnotationSpec.builder(ClassName.bestGuess("kotlin.js.JsName"))
+                        .addMember("name = %S", spec.name!!)
+                        .build()
+                )
+                .build()
+        }
+
+        buildConfigField("PLATFORM", "js")
         buildConfigField("JS_VALUE", "aJsValue")
     }
 
     sourceSets.named("wasmJsMain") {
+        buildConfigField("PLATFORM", "wasmJs")
         buildConfigField("WASM_JS_VALUE", "aWebAssemblyJsValue")
     }
 }

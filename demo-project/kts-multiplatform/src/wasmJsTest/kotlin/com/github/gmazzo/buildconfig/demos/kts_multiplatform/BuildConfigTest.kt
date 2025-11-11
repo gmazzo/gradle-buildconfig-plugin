@@ -7,9 +7,10 @@ class BuildConfigTest {
 
     @Test
     fun testBuildConfigProperties() {
-        assertEquals("wasmJs", WasmJsMainBuildConfig.PLATFORM)
+        assertEquals("wasmJs", BuildConfig.PLATFORM)
+        assertEquals(false, BuildConfig.IS_MOBILE)
         assertEquals("aCommonValue", BuildConfig.COMMON_VALUE)
-        assertEquals("aWebAssemblyJsValue", WasmJsMainBuildConfig.WASM_JS_VALUE)
+        assertEquals("aWebAssemblyJsValue", BuildConfig.WASM_JS_VALUE)
     }
 
 }
