@@ -25,7 +25,7 @@ kotlin {
     abiValidation.enabled = true
     compilerOptions {
         // https://docs.gradle.org/current/userguide/compatibility.html#kotlin
-        apiVersion = KotlinVersion.KOTLIN_1_8
+        apiVersion = KotlinVersion.KOTLIN_2_0
         languageVersion = apiVersion
         jvmDefault = JvmDefaultMode.NO_COMPATIBILITY
     }
