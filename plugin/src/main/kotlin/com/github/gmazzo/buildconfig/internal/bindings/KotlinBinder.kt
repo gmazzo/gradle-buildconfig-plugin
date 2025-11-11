@@ -111,22 +111,18 @@ internal object KotlinBinder {
                             val spec =
                                 extension.sourceSets.maybeCreate(compilation.defaultSourceSet.name) as BuildConfigSourceSetInternal
 
-                            val commonSpecs =
-                                (
-                                    compilation.allKotlinSourceSets.asSequence()
-                                        .flatMap { it.allDependsOn }
-                                        .map { it.name.regularSourceSetName }
-                                        .flatMap { it.includingCommonsForAndroid }
-                                        .filter { it != spec.name })
-                                    .mapNotNull { extension.sourceSets.findByName(it) as BuildConfigSourceSetInternal? }
-                                    .filter { it.buildConfigFields.any { field -> field.value.orNull is BuildConfigValue.MultiplatformExpect<*> } }
-                                    .toSet()
+                            val commonSpecs = compilation.allKotlinSourceSets.asSequence()
+                                .flatMap { it.allDependsOn }
+                                .map { it.name.regularSourceSetName }
+                                .flatMap { it.includingCommonsForAndroid }
+                                .filter { it != spec.name }
+                                .mapNotNull { extension.sourceSets.findByName(it) as BuildConfigSourceSetInternal? }
+                                .filter { it.buildConfigFields.any { field -> field.value.orNull is BuildConfigValue.MultiplatformExpect<*> } }
+                                .toSet()
 
                             for (common in commonSpecs) {
-                                spec.fillActualFields(targetName, common)
-                                common.extraSpecs.all {
-                                    spec.fillActualFields(targetName, it)
-                                }
+                                fillActualFields(targetName, from = common, into = spec)
+                                common.extraSpecs.all { fillActualFields(targetName, from = it, into = spec) }
                             }
                         }
                     }
@@ -134,26 +130,23 @@ internal object KotlinBinder {
             }
         }
 
-        private fun BuildConfigSourceSetInternal.fillActualFields(targetName: String, from: BuildConfigClassSpec) {
-            check(extraSpecs.findByName(from.name) == null) {
-                "You can't define a class with name '${from.name}' at target '$targetName' if it's already defined as common"
+        private fun fillActualFields(targetName: String, from: BuildConfigClassSpec, into: BuildConfigSourceSetInternal) {
+            val spec by lazy {
+                into.forClass(packageName = from.packageName.orNull, className = from.className.get()) {
+                    it.className.convention(from.className)
+                    it.packageName.convention(from.packageName)
+                    it.documentation.convention(from.documentation)
+                }
             }
 
-            forClass(packageName = from.packageName.orNull, className = from.className.get()) {
-                className.value(from.className).disallowChanges()
-                packageName.value(from.packageName).disallowChanges()
-                documentation.value(from.documentation).disallowChanges()
-                generator.convention(from.generator).disallowChanges()
+            from.buildConfigFields.all { commonField ->
+                val commonValue = commonField.value.orNull as? BuildConfigValue.MultiplatformExpect<*> ?: return@all
+                val targetValue = commonValue.producer.resolveValue(forTarget = targetName)
 
-                from.buildConfigFields.all { commonField ->
-                    val commonValue = commonField.value.orNull as? BuildConfigValue.MultiplatformExpect<*> ?: return@all
-                    val targetValue = commonValue.producer.resolveValue(forTarget = targetName)
-
-                    buildConfigField(commonField.name) { actualField ->
-                        actualField.type.value(commonField.type).disallowChanges()
-                        actualField.value.value(BuildConfigValue.MultiplatformActual(targetValue)).disallowChanges()
-                        actualField.position.value(commonField.position).disallowChanges()
-                    }
+                spec.buildConfigField(commonField.name) { actualField ->
+                    actualField.type.value(commonField.type).disallowChanges()
+                    actualField.value.value(BuildConfigValue.MultiplatformActual(targetValue)).disallowChanges()
+                    actualField.position.value(commonField.position).disallowChanges()
                 }
             }
         }

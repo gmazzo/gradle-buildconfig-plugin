@@ -76,7 +76,9 @@ public open class BuildConfigKotlinGenerator(
             val typeName = field.type.get().toTypeName()
 
             val value = field.value.get()
-            val nullableAwareType = if (value.value != null) typeName else typeName.copy(nullable = true)
+            val nullableAwareType =
+                if (value.value != null || value is BuildConfigValue.MultiplatformExpect<*>) typeName
+                else typeName.copy(nullable = true)
             val modifiers = listOfNotNull(
                 kModifiers,
                 KModifier.CONST.takeIf { value.value != null && typeName in CONST_TYPES },

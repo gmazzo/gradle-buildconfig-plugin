@@ -33,8 +33,8 @@ internal abstract class DefaultBuildConfigSourceSet(
 
     override fun forClass(packageName: String?, className: String): BuildConfigClassSpec =
         extraSpecs.maybeCreate(className).also {
-            it.className.value(className).disallowChanges()
-            it.packageName.value(packageName)
+            it.className.convention(className)
+            it.packageName.convention(packageName)
         }
 
     override fun iterator() = iterator { yield(generateTask) }
