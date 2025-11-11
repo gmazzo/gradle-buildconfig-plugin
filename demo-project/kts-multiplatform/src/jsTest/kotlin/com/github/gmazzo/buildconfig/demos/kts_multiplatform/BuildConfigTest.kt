@@ -7,9 +7,10 @@ class BuildConfigTest {
 
     @Test
     fun testBuildConfigProperties() {
-        assertEquals("js", JsMainBuildConfig.PLATFORM)
+        assertEquals("js", BuildConfig.PLATFORM)
+        assertEquals(false, BuildConfig.IS_MOBILE)
         assertEquals("aCommonValue", BuildConfig.COMMON_VALUE)
-        assertEquals("aJsValue", JsMainBuildConfig.JS_VALUE)
+        assertEquals("aJsValue", BuildConfig.JS_VALUE)
     }
 
 }

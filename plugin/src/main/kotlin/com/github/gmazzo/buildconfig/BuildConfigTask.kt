@@ -91,6 +91,7 @@ public abstract class BuildConfigTask : DefaultTask() {
                     this@field.type.value(field.type).disallowChanges()
                     this@field.value.value(field.value.orElse(nullLiteral)).disallowChanges()
                     this@field.position.value(field.position).disallowChanges()
+                    this@field.tags.value(field.tags).disallowChanges()
                 }
             })
         }

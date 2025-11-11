@@ -160,6 +160,7 @@ public class BuildConfigPlugin : Plugin<Project> {
         it.type.finalizeValueOnRead()
         it.value.finalizeValueOnRead()
         it.position.finalizeValueOnRead()
+        it.tags.finalizeValueOnRead()
     }
 
     private fun Project.hasKotlinPlugin() = listOf(

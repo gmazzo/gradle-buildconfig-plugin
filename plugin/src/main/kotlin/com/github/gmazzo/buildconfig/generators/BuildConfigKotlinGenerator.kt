@@ -38,6 +38,7 @@ import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.asTypeName
 import java.io.File
+import java.io.Serializable
 import java.net.URI as JavaURI
 import org.gradle.api.logging.Logging
 import org.gradle.api.tasks.Input
@@ -74,30 +75,38 @@ public open class BuildConfigKotlinGenerator(
     private fun Iterable<BuildConfigField>.asPropertiesSpec() = map { field ->
         try {
             val typeName = field.type.get().toTypeName()
+            val (expect, actual) =
+                field.tags.getOrElse(emptySet()).let { (TagExpect in it) to (TagActual in it) }
 
             val value = field.value.get()
-            val nullableAwareType = if (value.value != null) typeName else typeName.copy(nullable = true)
+            val nullableAwareType = if (expect || value.value != null) typeName else typeName.copy(nullable = true)
+            val modifiers = listOfNotNull(
+                kModifiers,
+                KModifier.CONST.takeIf { !expect && value.value != null && typeName in CONST_TYPES },
+                KModifier.EXPECT.takeIf { expect },
+                KModifier.ACTUAL.takeIf { actual },
+            )
 
-            return@map PropertySpec.builder(field.name, nullableAwareType, kModifiers)
-                .apply { if (value.value != null && typeName in CONST_TYPES) addModifiers(KModifier.CONST) }
-                .apply {
-                    when (value) {
-                        is BuildConfigValue.Literal -> {
-                            val (format, count) = typeName.format(value.value)
-                            val args = value.value.asVarArg()
+            val prop = PropertySpec.builder(field.name, nullableAwareType, kModifiers, *modifiers.toTypedArray())
+            if (!expect) {
+                when (value) {
+                    is BuildConfigValue.Literal -> {
+                        val (format, count) = typeName.format(value.value)
+                        val args = value.value.asVarArg()
 
-                            check(count == args.size) {
-                                "Invalid number of arguments for ${field.name} of type ${nullableAwareType}: " +
-                                    "expected $count, got ${args.size}: ${args.joinToString()}"
-                            }
-                            initializer(format, *args)
+                        check(count == args.size) {
+                            "Invalid number of arguments for ${field.name} of type ${nullableAwareType}: " +
+                                "expected $count, got ${args.size}: ${args.joinToString()}"
                         }
-
-                        is BuildConfigValue.Expression -> initializer("%L", value.value)
+                        prop.initializer(format, *args)
                     }
 
+                    is BuildConfigValue.Expression -> prop.initializer("%L", value.value)
+                    is BuildConfigValue.Expect -> error("Unexpected expect value for field ${field.name} here")
                 }
-                .build()
+            }
+            return@map prop.build()
+
         } catch (e: Exception) {
             throw IllegalArgumentException(
                 "Failed to generate field '${field.name}' of type '${field.type.get()}', " +
@@ -141,8 +150,12 @@ public open class BuildConfigKotlinGenerator(
         else -> addType(
             TypeSpec.objectBuilder(name)
                 .apply { if (kdoc != null) addKdoc("%L", kdoc) }
-                .addModifiers(kModifiers)
                 .addProperties(fields)
+                .addModifiers(listOfNotNull(
+                    kModifiers,
+                    KModifier.ACTUAL.takeIf { fields.any { it.modifiers.contains(KModifier.ACTUAL) } },
+                    KModifier.EXPECT.takeIf { fields.any { it.modifiers.contains(KModifier.EXPECT) } },
+                ))
                 .build()
                 .let(::adaptSpec)
         )
@@ -151,9 +164,10 @@ public open class BuildConfigKotlinGenerator(
     private val kModifiers
         get() = if (internalVisibility) KModifier.INTERNAL else KModifier.PUBLIC
 
-
     private fun TypeName.format(forValue: Any?): Pair<String, Int> {
-        if (forValue == null) { return "null" to 0 }
+        if (forValue == null) {
+            return "null" to 0
+        }
 
         fun TypeName?.format() = when (this?.copy(nullable = false)) {
             CHAR -> "'%L'"
@@ -239,6 +253,16 @@ public open class BuildConfigKotlinGenerator(
         private val GENERIC_MAP = ClassName("", "Map")
         private val FILE = File::class.asClassName()
         private val URI = JavaURI::class.asClassName()
+    }
+
+    internal object TagExpect : Serializable {
+        @Suppress("unused")
+        private fun readResolve(): Any = TagExpect
+    }
+
+    internal object TagActual : Serializable {
+        @Suppress("unused")
+        private fun readResolve(): Any = TagActual
     }
 
 }

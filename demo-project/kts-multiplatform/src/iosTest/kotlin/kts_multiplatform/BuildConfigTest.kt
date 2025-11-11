@@ -7,9 +7,10 @@ class BuildConfigTest {
 
     @Test
     fun testBuildConfigProperties() {
-        assertEquals("ios", IosMainBuildConfig.PLATFORM)
+        assertEquals("ios", BuildConfig.PLATFORM)
+        assertEquals(true, BuildConfig.IS_MOBILE)
         assertEquals("aCommonValue", BuildConfig.COMMON_VALUE)
-        assertEquals("anIOSValue", IosMainBuildConfig.IOS_VALUE)
+        assertEquals("anIOSValue", BuildConfig.IOS_VALUE)
     }
 
 }

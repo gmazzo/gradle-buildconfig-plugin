@@ -177,7 +177,59 @@ const val APP_NAME: String = "example-kts"
 const val APP_VERSION: String = "0.0.1"
 ```
 
-## Added documentation (JavaDoc / KDoc) to the generated class
+## `expect`/`actual` support on Kotlin Multiplatform projects
+
+Similar to Android's `buildConfigField`, you can consume an `expect` BuildConfig class from common code,
+and provide different values for each platform target:
+```kotlin
+buildConfig {
+    buildConfigField("COMMON_VALUE",  "aCommonValue")
+    buildConfigField("IS_MOBILE", expect(false)) // with a default
+    buildConfigField("PLATFORM", expect<String>()) // without a default
+
+    sourceSets.named("androidMain") {
+        buildConfigField("PLATFORM", "android")
+        buildConfigField("IS_MOBILE", true)
+    }
+
+    sourceSets.named("jvmMain") {
+        buildConfigField("PLATFORM", "jvm")
+    }
+}
+```
+It will generate at `commonMain`:
+```kotlin
+
+expect object BuildConfig {
+    val COMMON_VALUE: String
+    val IS_MOBILE: Boolean
+    val PLATFORM: String
+}
+```
+At `androidMain` sourceSet:
+```kotlin
+actual object BuildConfig {
+    actual const val COMMON_VALUE: String = "aCommonValue"
+    actual const val PLATFORM: String = "android"
+    actual const val IS_MOBILE: Boolean = true
+    const val ANDROID_VALUE: String = "anAndroidValue"
+}
+```
+And at `jvmMain` sourceSet:
+```kotlin
+actual object BuildConfig {
+    actual const val COMMON_VALUE: String = "aCommonValue"
+    actual const val PLATFORM: String = "jvm"
+    actual const val IS_MOBILE: Boolean = false
+    const val ANDROID_VALUE: String = "anAndroidValue"
+}
+```
+
+> [!NOTE]
+> This is only available for Kotlin Multiplatform projects,
+> since [it relies on `expect`/`actual` mechanism](https://www.jetbrains.com/help/kotlin-multiplatform-dev/multiplatform-expect-actual.html).
+
+## Adding documentation (JavaDoc / KDoc) to the generated class
 
 On your `build.gradle.kts` add:
 

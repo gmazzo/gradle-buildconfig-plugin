@@ -24,4 +24,15 @@ public sealed class BuildConfigValue : Serializable {
 
     }
 
+    public data class Expect(override val value: Serializable? = NoDefault) : BuildConfigValue() {
+
+        override fun toString(): String = "expect" + (if (value !is NoDefault) " (defaultsTo=$value)" else "")
+
+    }
+
+    internal data object NoDefault : Serializable {
+        @Suppress("unused")
+        private fun readResolve(): Any = NoDefault
+    }
+
 }
