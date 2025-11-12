@@ -192,7 +192,7 @@ public class com/github/gmazzo/buildconfig/generators/BuildConfigKotlinGenerator
 }
 
 public final class org/gradle/kotlin/dsl/BuildConfigClassSpecDSLKt {
-	public static final fun buildConfig (Lorg/jetbrains/kotlin/gradle/plugin/KotlinSourceSet;Lorg/gradle/api/Action;)V
+	public static final fun buildConfig (Lorg/jetbrains/kotlin/gradle/plugin/KotlinSourceSet;Lkotlin/jvm/functions/Function1;)V
 	public static final fun getBuildConfig (Lorg/jetbrains/kotlin/gradle/plugin/KotlinSourceSet;)Lcom/github/gmazzo/buildconfig/BuildConfigSourceSet;
 	public static final fun invoke (Lcom/github/gmazzo/buildconfig/BuildConfigSourceSet;Lorg/gradle/api/Action;)V
 }

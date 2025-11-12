@@ -16,7 +16,8 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 public val KotlinSourceSet.buildConfig: BuildConfigSourceSet
     get() = (this as ExtensionAware).extensions.getByName<BuildConfigSourceSet>("buildConfig")
 
-public fun KotlinSourceSet.buildConfig(action: Action<BuildConfigSourceSet>): Unit = action.execute(buildConfig)
+public fun KotlinSourceSet.buildConfig(action: BuildConfigSourceSet.() -> Unit): Unit =
+    buildConfig.action()
 
 @Deprecated(
     message = "There is no need to call 'invoke' anymore, use 'buildConfig' directly.",
