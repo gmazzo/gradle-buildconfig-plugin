@@ -18,6 +18,10 @@ public val KotlinSourceSet.buildConfig: BuildConfigSourceSet
 
 public fun KotlinSourceSet.buildConfig(action: Action<BuildConfigSourceSet>): Unit = action.execute(buildConfig)
 
+@Deprecated(
+    message = "There is no need to call 'invoke' anymore, use 'buildConfig' directly.",
+    replaceWith = ReplaceWith("buildConfig"),
+)
 public operator fun BuildConfigSourceSet.invoke(action: Action<BuildConfigSourceSet>): Unit =
     action.execute(this)
 
