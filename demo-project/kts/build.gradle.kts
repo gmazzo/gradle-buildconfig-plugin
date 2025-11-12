@@ -208,6 +208,14 @@ buildConfig {
     buildConfigField("VERY_LONG_LIST", (1..20).toList())
     buildConfigField("VERY_LONG_SET", (1..20).toSet())
     buildConfigField("VERY_LONG_MAP", (1..20).associateWith { it.toString() })
+
+    sourceSets.main {
+        buildConfigField("MAIN_CONSTANT", "aMainValue")
+    }
+
+    sourceSets.test {
+        buildConfigField("TEST_CONSTANT_MAIN_SS", "aTestValueMainSS")
+    }
 }
 
 sourceSets.test { buildConfig.buildConfigField("TEST_CONSTANT", "aTestValue") }

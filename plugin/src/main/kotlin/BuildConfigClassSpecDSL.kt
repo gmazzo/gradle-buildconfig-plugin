@@ -8,6 +8,7 @@ import com.github.gmazzo.buildconfig.BuildConfigValue
 import java.io.Serializable
 import kotlin.reflect.typeOf
 import org.gradle.api.Action
+import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.provider.Provider
@@ -20,6 +21,12 @@ public fun KotlinSourceSet.buildConfig(action: Action<BuildConfigSourceSet>): Un
 
 public operator fun BuildConfigSourceSet.invoke(action: Action<BuildConfigSourceSet>): Unit =
     action.execute(this)
+
+public val <T : BuildConfigSourceSet> NamedDomainObjectContainer<T>.main: NamedDomainObjectProvider<T>
+    get() = named("main")
+
+public val <T : BuildConfigSourceSet> NamedDomainObjectContainer<T>.test: NamedDomainObjectProvider<T>
+    get() = named("test")
 
 @BuildConfigDsl
 public inline fun <reified Type : Any> BuildConfigClassSpec.buildConfigField(
