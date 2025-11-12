@@ -6,7 +6,6 @@ import javax.inject.Inject
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.tasks.TaskProvider
-import org.gradle.kotlin.dsl.newInstance
 
 internal abstract class DefaultBuildConfigSourceSet(
     classSpec: BuildConfigClassSpec,
@@ -23,9 +22,9 @@ internal abstract class DefaultBuildConfigSourceSet(
         name: String,
         objects: ObjectFactory,
     ) : this(
-        classSpec = objects.newInstance<DefaultBuildConfigClassSpec>(name),
+        classSpec = objects.newInstance(DefaultBuildConfigClassSpec::class.java, name),
         extraSpecs = objects.domainObjectContainer(DefaultBuildConfigClassSpec::class.java) { extraName ->
-            objects.newInstance<DefaultBuildConfigClassSpec>(extraName)
+            objects.newInstance(DefaultBuildConfigClassSpec::class.java, extraName)
         }
     )
 

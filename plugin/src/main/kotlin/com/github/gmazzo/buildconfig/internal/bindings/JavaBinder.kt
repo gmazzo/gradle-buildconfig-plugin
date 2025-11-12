@@ -5,14 +5,11 @@ import com.github.gmazzo.buildconfig.BuildConfigSourceSet
 import org.gradle.api.Project
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.tasks.SourceSetContainer
-import org.gradle.kotlin.dsl.add
-import org.gradle.kotlin.dsl.getValue
-import org.gradle.kotlin.dsl.provideDelegate
 
 internal object JavaBinder {
 
     fun Project.configure(extension: BuildConfigExtension) {
-        val sourceSets: SourceSetContainer by extensions
+        val sourceSets = extensions.getByType(SourceSetContainer::class.java)
 
         sourceSets.configureEach { sourceSet ->
             val spec = extension.sourceSets.maybeCreate(sourceSet.name)
@@ -23,6 +20,6 @@ internal object JavaBinder {
     }
 
     internal fun ExtensionAware.registerExtension(sourceSet: BuildConfigSourceSet) =
-        extensions.add(BuildConfigSourceSet::class, "buildConfig", sourceSet)
+        extensions.add(BuildConfigSourceSet::class.java, "buildConfig", sourceSet)
 
 }

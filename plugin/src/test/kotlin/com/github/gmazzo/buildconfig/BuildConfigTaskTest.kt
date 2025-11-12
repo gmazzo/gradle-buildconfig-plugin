@@ -5,8 +5,6 @@ import com.github.gmazzo.buildconfig.generators.BuildConfigGeneratorSpec
 import com.github.gmazzo.buildconfig.internal.DefaultBuildConfigClassSpec
 import io.mockk.mockk
 import io.mockk.verify
-import org.gradle.kotlin.dsl.newInstance
-import org.gradle.kotlin.dsl.register
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.jupiter.api.Test
 
@@ -16,7 +14,7 @@ class BuildConfigTaskTest {
 
     private val generator: BuildConfigGenerator = mockk(relaxUnitFun = true)
 
-    private val spec: BuildConfigClassSpec = project.objects.newInstance<DefaultBuildConfigClassSpec>("spec").apply {
+    private val spec: BuildConfigClassSpec = project.objects.newInstance(DefaultBuildConfigClassSpec::class.java, "spec").apply {
         generator.set(this@BuildConfigTaskTest.generator)
         className.set("aClassName")
         packageName.set("aPackage")
@@ -25,9 +23,9 @@ class BuildConfigTaskTest {
 
     private val outDir = project.layout.buildDirectory.dir("outDir")
 
-    private val task = project.tasks.register<BuildConfigTask>("testedTask") {
-        outputDir.set(outDir)
-        specs.add(spec)
+    private val task = project.tasks.register("testedTask", BuildConfigTask::class.java) {
+        it.outputDir.set(outDir)
+        it.specs.add(spec)
     }
 
     @Test

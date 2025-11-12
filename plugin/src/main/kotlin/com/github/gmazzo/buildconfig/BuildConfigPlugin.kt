@@ -16,9 +16,6 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.PluginContainer
 import org.gradle.api.tasks.SourceSet
-import org.gradle.kotlin.dsl.domainObjectContainer
-import org.gradle.kotlin.dsl.register
-import org.gradle.kotlin.dsl.withType
 import org.gradle.util.GradleVersion
 
 public class BuildConfigPlugin : Plugin<Project> {
@@ -32,7 +29,7 @@ public class BuildConfigPlugin : Plugin<Project> {
             "Gradle version must be at least $MIN_GRADLE_VERSION"
         }
 
-        val sourceSets = objects.domainObjectContainer(DefaultBuildConfigSourceSet::class)
+        val sourceSets = objects.domainObjectContainer(DefaultBuildConfigSourceSet::class.java)
 
         val defaultSS = sourceSets.create(SourceSet.MAIN_SOURCE_SET_NAME)
 
@@ -59,7 +56,7 @@ public class BuildConfigPlugin : Plugin<Project> {
 
             // generate at sync
             if (extension.generateAtSync.get() && isGradleSync) {
-                tasks.maybeCreate("prepareKotlinIdeaImport").dependsOn(tasks.withType<BuildConfigTask>())
+                tasks.maybeCreate("prepareKotlinIdeaImport").dependsOn(tasks.withType(BuildConfigTask::class.java))
             }
         }
 
@@ -148,12 +145,12 @@ public class BuildConfigPlugin : Plugin<Project> {
 
         configureFields(sourceSet.buildConfigFields)
 
-        sourceSet.generateTask = tasks.register<BuildConfigTask>("generate${prefix}${taskPrefix}BuildConfig") {
-            group = "BuildConfig"
-            description = "Generates the build constants class for '${sourceSet.name}' source"
+        sourceSet.generateTask = tasks.register("generate${prefix}${taskPrefix}BuildConfig", BuildConfigTask::class.java) {
+            it.group = "BuildConfig"
+            it.description = "Generates the build constants class for '${sourceSet.name}' source"
 
-            bindTo(sourceSet)
-            outputDir.set(layout.buildDirectory.dir("generated/sources/buildConfig/${sourceSet.name}"))
+            it.bindTo(sourceSet)
+            it.outputDir.set(layout.buildDirectory.dir("generated/sources/buildConfig/${sourceSet.name}"))
         }
     }
 

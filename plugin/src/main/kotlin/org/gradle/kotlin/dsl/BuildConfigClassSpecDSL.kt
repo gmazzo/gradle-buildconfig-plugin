@@ -14,7 +14,7 @@ import org.gradle.api.provider.Provider
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 
 public val KotlinSourceSet.buildConfig: BuildConfigSourceSet
-    get() = (this as ExtensionAware).extensions.getByName<BuildConfigSourceSet>("buildConfig")
+    get() = (this as ExtensionAware).extensions.getByType(BuildConfigSourceSet::class.java)
 
 public fun KotlinSourceSet.buildConfig(action: Action<BuildConfigSourceSet>): Unit = action.execute(buildConfig)
 

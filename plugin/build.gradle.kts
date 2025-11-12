@@ -36,7 +36,6 @@ dependencies {
     fun DependencyHandler.plugin(dependency: Provider<PluginDependency>) =
         dependency.get().run { create("$pluginId:$pluginId.gradle.plugin:$version") }
 
-    compileOnly(gradleKotlinDsl())
     compileOnly(plugin(libs.plugins.kotlin.jvm))
     compileOnly(plugin(libs.plugins.android))
 
@@ -44,7 +43,6 @@ dependencies {
     implementation(libs.kotlinpoet)
 
     testImplementation(gradleTestKit())
-    testImplementation(gradleKotlinDsl())
     testImplementation(platform(libs.junit5.bom))
     testImplementation(libs.junit5.params)
     testRuntimeOnly(libs.junit5.engine)

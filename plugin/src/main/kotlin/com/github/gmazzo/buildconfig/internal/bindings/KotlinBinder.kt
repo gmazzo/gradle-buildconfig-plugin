@@ -14,7 +14,6 @@ import org.gradle.api.file.SourceDirectorySet
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.tasks.SourceSet.MAIN_SOURCE_SET_NAME
 import org.gradle.api.tasks.SourceSet.TEST_SOURCE_SET_NAME
-import org.gradle.kotlin.dsl.getByName
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet.Companion.COMMON_MAIN_SOURCE_SET_NAME
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet.Companion.COMMON_TEST_SOURCE_SET_NAME
 
@@ -40,7 +39,7 @@ internal object KotlinBinder {
     }
 
     private val Project.kotlin: ExtensionAware /*KotlinProjectExtension*/
-        get() = extensions.getByName<ExtensionAware>("kotlin")
+        get() = extensions.getByName("kotlin") as ExtensionAware
 
     @Suppress("UNCHECKED_CAST")
     private val ExtensionAware/*KotlinProjectExtension*/.sourceSets

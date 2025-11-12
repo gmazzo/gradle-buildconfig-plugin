@@ -14,7 +14,6 @@ import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.tasks.SourceSet.MAIN_SOURCE_SET_NAME
 import org.gradle.api.tasks.SourceSet.TEST_SOURCE_SET_NAME
 import org.gradle.api.tasks.TaskProvider
-import org.gradle.kotlin.dsl.closureOf
 
 internal object AndroidBinder {
 
@@ -188,5 +187,21 @@ internal object AndroidBinder {
             "AndroidTest" -> return "androidInstrumentedTest$suffix"
             else -> "android$suffix"
         }
+    }
+
+    private fun <T> Any.closureOf(action: T.() -> Unit): Closure<Any?> =
+        KotlinClosure1(action, this, this)
+
+    /**
+     * https://github.com/gradle/gradle/blob/cc8a80a2497e4bc05a2b2c6cc264a990de88beb4/platforms/core-configuration/kotlin-dsl/src/main/kotlin/org/gradle/kotlin/dsl/GroovyInteroperability.kt#L76-L95
+     */
+    private class KotlinClosure1<in T : Any?, V : Any>(
+        val function: T.() -> V?,
+        owner: Any? = null,
+        thisObject: Any? = null
+    ) : Closure<V?>(owner, thisObject) {
+
+        @Suppress("unused") // to be called dynamically by Groovy
+        fun doCall(it: T): V? = it.function()
     }
 }

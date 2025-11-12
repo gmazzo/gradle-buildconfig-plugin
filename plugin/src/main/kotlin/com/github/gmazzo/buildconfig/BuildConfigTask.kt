@@ -15,7 +15,6 @@ import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
-import org.gradle.kotlin.dsl.newInstance
 import org.gradle.util.GradleVersion
 
 @CacheableTask
@@ -79,7 +78,7 @@ public abstract class BuildConfigTask : DefaultTask() {
      * It makes it compatible with Configuration Cache
      */
     private fun Project.isolate(source: BuildConfigClassSpec) =
-        objects.newInstance<BuildConfigClassSpec>(source.name).apply spec@{
+        objects.newInstance(BuildConfigClassSpec::class.java, source.name).apply spec@{
             val nullLiteral = BuildConfigValue.Literal(null)
 
             generator.value(source.generator).disallowChanges()
@@ -87,7 +86,7 @@ public abstract class BuildConfigTask : DefaultTask() {
             packageName.value(source.packageName).disallowChanges()
             documentation.value(source.documentation).disallowChanges()
             buildConfigFields.addAll(source.buildConfigFields.map { field ->
-                objects.newInstance<BuildConfigField>(field.name).apply field@{
+                objects.newInstance(BuildConfigField::class.java, field.name).apply field@{
                     this@field.type.value(field.type).disallowChanges()
                     this@field.value.value(field.value.orElse(nullLiteral)).disallowChanges()
                     this@field.position.value(field.position).disallowChanges()
