@@ -29,7 +29,15 @@ internal abstract class DefaultBuildConfigSourceSet(
         }
     )
 
+    override val dependsOn = linkedSetOf<BuildConfigSourceSetInternal>()
+
     override lateinit var generateTask: TaskProvider<BuildConfigTask>
+
+    override fun dependsOn(other: BuildConfigSourceSetInternal) {
+        if (other !== this) {
+            dependsOn += other
+        }
+    }
 
     override fun forClass(packageName: String?, className: String): BuildConfigClassSpec =
         extraSpecs.maybeCreate(className).also {
@@ -38,5 +46,7 @@ internal abstract class DefaultBuildConfigSourceSet(
         }
 
     override fun iterator() = iterator { yield(generateTask) }
+
+    override fun toString() = "buildConfig source set <$name>"
 
 }
