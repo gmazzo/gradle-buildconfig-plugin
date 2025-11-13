@@ -1,4 +1,4 @@
-package org.gradle.kotlin.dsl.com.github.gmazzo.buildconfig.internal.bindings
+package com.github.gmazzo.buildconfig.internal.bindings
 
 import com.github.gmazzo.buildconfig.BuildConfigExtension
 import com.github.gmazzo.buildconfig.BuildConfigTask
