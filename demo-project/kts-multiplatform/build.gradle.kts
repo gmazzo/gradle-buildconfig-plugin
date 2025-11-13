@@ -36,11 +36,16 @@ buildConfig {
     buildConfigField("COMMON_VALUE",  "aCommonValue")
     buildConfigField("IS_MOBILE", expect(false)) // with a default
     buildConfigField("PLATFORM", expect<String>()) // without a default
+    buildConfigField("DEBUG", expect(false)) // to be changed by an Android variant
 
     sourceSets.named("androidMain") {
         buildConfigField("PLATFORM", "android")
         buildConfigField("IS_MOBILE", true)
         buildConfigField("ANDROID_VALUE", "anAndroidValue")
+    }
+
+    sourceSets.named("androidDebug") {
+        buildConfigField("DEBUG", true)
     }
 
     sourceSets.named("jvmMain") {

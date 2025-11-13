@@ -10,6 +10,10 @@ internal interface BuildConfigSourceSetInternal : BuildConfigSourceSet {
 
     val extraSpecs: NamedDomainObjectContainer<out BuildConfigClassSpec>
 
+    val dependsOn: Set<BuildConfigSourceSetInternal>
+
     override var generateTask: TaskProvider<BuildConfigTask>
+
+    fun dependsOn(other: BuildConfigSourceSetInternal)
 
 }

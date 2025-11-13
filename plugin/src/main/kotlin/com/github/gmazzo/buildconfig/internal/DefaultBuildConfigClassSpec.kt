@@ -5,4 +5,8 @@ import javax.inject.Inject
 
 internal abstract class DefaultBuildConfigClassSpec @Inject constructor() :
     BuildConfigClassSpec,
-    GroovyNullValueWorkaround()
+    GroovyNullValueWorkaround() {
+
+    override fun toString() = "buildConfig class spec <$name>"
+
+}

@@ -1,9 +1,9 @@
-package org.gradle.kotlin.dsl.com.github.gmazzo.buildconfig.internal.bindings
+package com.github.gmazzo.buildconfig.internal.bindings
 
-import com.github.gmazzo.buildconfig.BuildConfigExtension
 import com.github.gmazzo.buildconfig.BuildConfigTask
-import com.github.gmazzo.buildconfig.internal.BuildConfigSourceSetInternal
+import com.github.gmazzo.buildconfig.internal.BuildConfigExtensionInternal
 import com.github.gmazzo.buildconfig.internal.bindings.JavaBinder.registerExtension
+import groovy.lang.Closure
 import org.gradle.api.Action
 import org.gradle.api.Named
 import org.gradle.api.NamedDomainObjectContainer
@@ -14,13 +14,14 @@ import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.tasks.SourceSet.MAIN_SOURCE_SET_NAME
 import org.gradle.api.tasks.SourceSet.TEST_SOURCE_SET_NAME
 import org.gradle.api.tasks.TaskProvider
+import org.gradle.kotlin.dsl.closureOf
 
 internal object AndroidBinder {
 
-    fun Project.configure(extension: BuildConfigExtension) {
+    private val variantNameRegex = Regex("^(.+?)(UnitTest|AndroidTest)?$")
+
+    fun Project.configure(extension: BuildConfigExtensionInternal) {
         val isKMP by lazy { isKotlinMultiplatform }
-        val mainSourceSetName by lazy { if (isKMP) "androidMain" else MAIN_SOURCE_SET_NAME }
-        val testSourceSetName by lazy { if (isKMP) "androidUnitTest" else TEST_SOURCE_SET_NAME }
 
         afterEvaluate {
             check(isKMP == isKotlinMultiplatform) {
@@ -32,67 +33,99 @@ internal object AndroidBinder {
             }
         }
 
+        fun nameOf(name: String) =
+            if (isKMP) kmpNameOf(name) else name
+
         androidSourceSets.all {
-            val kmpAwareName = when (it.name) {
-                MAIN_SOURCE_SET_NAME -> mainSourceSetName
-                TEST_SOURCE_SET_NAME -> testSourceSetName
-                else -> it.name
-            }
-            val spec = extension.sourceSets.maybeCreate(kmpAwareName)
+            val spec = extension.sourceSets.maybeCreate(nameOf(it.name))
 
             (it as ExtensionAware).registerExtension(spec)
         }
 
-        androidComponentsOnVariants { variant ->
-            variant.bindToSourceSet(extension,
-                mainSourceSetName,
-                variant.buildType,
-                variant.flavorName,
-                *variant.productFlavors.map { (_, flavor) -> flavor }.toTypedArray())
+        androidComponents.onVariants { variant ->
+            variant.bindToSourceSet(
+                extension, ::nameOf,
+                sequenceOf(
+                    MAIN_SOURCE_SET_NAME,
+                    variant.buildType,
+                    variant.flavorName,
+                ) + variant.productFlavors.asSequence().map { (_, flavor) -> flavor })
 
-            variant.unitTest?.bindToSourceSet(extension, testSourceSetName)
-            variant.androidTest?.bindToSourceSet(extension, "androidTest")
+            variant.unitTest?.bindToSourceSet(
+                extension,
+                ::nameOf,
+                sequenceOf(if (isKMP) "unitTest" else TEST_SOURCE_SET_NAME)
+            )
+            variant.androidTest?.bindToSourceSet(
+                extension,
+                ::nameOf,
+                sequenceOf(if (isKMP) "instrumentedTest" else "androidTest")
+            )
+        }
+
+        androidComponents.finalizeDsl {
+            if (isKMP) {
+                with(extension.sourceSets) {
+                    // makes `androidMain` depend on `main`
+                    maybeCreate(kmpNameOf(MAIN_SOURCE_SET_NAME))
+                        .dependsOn(maybeCreate(MAIN_SOURCE_SET_NAME))
+
+                    // makes `androidUnitTest` depend on `test`
+                    maybeCreate(kmpNameOf(TEST_SOURCE_SET_NAME))
+                        .dependsOn(maybeCreate(TEST_SOURCE_SET_NAME))
+                }
+            }
         }
     }
 
     private fun Any/*Component*/.bindToSourceSet(
-        extension: BuildConfigExtension,
-        vararg extras: String?,
+        extension: BuildConfigExtensionInternal,
+        nameOf: (String) -> String,
+        extras: Sequence<String?>,
     ) {
-        val ss = extension.sourceSets.maybeCreate(this@bindToSourceSet.name!!)
-        val extraSSs = extras.asSequence()
-            .filterNotNull()
-            .filter { it.isNotBlank() && it != ss.name }
-            .distinct()
+        val ss = extension.sourceSets.maybeCreate(nameOf(this@bindToSourceSet.name!!))
+        val extraSSs = extras
+            .filter { !it.isNullOrBlank() }
+            .map { nameOf(it!!) }
+            .filter { it != ss.name }
+            .toSet()
             .map(extension.sourceSets::maybeCreate)
+
+        extraSSs.forEach(ss::dependsOn)
 
         for (extraSS in extraSSs) {
             extraSS.generateTask.configure {
                 it.onlyIf("It was superseded by ${ss.name} source set") { false }
             }
             ss.generateTask.configure {
-                it.bindTo(extraSS as BuildConfigSourceSetInternal)
+                it.bindTo(extraSS)
             }
         }
 
         sourcesJavaAddGeneratedSourceDirectory(ss.generateTask, BuildConfigTask::outputDir)
     }
 
-    // project.androidComponents.onVariants
-    private fun Project.androidComponentsOnVariants(onVariant: Action<Any>) =
-        with(extensions.getByName("androidComponents")) {
-            val selectorsAll = with(javaClass.getMethod("selector").invoke(this)) {
-                javaClass.getMethod("all").invoke(this)
-            }
-            val selectorInterface = selectorsAll.javaClass.superclass.interfaces[0]
+    private val Project.androidComponents: ExtensionAware
+        get() = extensions.getByName("androidComponents") as ExtensionAware
 
-            @Suppress("UNCHECKED_CAST")
-            javaClass.getMethod("onVariants", selectorInterface, Action::class.java)
-                .invoke(this, selectorsAll, onVariant)
+    private fun ExtensionAware/*AndroidComponentsExtension*/.onVariants(onVariant: Action<Any>) {
+        val selectorsAll = with(javaClass.getMethod("selector").invoke(this)) {
+            javaClass.getMethod("all").invoke(this)
         }
+        val selectorInterface = selectorsAll.javaClass.superclass.interfaces[0]
 
-    // Variant.unitTest
-    private val Any.unitTest
+        @Suppress("UNCHECKED_CAST")
+        javaClass.getMethod("onVariants", selectorInterface, Action::class.java)
+            .invoke(this, selectorsAll, onVariant)
+    }
+
+    private fun ExtensionAware/*AndroidComponentsExtension*/.finalizeDsl(callback: (Any/*AndroidBaseExtension*/) -> Unit) {
+        @Suppress("UNCHECKED_CAST")
+        javaClass.getMethod("finalizeDsl", Closure::class.java)
+            .invoke(this, closureOf(callback))
+    }
+
+    private val Any/*Variant*/.unitTest
         get() = try {
             javaClass.getMethod("getUnitTest").invoke(this)
 
@@ -100,8 +133,7 @@ internal object AndroidBinder {
             null
         }
 
-    // Variant.androidTest
-    private val Any.androidTest
+    private val Any/*Variant*/.androidTest
         get() = try {
             javaClass.getMethod("getAndroidTest").invoke(this)
 
@@ -112,25 +144,21 @@ internal object AndroidBinder {
     private val Project.isKotlinMultiplatform
         get() = plugins.hasPlugin("org.jetbrains.kotlin.multiplatform")
 
-    // Component.name
-    private val Any.name
+    private val Any/*Component*/.name
         get() = javaClass.getMethod("getName").invoke(this) as String?
 
-    // Component.buildType
-    private val Any.buildType
+    private val Any/*Component*/.buildType
         get() = javaClass.getMethod("getBuildType").invoke(this) as String?
 
-    // Component.flavorName
-    private val Any.flavorName
+    private val Any/*Component*/.flavorName
         get() = javaClass.getMethod("getFlavorName").invoke(this) as String?
 
-    // Component.productFlavors
     @Suppress("UNCHECKED_CAST")
-    private val Any.productFlavors
+    private val Any/*Component*/.productFlavors
         get() = javaClass.getMethod("getProductFlavors").invoke(this) as List<Pair<String, String>>
 
     // Component.sources.java!!.addGeneratedSourceDirectory
-    private fun <Type : Task> Any.sourcesJavaAddGeneratedSourceDirectory(
+    private fun <Type : Task> Any/*Component*/.sourcesJavaAddGeneratedSourceDirectory(
         task: TaskProvider<out Type>,
         wiredWith: (Type) -> DirectoryProperty,
     ) = with(javaClass.getMethod("getSources").invoke(this)) {
@@ -148,4 +176,17 @@ internal object AndroidBinder {
                 .invoke(this) as NamedDomainObjectContainer<Named>
         }
 
+    private fun kmpNameOf(name: String): String {
+        if (name == MAIN_SOURCE_SET_NAME) return "androidMain"
+        if (name == TEST_SOURCE_SET_NAME) return "androidUnitTest"
+
+        val (variant, subVariant) = variantNameRegex.matchEntire(name)!!.destructured // this can never mismatch
+
+        val suffix = variant.replaceFirstChar { it.uppercaseChar() }
+        return when (subVariant) {
+            "UnitTest" -> return "androidUnitTest$suffix"
+            "AndroidTest" -> return "androidInstrumentedTest$suffix"
+            else -> "android$suffix"
+        }
+    }
 }
