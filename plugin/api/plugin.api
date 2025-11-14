@@ -1,5 +1,4 @@
 public abstract interface class com/github/gmazzo/buildconfig/BuildConfigClassSpec : org/gradle/api/Named {
-	public fun buildConfigField (Ljava/lang/Class;Ljava/lang/String;Lcom/github/gmazzo/buildconfig/BuildConfigValue$Expression;)Lorg/gradle/api/NamedDomainObjectProvider;
 	public fun buildConfigField (Ljava/lang/Class;Ljava/lang/String;Ljava/io/Serializable;)Lorg/gradle/api/NamedDomainObjectProvider;
 	public fun buildConfigField (Ljava/lang/Class;Ljava/lang/String;Lorg/gradle/api/provider/Provider;)Lorg/gradle/api/NamedDomainObjectProvider;
 	public fun buildConfigField (Ljava/lang/String;Ljava/lang/String;Ljava/io/Serializable;)Lorg/gradle/api/NamedDomainObjectProvider;
@@ -7,6 +6,7 @@ public abstract interface class com/github/gmazzo/buildconfig/BuildConfigClassSp
 	public fun buildConfigField (Ljava/lang/String;Ljava/lang/String;Lorg/gradle/api/provider/Provider;)Lorg/gradle/api/NamedDomainObjectProvider;
 	public fun buildConfigField (Ljava/lang/String;Lorg/gradle/api/Action;)Lorg/gradle/api/NamedDomainObjectProvider;
 	public fun className (Ljava/lang/String;)Lcom/github/gmazzo/buildconfig/BuildConfigClassSpec;
+	public fun expect (Lcom/github/gmazzo/buildconfig/BuildConfigValue$Expression;)Lcom/github/gmazzo/buildconfig/BuildConfigValue$Expect;
 	public fun expect (Ljava/io/Serializable;)Ljava/io/Serializable;
 	public static synthetic fun expect$default (Lcom/github/gmazzo/buildconfig/BuildConfigClassSpec;Ljava/io/Serializable;ILjava/lang/Object;)Ljava/io/Serializable;
 	public fun expression (Ljava/lang/String;)Lcom/github/gmazzo/buildconfig/BuildConfigValue$Expression;

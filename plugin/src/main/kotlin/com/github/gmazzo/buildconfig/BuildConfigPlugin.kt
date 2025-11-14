@@ -9,6 +9,7 @@ import com.github.gmazzo.buildconfig.internal.DefaultBuildConfigSourceSet
 import com.github.gmazzo.buildconfig.internal.bindings.AndroidBinder
 import com.github.gmazzo.buildconfig.internal.bindings.JavaBinder
 import com.github.gmazzo.buildconfig.internal.bindings.KotlinBinder
+import com.github.gmazzo.buildconfig.internal.capitalized
 import com.github.gmazzo.buildconfig.internal.javaIdentifier
 import org.gradle.api.Action
 import org.gradle.api.DomainObjectCollection
@@ -17,8 +18,8 @@ import org.gradle.api.Project
 import org.gradle.api.plugins.PluginContainer
 import org.gradle.api.tasks.SourceSet
 import org.gradle.kotlin.dsl.domainObjectContainer
+import org.gradle.kotlin.dsl.newInstance
 import org.gradle.kotlin.dsl.register
-import org.gradle.kotlin.dsl.withType
 import org.gradle.util.GradleVersion
 
 public class BuildConfigPlugin : Plugin<Project> {
@@ -59,7 +60,7 @@ public class BuildConfigPlugin : Plugin<Project> {
 
             // generate at sync
             if (extension.generateAtSync.get() && isGradleSync) {
-                tasks.maybeCreate("prepareKotlinIdeaImport").dependsOn(tasks.withType<BuildConfigTask>())
+                tasks.maybeCreate("prepareKotlinIdeaImport").dependsOn(extension.sourceSets)
             }
         }
 
@@ -90,13 +91,9 @@ public class BuildConfigPlugin : Plugin<Project> {
         sourceSet: BuildConfigSourceSetInternal,
         defaultSS: BuildConfigSourceSetInternal,
     ) {
-        check(sourceSet.name.matches("[\\w-]+".toRegex())) {
-            "Invalid name '${sourceSet.name}': only alphanumeric characters are allowed"
-        }
-
         val prefix = when (sourceSet) {
             defaultSS -> ""
-            else -> sourceSet.name.replace("[_-]".toRegex(), "").replaceFirstChar { it.titlecaseChar() }
+            else -> sourceSet.name.replace("[_-]".toRegex(), "").capitalized
         }
         val taskPrefix = if (plugins.hasPlugin("com.android.base")) "NonAndroid" else ""
 
@@ -152,7 +149,10 @@ public class BuildConfigPlugin : Plugin<Project> {
             group = "BuildConfig"
             description = "Generates the build constants class for '${sourceSet.name}' source"
 
-            bindTo(sourceSet)
+            with(project) {
+                specs.add(provider { isolate(sourceSet) })
+                specs.addAll(provider { sourceSet.extraSpecs.map { isolate(it) } })
+            }
             outputDir.set(layout.buildDirectory.dir("generated/sources/buildConfig/${sourceSet.name}"))
         }
     }
@@ -163,6 +163,28 @@ public class BuildConfigPlugin : Plugin<Project> {
         it.position.finalizeValueOnRead()
         it.tags.finalizeValueOnRead()
     }
+
+    /**
+     * Helper method to create a copy of a BuildConfigClassSpec not linked to Gradle related extensions/DSL
+     * It makes it compatible with Configuration Cache
+     */
+    private fun Project.isolate(source: BuildConfigClassSpec) =
+        objects.newInstance<BuildConfigClassSpec>(source.name).apply spec@{
+            val nullLiteral = BuildConfigValue.Literal(null)
+
+            generator.value(source.generator).disallowChanges()
+            className.value(source.className).disallowChanges()
+            packageName.value(source.packageName).disallowChanges()
+            documentation.value(source.documentation).disallowChanges()
+            buildConfigFields.addAll(source.buildConfigFields.map { field ->
+                objects.newInstance<BuildConfigField>(field.name).apply field@{
+                    this@field.type.value(field.type).disallowChanges()
+                    this@field.value.value(field.value.orElse(nullLiteral)).disallowChanges()
+                    this@field.position.value(field.position).disallowChanges()
+                    this@field.tags.value(field.tags).disallowChanges()
+                }
+            })
+        }
 
     private fun Project.hasKotlinPlugin() = listOf(
         "org.jetbrains.kotlin.android",

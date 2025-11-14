@@ -90,17 +90,13 @@ public interface BuildConfigClassSpec : Named {
         name: String,
         value: Type?,
     ): NamedDomainObjectProvider<BuildConfigField> = buildConfigField(name) {
-        it.type(type)
-        it.value(castToType(value, type) as Serializable?)
-    }
+        val castedValue = when (value) {
+            is BuildConfigValue -> value
+            else -> castToType(value, type) as Serializable?
+        }
 
-    public fun buildConfigField(
-        type: Class<*>,
-        name: String,
-        expression: BuildConfigValue.Expression
-    ): NamedDomainObjectProvider<BuildConfigField> = buildConfigField(name) {
         it.type(type)
-        it.value.value(expression)
+        it.value(castedValue)
     }
 
     /*
@@ -161,7 +157,11 @@ public interface BuildConfigClassSpec : Named {
         BuildConfigValue.Expression(expression)
 
     @Suppress("UNCHECKED_CAST")
-    public fun <Type : Serializable> expect(defaultsTo: Type? = (BuildConfigValue.NoDefault as Type)): Type =
+    public fun <Type : Serializable?> expect(defaultsTo: Type = (BuildConfigValue.NoDefault as Type)): Type =
         BuildConfigValue.Expect(value = defaultsTo) as Type
+
+    @Suppress("UNCHECKED_CAST")
+    public fun expect(defaultsTo: BuildConfigValue.Expression): BuildConfigValue.Expect =
+        BuildConfigValue.Expect(value = defaultsTo)
 
 }

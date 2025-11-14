@@ -58,7 +58,7 @@ public interface BuildConfigField : Named {
 
     public fun value(literal: Serializable?): BuildConfigField = apply {
         value.value(when (literal) {
-            is BuildConfigValue.Expect -> literal
+            is BuildConfigValue -> literal
             else -> BuildConfigValue.Literal(literal)
         }).disallowChanges()
     }

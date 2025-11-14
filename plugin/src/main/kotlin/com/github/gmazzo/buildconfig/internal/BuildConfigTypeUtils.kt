@@ -10,6 +10,9 @@ import org.jetbrains.annotations.VisibleForTesting
 
 private val regEx = "([^\\[\\]?]+?)(\\?)?(\\[](\\?)?)?".toRegex()
 
+internal val String.capitalized
+    get() = replaceFirstChar { it.titlecaseChar() }
+
 @VisibleForTesting
 internal fun String.parseTypename(): BuildConfigType {
     val match = regEx.matchEntire(this)

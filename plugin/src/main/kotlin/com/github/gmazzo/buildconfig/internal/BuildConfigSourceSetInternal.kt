@@ -8,12 +8,17 @@ import org.gradle.api.tasks.TaskProvider
 
 internal interface BuildConfigSourceSetInternal : BuildConfigSourceSet {
 
-    val extraSpecs: NamedDomainObjectContainer<out BuildConfigClassSpec>
+    val extraSpecs: NamedDomainObjectContainer<BuildConfigClassSpec>
 
     val dependsOn: Set<BuildConfigSourceSetInternal>
+
+    val allDependsOn: Sequence<BuildConfigSourceSetInternal>
+        get() = dependsOn.asSequence() + dependsOn.asSequence().flatMap { it.allDependsOn }
 
     override var generateTask: TaskProvider<BuildConfigTask>
 
     fun dependsOn(other: BuildConfigSourceSetInternal)
+
+    fun supersededBy(other: BuildConfigSourceSetInternal)
 
 }

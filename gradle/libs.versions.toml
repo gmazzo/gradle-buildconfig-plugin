@@ -1,6 +1,7 @@
 [versions]
 java = "17"
 kotlin = "2.2.21"
+android = "8.13.1"
 
 [libraries]
 javapoet = { module = "com.squareup:javapoet", version = "1.13.0" }
@@ -12,9 +13,11 @@ junit5-platformLauncher = { module = "org.junit.platform:junit-platform-launcher
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlinpoet = { module = "com.squareup:kotlinpoet", version = "2.2.0" }
 mockk = { module = "io.mockk:mockk", version = "1.14.6" }
+uriKMP = { module = "com.eygraber:uri-kmp", version = "0.0.21" }
 
 [plugins]
-android = { id = "com.android.application", version = "8.13.1" }
+android-application = { id = "com.android.application", version.ref = "android" }
+android-library = { id = "com.android.library", version.ref = "android" }
 dokka = { id = "org.jetbrains.dokka-javadoc", version = "2.1.0" }
 gitVersion = { id = "io.github.gmazzo.gitversion", version = "1.5.1" }
 gradle-pluginPublish = { id = "com.gradle.plugin-publish", version = "2.0.0" }
