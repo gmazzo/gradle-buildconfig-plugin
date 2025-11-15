@@ -70,7 +70,7 @@ public open class BuildConfigJavaGenerator(
         }
 
         if (spec.documentation != null) {
-            typeSpec.addJavadoc($$"$L", spec.documentation)
+            typeSpec.addJavadoc("\$L", spec.documentation)
         }
 
         spec.fields.forEach { field ->
@@ -99,7 +99,7 @@ public open class BuildConfigJavaGenerator(
                                 initializer(format, *args)
                             }
 
-                            is BuildConfigValue.Expression -> initializer($$"$L", value.value)
+                            is BuildConfigValue.Expression -> initializer("\$L", value.value)
                             is BuildConfigValue.Expect -> error("`expect/actual` values are not supported in Java: $value")
                         }
                     }.build()
@@ -137,15 +137,15 @@ public open class BuildConfigJavaGenerator(
         }
 
         fun TypeName?.format() = when (if (this?.isBoxedPrimitive == true) unbox() else this) {
-            TypeName.BYTE -> $$"(byte) $L"
-            TypeName.CHAR -> $$"'$L'"
-            TypeName.SHORT -> $$"(short) $L"
-            TypeName.LONG -> $$"$LL"
-            TypeName.FLOAT -> $$"$Lf"
-            STRING -> $$"$S"
-            FILE -> $$"new java.io.File($S)"
-            URI -> $$"java.net.URI.create($S)"
-            else -> $$"$L"
+            TypeName.BYTE -> "(byte) \$L"
+            TypeName.CHAR -> "'\$L'"
+            TypeName.SHORT -> "(short) \$L"
+            TypeName.LONG -> "\$LL"
+            TypeName.FLOAT -> "\$Lf"
+            STRING -> "\$S"
+            FILE -> "new java.io.File(\$S)"
+            URI -> "java.net.URI.create(\$S)"
+            else -> "\$L"
         }
 
         fun List<Any?>.format(prefix: String, postfix: String, elementType: TypeName?) = joinToString(
