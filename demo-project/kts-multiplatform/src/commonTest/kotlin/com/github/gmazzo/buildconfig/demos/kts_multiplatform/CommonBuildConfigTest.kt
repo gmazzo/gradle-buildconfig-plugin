@@ -10,4 +10,10 @@ class CommonBuildConfigTest {
         assertEquals("aCommonValue", BuildConfig.COMMON_VALUE)
     }
 
+    @Test
+    fun testI18nProperties() {
+        assertEquals("Hello", i18n_hello)
+        assertEquals(expected_i18n_kind, i18n_kind)
+    }
+
 }

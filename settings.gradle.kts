@@ -11,6 +11,7 @@ include(
     "demo-project:groovy-gen-kotlin",
     "demo-project:kts",
     "demo-project:kts-android",
+    "demo-project:kts-android-lib",
     "demo-project:kts-gen-java",
     "demo-project:kts-multiplatform",
 )

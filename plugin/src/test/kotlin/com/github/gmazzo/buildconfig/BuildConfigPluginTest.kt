@@ -51,6 +51,7 @@ class BuildConfigPluginTest {
                 .forwardOutput()
                 .withPluginClasspath()
                 .withProjectDir(projectDir)
+                .withTestKitDir(projectDir.resolve(".testkit"))
                 .withGradleVersion(gradleVersion)
                 .withArguments("build", "-s")
                 .build()
@@ -386,7 +387,7 @@ class BuildConfigPluginTest {
         val withPackage: Boolean = true,
     ) {
 
-        val projectDir = File(BuildConfigPluginTest::class.simpleName!!)
+        val projectDir = File(System.getenv("TEMP_DIR"), BuildConfigPluginTest::class.simpleName!!)
             .resolve("gradle-$gradleVersion")
             .resolve("kotlin-${kotlinVersion ?: "none"}")
             .resolve("android-${androidVersion ?: "none"}")

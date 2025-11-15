@@ -3,7 +3,7 @@ import com.android.build.gradle.internal.lint.LintModelWriterTask
 import com.github.gmazzo.buildconfig.BuildConfigTask
 
 plugins {
-    alias(libs.plugins.android.application)
+    alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     id("com.github.gmazzo.buildconfig")
 }
@@ -11,7 +11,7 @@ plugins {
 java.toolchain.languageVersion = JavaLanguageVersion.of(libs.versions.java.get())
 
 android {
-    namespace = "com.github.gmazzo.buildconfig.demos.android"
+    namespace = "com.github.gmazzo.buildconfig.demos.android.lib"
     compileSdk = 36
 
     buildFeatures.buildConfig = true
@@ -21,14 +21,8 @@ android {
         sourceCompatibility(java.sourceCompatibility)
     }
 
-    flavorDimensions += "brand"
-    productFlavors {
-        create("bar") { dimension = "brand" }
-        create("foo") { dimension = "brand" }
-    }
-
     // mimics the variant-aware buildConfigField behavior from Android, by declaring fields on the final variant sourceSet
-    applicationVariants.all variant@{
+    libraryVariants.all variant@{
         buildConfig.sourceSets.named(this@variant.name) {
             className.set("BuildConfig")
 

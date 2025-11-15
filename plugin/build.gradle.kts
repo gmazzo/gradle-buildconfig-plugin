@@ -38,7 +38,7 @@ dependencies {
 
     compileOnly(gradleKotlinDsl())
     compileOnly(plugin(libs.plugins.kotlin.jvm))
-    compileOnly(plugin(libs.plugins.android))
+    compileOnly(plugin(libs.plugins.android.application))
 
     implementation(libs.javapoet)
     implementation(libs.kotlinpoet)
@@ -49,7 +49,7 @@ dependencies {
     testImplementation(libs.junit5.params)
     testRuntimeOnly(libs.junit5.engine)
     testRuntimeOnly(libs.junit5.platformLauncher)
-    testImplementation(plugin(libs.plugins.android))
+    testImplementation(plugin(libs.plugins.android.application))
     testImplementation(libs.mockk)
 }
 
@@ -104,7 +104,7 @@ mavenPublishing {
 }
 
 tasks.test {
-    workingDir = temporaryDir
+    environment("TEMP_DIR" to temporaryDir)
     useJUnitPlatform()
     javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(17) } // required by AGP
     finalizedBy(tasks.jacocoTestReport)

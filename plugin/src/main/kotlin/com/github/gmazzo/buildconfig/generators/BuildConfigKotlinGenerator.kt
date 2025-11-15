@@ -79,7 +79,7 @@ public open class BuildConfigKotlinGenerator(
                 field.tags.getOrElse(emptySet()).let { (TagExpect in it) to (TagActual in it) }
 
             val value = field.value.get()
-            val nullableAwareType = if (expect || value.value != null) typeName else typeName.copy(nullable = true)
+            val nullableAwareType = if (value.value != null) typeName else typeName.copy(nullable = true)
             val modifiers = listOfNotNull(
                 kModifiers,
                 KModifier.CONST.takeIf { !expect && value.value != null && typeName in CONST_TYPES },

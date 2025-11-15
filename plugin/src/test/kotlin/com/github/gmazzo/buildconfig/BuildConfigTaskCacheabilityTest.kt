@@ -15,12 +15,13 @@ import org.junit.jupiter.api.parallel.ExecutionMode
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class BuildConfigTaskCacheabilityTest {
 
-    private val projectDir = File(BuildConfigTaskCacheabilityTest::class.simpleName!!)
+    private val projectDir = File(System.getenv("TEMP_DIR"), BuildConfigTaskCacheabilityTest::class.simpleName!!)
 
     private val buildScript = File(projectDir, "build.gradle.kts")
 
     private val runner = GradleRunner.create()
         .withProjectDir(projectDir)
+        .withTestKitDir(projectDir.resolve(".testkit"))
         .withPluginClasspath()
         .withArguments("clean", "jar")
         .forwardOutput()

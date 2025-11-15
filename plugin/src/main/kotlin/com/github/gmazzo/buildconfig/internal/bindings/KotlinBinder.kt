@@ -1,11 +1,9 @@
 package com.github.gmazzo.buildconfig.internal.bindings
 
 import com.github.gmazzo.buildconfig.BuildConfigClassSpec
-import com.github.gmazzo.buildconfig.BuildConfigField
 import com.github.gmazzo.buildconfig.BuildConfigValue
 import com.github.gmazzo.buildconfig.generators.BuildConfigKotlinGenerator
 import com.github.gmazzo.buildconfig.internal.BuildConfigExtensionInternal
-import com.github.gmazzo.buildconfig.internal.BuildConfigSourceSetInternal
 import com.github.gmazzo.buildconfig.internal.bindings.JavaBinder.registerExtension
 import org.gradle.api.Named
 import org.gradle.api.NamedDomainObjectContainer
@@ -60,6 +58,21 @@ internal object KotlinBinder {
 
     object Multiplatform {
 
+        @Suppress("UNCHECKED_CAST")
+        private val ExtensionAware/*KotlinProjectExtension*/.targets
+            get() = javaClass.getMethod("getTargets")
+                .invoke(this) as NamedDomainObjectContainer<Named>
+
+        @Suppress("UNCHECKED_CAST")
+        private val Named/*KotlinTarget*/.compilations
+            get() = javaClass.getMethod("getCompilations")
+                .invoke(this) as NamedDomainObjectContainer<Named>
+
+        @Suppress("UNCHECKED_CAST")
+        private val Named/*KotlinCompilation*/.defaultSourceSet
+            get() = javaClass.getMethod("getDefaultSourceSet")
+                .invoke(this) as Named
+
         private fun nameOf(name: String): String = when (name) {
             COMMON_MAIN_SOURCE_SET_NAME -> MAIN_SOURCE_SET_NAME
             COMMON_TEST_SOURCE_SET_NAME -> TEST_SOURCE_SET_NAME
@@ -70,53 +83,39 @@ internal object KotlinBinder {
             with(KotlinBinder) { configure(extension, ::nameOf) }
 
             afterEvaluate {
-                kotlin.sourceSets.all { ss ->
-                    val spec = extension.sourceSets.getByName(nameOf(ss.name))
-                    val dependsOnSpecs = spec.allDependsOn.toSet()
+                kotlin.targets.all { target ->
+                    target.compilations.all { compilation ->
+                        val ss = compilation.defaultSourceSet
+                        val spec = extension.sourceSets.getByName(nameOf(ss.name))
+                        val dependsOnSpecs = spec.allDependsOn.toSet()
 
-                    lookForExpectFields(spec, dependsOnSpecs)
-                    spec.extraSpecs.all { extra ->
-                        lookForExpectFields(extra, dependsOnSpecs) {
-                            (it as BuildConfigSourceSetInternal).extraSpecs.findByName(extra.name)
+                        lookForExpectFields(spec, dependsOnSpecs)
+                        spec.extraSpecs.all { extra ->
+                            val extraDependsOn = dependsOnSpecs
+                                .mapNotNull { it.extraSpecs.findByName(extra.name) }
+                                .toSet()
+
+                            lookForExpectFields(extra, extraDependsOn)
                         }
                     }
                 }
             }
         }
 
-        private val BuildConfigSourceSetInternal.allDependsOn: Sequence<BuildConfigSourceSetInternal>
-            get() = dependsOn.asSequence() + dependsOn.asSequence().flatMap { it.allDependsOn }
-
-        private fun lookForExpectFields(
-            spec: BuildConfigClassSpec,
-            dependsOnSpecs: Set<BuildConfigSourceSetInternal>,
-            resolve: (BuildConfigClassSpec) -> BuildConfigClassSpec? = { it },
-        ) {
-            val target = resolve(spec)!!
-            val targetDependsOnSpecs = dependsOnSpecs.mapNotNull(resolve).toSet()
-
+        private fun lookForExpectFields(spec: BuildConfigClassSpec, dependsOnSpecs: Set<BuildConfigClassSpec>) {
             val expectSpecs = linkedSetOf<BuildConfigClassSpec>()
             for (field in spec.buildConfigFields) {
-                val commonFields = mutableListOf<BuildConfigField>()
-                val commonSpecs = mutableListOf<BuildConfigClassSpec>()
-                for (dependsOnSpec in targetDependsOnSpecs) {
+                for (dependsOnSpec in dependsOnSpecs) {
                     val dependsOnField = dependsOnSpec.buildConfigFields.findByName(field.name) ?: continue
                     if (dependsOnField.value.orNull !is BuildConfigValue.Expect) continue
 
-                    commonFields.add(dependsOnField)
-                    commonSpecs.add(0, dependsOnSpec)
+                    dependsOnField.tags.add(BuildConfigKotlinGenerator.TagExpect)
+                    field.tags.add(BuildConfigKotlinGenerator.TagActual)
+                    expectSpecs.add(dependsOnSpec)
+
+                    // also makes sure that the actual class matches the expect declaration
+                    spec.defaultsFrom(dependsOnSpec)
                 }
-                val closestCommonSpec = commonSpecs.firstOrNull() ?: continue
-
-                commonFields.forEach { it.tags.add(BuildConfigKotlinGenerator.TagExpect) }
-                field.tags.add(BuildConfigKotlinGenerator.TagActual)
-
-                // also makes sure that the actual class matches the expect declaration
-                target.className.convention(closestCommonSpec.className)
-                target.packageName.convention(closestCommonSpec.packageName)
-                target.documentation.convention(closestCommonSpec.documentation)
-
-                expectSpecs.addAll(commonSpecs)
             }
 
             // finally, in case we have mixed expect and regular constants in the same spec, we promote them all to this spec
@@ -125,6 +124,7 @@ internal object KotlinBinder {
                     val expectDefault = when (val value = expectField.value.orNull) {
                         is BuildConfigValue.Expect -> when (val defaultValue = value.value) {
                             is BuildConfigValue.NoDefault -> continue
+                            is BuildConfigValue.Expression -> defaultValue
                             else -> BuildConfigValue.Literal(defaultValue)
                         }
 
@@ -133,9 +133,9 @@ internal object KotlinBinder {
 
                     expectField.tags.add(BuildConfigKotlinGenerator.TagExpect)
 
-                    if (target.buildConfigFields.names.contains(expectField.name)) continue
+                    if (spec.buildConfigFields.names.contains(expectField.name)) continue
 
-                    target.buildConfigFields.create(expectField.name) { field ->
+                    spec.buildConfigFields.create(expectField.name) { field ->
                         field.type.value(expectField.type).disallowChanges()
                         field.value.value(expectDefault).disallowChanges()
                         field.position.value(expectField.position).disallowChanges()
