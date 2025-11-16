@@ -121,7 +121,7 @@ public interface BuildConfigClassSpec : Named {
                     else -> BuildConfigValue.Literal(v)
                 }
             })
-            .disallowChanges()
+
     }
 
     public fun <Type : Serializable> buildConfigField(
@@ -144,8 +144,16 @@ public interface BuildConfigClassSpec : Named {
     }
 
     public fun buildConfigField(
+        from: BuildConfigField,
+    ): NamedDomainObjectProvider<BuildConfigField> =
+        buildConfigField(from.name) {
+            it.type.value(from.type)
+            it.value.value(from.value)
+        }
+
+    public fun buildConfigField(
         name: String,
-        configure: Action<BuildConfigField>
+        configure: Action<BuildConfigField>,
     ): NamedDomainObjectProvider<BuildConfigField> = buildConfigFields.size.let { position ->
         buildConfigFields.register(name) {
             it.position.convention(position)
@@ -161,7 +169,7 @@ public interface BuildConfigClassSpec : Named {
         BuildConfigValue.Expect(value = defaultsTo) as Type
 
     @Suppress("UNCHECKED_CAST")
-    public fun expect(defaultsTo: BuildConfigValue.Expression): BuildConfigValue.Expect =
+    public fun expect(defaultsTo: BuildConfigValue): BuildConfigValue.Expect =
         BuildConfigValue.Expect(value = defaultsTo)
 
 }

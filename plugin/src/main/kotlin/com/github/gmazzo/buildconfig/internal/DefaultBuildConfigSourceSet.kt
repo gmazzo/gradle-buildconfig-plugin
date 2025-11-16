@@ -17,7 +17,7 @@ internal abstract class DefaultBuildConfigSourceSet(
     Iterable<TaskProvider<BuildConfigTask>>,
     GroovyNullValueWorkaround() {
 
-    private var superseded = false
+    override var isSuperseded = false
 
     @Inject
     @Suppress("UNCHECKED_CAST")
@@ -51,14 +51,24 @@ internal abstract class DefaultBuildConfigSourceSet(
     override fun supersededBy(other: BuildConfigSourceSetInternal) {
         check(other != this) { "A source set cannot supersede itself: '$name'" }
 
-        if (!superseded) {
-            superseded = true
+        if (!isSuperseded) {
+            isSuperseded = true
             generateTask.configure {
                 it.doFirst { error("'${this@DefaultBuildConfigSourceSet.name}' was superseded by '${other.name}' source set") }
             }
         }
-        buildConfigFields.all(other.buildConfigFields::add)
-        extraSpecs.all(other.extraSpecs::add)
+
+        // copies all fields and settings to the new source set
+        buildConfigFields.all(other::buildConfigField)
+        extraSpecs.all { spec ->
+            other.extraSpecs.register(spec.name) { extraSpec ->
+                extraSpec.generator.convention(spec.generator)
+                extraSpec.className.convention(spec.className)
+                extraSpec.packageName.convention(spec.packageName)
+                extraSpec.documentation.convention(spec.documentation)
+                spec.buildConfigFields.all(extraSpec::buildConfigField)
+            }
+        }
     }
 
     override fun forClass(packageName: String?, className: String): BuildConfigClassSpec =
@@ -68,7 +78,7 @@ internal abstract class DefaultBuildConfigSourceSet(
         }
 
     override fun iterator() = iterator {
-        if (!superseded) yield(generateTask)
+        if (!isSuperseded) yield(generateTask)
     }
 
     override fun toString() = "buildConfig source set <$name>"

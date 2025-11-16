@@ -34,7 +34,7 @@ buildConfig {
     buildConfigField("APP_NAME", project.name)
     buildConfigField("APP_VERSION", provider { "\"${project.version}\"" })
     buildConfigField("APP_SECRET", "Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu")
-    buildConfigField<String>("OPTIONAL", null)
+    buildConfigField<String?>("OPTIONAL", null)
     buildConfigField("BUILD_TIME", System.currentTimeMillis())
     buildConfigField("FEATURE_ENABLED", true)
     buildConfigField("MAGIC_NUMBERS", listOf(1, 2, 3))
