@@ -74,10 +74,10 @@ class BuildConfigTaskCacheabilityTest {
         buildScript.appendText("buildConfig.useJavaOutput()\n")
 
         val firstRun = runner.build()
-        assertEquals(TaskOutcome.SUCCESS, firstRun.task(":generateBuildConfig")?.outcome)
+        assertEquals(TaskOutcome.SUCCESS, firstRun.task(":generateBuildConfigClasses")?.outcome)
 
         val secondRun = runner.build()
-        assertEquals(TaskOutcome.FROM_CACHE, secondRun.task(":generateBuildConfig")?.outcome)
+        assertEquals(TaskOutcome.FROM_CACHE, secondRun.task(":generateBuildConfigClasses")?.outcome)
     }
 
     @Test
@@ -85,15 +85,15 @@ class BuildConfigTaskCacheabilityTest {
         buildScript.appendText("buildConfig.useKotlinOutput()\n")
 
         val firstRun = runner.build()
-        assertEquals(TaskOutcome.SUCCESS, firstRun.task(":generateBuildConfig")?.outcome)
+        assertEquals(TaskOutcome.SUCCESS, firstRun.task(":generateBuildConfigClasses")?.outcome)
 
         val secondRun = runner.build()
-        assertEquals(TaskOutcome.FROM_CACHE, secondRun.task(":generateBuildConfig")?.outcome)
+        assertEquals(TaskOutcome.FROM_CACHE, secondRun.task(":generateBuildConfigClasses")?.outcome)
 
         buildScript.appendText("buildConfig.useKotlinOutput { topLevelConstants = true }\n")
 
         val thirdRun = runner.build()
-        assertEquals(TaskOutcome.SUCCESS, thirdRun.task(":generateBuildConfig")?.outcome)
+        assertEquals(TaskOutcome.SUCCESS, thirdRun.task(":generateBuildConfigClasses")?.outcome)
     }
 
 }

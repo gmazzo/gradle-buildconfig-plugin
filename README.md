@@ -353,7 +353,7 @@ def generateResourcesConstants = tasks.register("generateResourcesConstants") {
     }
 }
 
-tasks.generateBuildConfig {
+tasks.generateBuildConfigClasses {
     dependsOn(generateResourcesConstants)
 }
 ```

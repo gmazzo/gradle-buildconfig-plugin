@@ -95,7 +95,6 @@ public class BuildConfigPlugin : Plugin<Project> {
             defaultSS -> ""
             else -> sourceSet.name.replace("[_-]".toRegex(), "").capitalized
         }
-        val taskPrefix = if (plugins.hasPlugin("com.android.base")) "NonAndroid" else ""
 
         sourceSet.className
             .convention("${prefix}BuildConfig")
@@ -145,7 +144,7 @@ public class BuildConfigPlugin : Plugin<Project> {
 
         configureFields(sourceSet.buildConfigFields)
 
-        sourceSet.generateTask = tasks.register<BuildConfigTask>("generate${prefix}${taskPrefix}BuildConfig") {
+        sourceSet.generateTask = tasks.register<BuildConfigTask>("generate${prefix}BuildConfigClasses") {
             group = "BuildConfig"
             description = "Generates the build constants class for '${sourceSet.name}' source"
 
