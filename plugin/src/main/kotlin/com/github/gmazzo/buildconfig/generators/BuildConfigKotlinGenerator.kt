@@ -76,14 +76,13 @@ public open class BuildConfigKotlinGenerator(
         try {
             val (expect, actual) = field.tags.getOrElse(emptySet())
                 .let { tags -> (TagExpect in tags) to (TagActual in tags) }
-            val value = field.value.get()
+            val value = field.value.get().unwrap()
             val typeName = field.type.get().toTypeName()
-                .let { it.copy(nullable = it.isNullable || value.value == null) }
-            val sanitizedValue = value.value.takeUnless { it is BuildConfigValue.Expect }
+                .let { it.copy(nullable = it.isNullable || (!expect && value.value == null)) }
 
             val modifiers = listOfNotNull(
                 kModifiers,
-                KModifier.CONST.takeIf { !expect && sanitizedValue != null && typeName in CONST_TYPES },
+                KModifier.CONST.takeIf { !expect && value.value != null && typeName in CONST_TYPES },
                 KModifier.EXPECT.takeIf { expect },
                 KModifier.ACTUAL.takeIf { actual },
             )
@@ -92,8 +91,8 @@ public open class BuildConfigKotlinGenerator(
             if (!expect) {
                 when (value) {
                     is BuildConfigValue.Literal -> {
-                        val (format, count) = typeName.format(sanitizedValue)
-                        val args = sanitizedValue.asVarArg()
+                        val (format, count) = typeName.format(value.value)
+                        val args = value.value.asVarArg()
 
                         check(count == args.size) {
                             "Invalid number of arguments for ${field.name} of type ${typeName}: " +
@@ -102,8 +101,8 @@ public open class BuildConfigKotlinGenerator(
                         prop.initializer(format, *args)
                     }
 
-                    is BuildConfigValue.Expression -> prop.initializer("%L", sanitizedValue)
-                    is BuildConfigValue.Expect -> error("Unexpected expect value for field ${field.name} here")
+                    is BuildConfigValue.Expression -> prop.initializer("%L", value.value)
+                    is BuildConfigValue.Expect -> error("Field '${field.name}' should be have an expect value here: ${value}")
                 }
             }
             return@map prop.build()
@@ -115,6 +114,9 @@ public open class BuildConfigKotlinGenerator(
             )
         }
     }
+
+    private fun BuildConfigValue.unwrap() =
+        if (this is BuildConfigValue.Expect) value!! else this
 
     private fun BuildConfigType.toTypeName(): TypeName {
         val kotlinClassName = runCatching { Class.forName(className).kotlin.qualifiedName!! }.getOrDefault(className)

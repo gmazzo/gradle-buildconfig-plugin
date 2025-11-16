@@ -8,7 +8,6 @@ import com.github.gmazzo.buildconfig.BuildConfigValue
 import java.io.Serializable
 import kotlin.reflect.typeOf
 import org.gradle.api.Action
-import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.provider.Provider
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
@@ -25,7 +24,7 @@ public operator fun BuildConfigSourceSet.invoke(action: Action<BuildConfigSource
 public inline fun <reified Type : Any> BuildConfigClassSpec.buildConfigField(
     name: String,
     crossinline configure: BuildConfigField.() -> Unit
-): NamedDomainObjectProvider<BuildConfigField> = buildConfigField(name) {
+): BuildConfigField = buildConfigField(name) {
     it.type(typeOf<Type>())
     configure.invoke(it)
 }
@@ -34,7 +33,7 @@ public inline fun <reified Type : Any> BuildConfigClassSpec.buildConfigField(
 public inline fun <reified Type : Serializable?> BuildConfigClassSpec.buildConfigField(
     name: String,
     value: Type,
-): NamedDomainObjectProvider<BuildConfigField> = buildConfigField(name) {
+): BuildConfigField = buildConfigField(name) {
     it.type(typeOf<Type>())
     it.value(value)
 }
@@ -43,7 +42,7 @@ public inline fun <reified Type : Serializable?> BuildConfigClassSpec.buildConfi
 public inline fun <reified Type : Serializable> BuildConfigClassSpec.buildConfigField(
     name: String,
     value: Provider<out Type>,
-): NamedDomainObjectProvider<BuildConfigField> = buildConfigField(name) {
+): BuildConfigField = buildConfigField(name) {
     it.type(typeOf<Type>())
     it.value(value)
 }
@@ -53,7 +52,7 @@ public inline fun <reified Type : Serializable> BuildConfigClassSpec.buildConfig
 public inline fun <reified Type : Any?> BuildConfigClassSpec.buildConfigField(
     name: String,
     expression: BuildConfigValue.Expression,
-): NamedDomainObjectProvider<BuildConfigField> = buildConfigField(name) {
+): BuildConfigField = buildConfigField(name) {
     it.type(typeOf<Type>())
     it.value.set(expression)
 }
@@ -63,7 +62,7 @@ public inline fun <reified Type : Any?> BuildConfigClassSpec.buildConfigField(
 public inline fun <reified Type : Any?> BuildConfigClassSpec.buildConfigField(
     name: String,
     expression: Provider<BuildConfigValue.Expression>,
-): NamedDomainObjectProvider<BuildConfigField> = buildConfigField(name) {
+): BuildConfigField = buildConfigField(name) {
     it.type(typeOf<Type>())
     it.value.set(expression)
 }
@@ -73,7 +72,7 @@ public inline fun <reified Type : Any?> BuildConfigClassSpec.buildConfigField(
 public inline fun <reified Type : Serializable?> BuildConfigClassSpec.buildConfigField(
     name: String,
     value: Array<Type>,
-): NamedDomainObjectProvider<BuildConfigField> = buildConfigField(name) {
+): BuildConfigField = buildConfigField(name) {
     it.type(typeOf<Array<Type>>())
     it.value(value)
 }
@@ -83,7 +82,7 @@ public inline fun <reified Type : Serializable?> BuildConfigClassSpec.buildConfi
 public inline fun <reified Type : Serializable?> BuildConfigClassSpec.buildConfigField(
     name: String,
     value: List<Type>,
-): NamedDomainObjectProvider<BuildConfigField> = buildConfigField(name) {
+): BuildConfigField = buildConfigField(name) {
     it.type(typeOf<List<Type>>())
     it.value(ArrayList(value))
 }
@@ -93,7 +92,7 @@ public inline fun <reified Type : Serializable?> BuildConfigClassSpec.buildConfi
 public inline fun <reified Type : Serializable?> BuildConfigClassSpec.buildConfigField(
     name: String,
     value: Set<Type>,
-): NamedDomainObjectProvider<BuildConfigField> = buildConfigField(name) {
+): BuildConfigField = buildConfigField(name) {
     it.type(typeOf<Set<Type>>())
     it.value(LinkedHashSet(value))
 }
@@ -103,7 +102,7 @@ public inline fun <reified Type : Serializable?> BuildConfigClassSpec.buildConfi
 public inline fun <reified Key : Serializable?, reified Value : Serializable?> BuildConfigClassSpec.buildConfigField(
     name: String,
     value: Map<Key, Value>,
-): NamedDomainObjectProvider<BuildConfigField> = buildConfigField(name) {
+): BuildConfigField = buildConfigField(name) {
     it.type(typeOf<Map<Key, Value>>())
     it.value(LinkedHashMap(value))
 }
@@ -113,7 +112,7 @@ public inline fun <reified Key : Serializable?, reified Value : Serializable?> B
 public inline fun <reified Type : Serializable?> BuildConfigClassSpec.buildConfigField(
     name: String,
     value: Provider<Array<Type>>,
-): NamedDomainObjectProvider<BuildConfigField> = buildConfigField(name) {
+): BuildConfigField = buildConfigField(name) {
     it.type(typeOf<Array<Type>>())
     it.value(value)
 }
@@ -123,7 +122,7 @@ public inline fun <reified Type : Serializable?> BuildConfigClassSpec.buildConfi
 public inline fun <reified Type : Serializable?> BuildConfigClassSpec.buildConfigField(
     name: String,
     value: Provider<out List<Type>>,
-): NamedDomainObjectProvider<BuildConfigField> = buildConfigField(name) {
+): BuildConfigField = buildConfigField(name) {
     it.type(typeOf<List<Type>>())
     it.value(value.map(::ArrayList))
 }
@@ -133,7 +132,7 @@ public inline fun <reified Type : Serializable?> BuildConfigClassSpec.buildConfi
 public inline fun <reified Type : Serializable?> BuildConfigClassSpec.buildConfigField(
     name: String,
     value: Provider<out Set<Type>>,
-): NamedDomainObjectProvider<BuildConfigField> = buildConfigField(name) {
+): BuildConfigField = buildConfigField(name) {
     it.type(typeOf<Set<Type>>())
     it.value(value.map(::LinkedHashSet))
 }
@@ -143,7 +142,7 @@ public inline fun <reified Type : Serializable?> BuildConfigClassSpec.buildConfi
 public inline fun <reified Key : Serializable?, reified Value : Serializable?> BuildConfigClassSpec.buildConfigField(
     name: String,
     value: Provider<out Map<Key, Value>>,
-): NamedDomainObjectProvider<BuildConfigField> = buildConfigField(name) {
+): BuildConfigField = buildConfigField(name) {
     it.type(typeOf<Map<Key, Value>>())
     it.value(value.map(::LinkedHashMap))
 }

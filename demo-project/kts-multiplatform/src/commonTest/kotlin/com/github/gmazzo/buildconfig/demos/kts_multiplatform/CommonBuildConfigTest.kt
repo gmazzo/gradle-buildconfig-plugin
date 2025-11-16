@@ -1,20 +1,35 @@
 package com.github.gmazzo.buildconfig.demos.kts_multiplatform
 
+import com.eygraber.uri.Uri
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class CommonBuildConfigTest {
+abstract class CommonBuildConfigTest(
+    private val expectedPlatform: String,
+    private val expectedMobile: Boolean = false,
+    private val expectedDebug: Boolean = false,
+    private val expectedUri: Uri = Uri.parse("https://api.example.com"),
+    private val expectedProduct: String? = null,
+) {
 
     @Test
     fun testBuildConfigProperties() {
         assertEquals("aCommonValue", BuildConfig.COMMON_VALUE)
+        assertEquals(expectedPlatform, BuildConfig.PLATFORM)
+        assertEquals(expectedDebug, BuildConfig.DEBUG)
+        assertEquals(expectedUri, BuildConfig.ENDPOINT)
+        assertEquals(expectedProduct, BuildConfig.PRODUCT_VALUE)
     }
 
     @Test
     fun testI18nProperties() {
         assertEquals("Hello", i18n_hello)
-        assertEquals("Greetings", i18n_greetings)
-        assertEquals(expected_i18n_kind, i18n_kind)
+        assertEquals(expectedPlatform, i18n_kind)
+    }
+
+    @Test
+    fun testSingleProperties() {
+        assertEquals(expectedMobile, Single.IS_MOBILE)
     }
 
 }

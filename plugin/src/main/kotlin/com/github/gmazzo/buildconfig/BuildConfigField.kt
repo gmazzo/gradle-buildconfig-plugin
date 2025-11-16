@@ -12,7 +12,7 @@ import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
-public interface BuildConfigField : Named {
+public interface BuildConfigField : Named, Comparable<BuildConfigField> {
 
     @Input
     override fun getName(): String
@@ -57,10 +57,12 @@ public interface BuildConfigField : Named {
     }
 
     public fun value(literal: Serializable?): BuildConfigField = apply {
-        value.value(when (literal) {
-            is BuildConfigValue -> literal
-            else -> BuildConfigValue.Literal(literal)
-        }).disallowChanges()
+        value.value(
+            when (literal) {
+                is BuildConfigValue -> literal
+                else -> BuildConfigValue.Literal(literal)
+            }
+        ).disallowChanges()
     }
 
     public fun <Type : Serializable> value(literal: Provider<out Type>): BuildConfigField = apply {
@@ -74,5 +76,11 @@ public interface BuildConfigField : Named {
     public fun expression(expression: Provider<String>): BuildConfigField = apply {
         value.value(expression.map(BuildConfigValue::Expression)).disallowChanges()
     }
+
+    override fun compareTo(other: BuildConfigField): Int =
+        when (val cmp = position.getOrElse(0).compareTo(other.position.getOrElse(0))) {
+            0 -> name.compareTo(other.name)
+            else -> cmp
+        }
 
 }

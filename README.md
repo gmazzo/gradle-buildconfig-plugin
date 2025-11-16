@@ -181,20 +181,23 @@ const val APP_VERSION: String = "0.0.1"
 
 Similar to Android's `buildConfigField`, you can consume an `expect` BuildConfig class from common code,
 and provide different values for each platform target:
+
 ```kotlin
 buildConfig {
-    buildConfigField("COMMON_VALUE",  "aCommonValue")
-    buildConfigField("IS_MOBILE", expect(false)) // with a default
-    buildConfigField("PLATFORM", expect<String>()) // without a default
+  buildConfigField("COMMON_VALUE", "aCommonValue")  // any constant value will be automatically 'expect'ed and propagated to the actual classes
+  buildConfigField("IS_MOBILE", expect(false))      // with a default
+  buildConfigField("PLATFORM", expect<String>())    // without a default
 
-    sourceSets.named("androidMain") {
-        buildConfigField("PLATFORM", "android")
-        buildConfigField("IS_MOBILE", true)
-    }
+  sourceSets.named("androidMain") {
+    buildConfigField("PLATFORM", "android")
+    buildConfigField("IS_MOBILE", true)
+    buildConfigField("ANDROID_VALUE", "anAndroidValue")
+  }
 
-    sourceSets.named("jvmMain") {
-        buildConfigField("PLATFORM", "jvm")
-    }
+  sourceSets.named("jvmMain") {
+    buildConfigField("PLATFORM", "jvm")
+    buildConfigField("JVM_VALUE", "aJVMValue")
+  }
 }
 ```
 It will generate at `commonMain`:
@@ -221,7 +224,7 @@ actual object BuildConfig {
     actual const val COMMON_VALUE: String = "aCommonValue"
     actual const val PLATFORM: String = "jvm"
     actual const val IS_MOBILE: Boolean = false
-    const val ANDROID_VALUE: String = "anAndroidValue"
+    const val JVM_VALUE: String = "aJVMValue"
 }
 ```
 

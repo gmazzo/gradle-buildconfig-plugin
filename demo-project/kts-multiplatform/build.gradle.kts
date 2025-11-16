@@ -44,26 +44,30 @@ dependencies {
 }
 
 buildConfig {
-    buildConfigField("COMMON_VALUE",  "aCommonValue")
-    buildConfigField("IS_MOBILE", expect(false)) // with a default
-    buildConfigField("PLATFORM", expect<String>()) // without a default
-    buildConfigField("DEBUG", expect(false)) // to be changed by an Android variant
-    buildConfigField("com.eygraber.uri.Uri", "ENDPOINT", expect(expression("Uri.parse(\"https://api.example.com\")")))
+    buildConfigField("COMMON_VALUE",  expect("aCommonValue"))   // a constant for all platforms
+    buildConfigField("PLATFORM", expect<String>())                          // expect a platform specific value
+    buildConfigField("DEBUG", expect(false))                    // expect with a default
+    buildConfigField("com.eygraber.uri.Uri", "ENDPOINT",
+        expect(expression("Uri.parse(\"https://api.example.com\")")))
     buildConfigField("PRODUCT_VALUE", expect<String?>(null))
 
     forClass("i18n") {
         useKotlinOutput { topLevelConstants = true }
 
-        buildConfigField("i18n_hello", "Hello")
-        buildConfigField("i18n_greetings", expect("Greetings"))
+        buildConfigField("i18n_hello", expect("Hello"))
         buildConfigField("i18n_kind", expect<String>())
+    }
+
+    forClass("Single") {
+        buildConfigField("IS_MOBILE", expect(false))
     }
 
     sourceSets.named("androidMain") {
         buildConfigField("PLATFORM", "android")
-        buildConfigField("IS_MOBILE", true)
         buildConfigField("ANDROID_VALUE", "anAndroidValue")
+        buildConfigField("DEBUG", false)
         forClass("i18n").buildConfigField("i18n_kind", "android")
+        forClass("Single").buildConfigField("IS_MOBILE", true)
     }
 
     sourceSets.named("androidDebug") {
@@ -86,13 +90,14 @@ buildConfig {
         buildConfigField("PLATFORM", "jvm")
         buildConfigField("JVM_VALUE", "aJvmValue")
         forClass("i18n").buildConfigField("i18n_kind", "jvm")
+        forClass("Single") // will inherit all defaults from `commonMain`
     }
 
     sourceSets.named("iosMain") {
         buildConfigField("PLATFORM", "ios")
-        buildConfigField("IS_MOBILE", true)
         buildConfigField("IOS_VALUE", "anIOSValue")
         forClass("i18n").buildConfigField("i18n_kind", "ios")
+        forClass("Single").buildConfigField("IS_MOBILE", true)
     }
 
     sourceSets.named("webMain") {
@@ -107,17 +112,10 @@ buildConfig {
                 .build()
         }
 
+        buildConfigField("PLATFORM", "web")
+        buildConfigField("WEB_VALUE", "aWebValue")
         forClass("i18n").buildConfigField("i18n_kind", "web")
-    }
-
-    sourceSets.named("jsMain") {
-        buildConfigField("PLATFORM", "js")
-        buildConfigField("JS_VALUE", "aJsValue")
-    }
-
-    sourceSets.named("wasmJsMain") {
-        buildConfigField("PLATFORM", "wasmJs")
-        buildConfigField("WASM_JS_VALUE", "aWebAssemblyJsValue")
+        forClass("Single") // will inherit all defaults from `commonMain`
     }
 }
 
