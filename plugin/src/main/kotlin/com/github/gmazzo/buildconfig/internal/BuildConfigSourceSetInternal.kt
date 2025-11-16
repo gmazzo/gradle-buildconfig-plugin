@@ -15,6 +15,8 @@ internal interface BuildConfigSourceSetInternal : BuildConfigSourceSet {
     val allDependsOn: Sequence<BuildConfigSourceSetInternal>
         get() = dependsOn.asSequence() + dependsOn.asSequence().flatMap { it.allDependsOn }
 
+    val isSuperseded: Boolean
+
     override var generateTask: TaskProvider<BuildConfigTask>
 
     fun dependsOn(other: BuildConfigSourceSetInternal)

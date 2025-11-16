@@ -33,7 +33,7 @@ public inline fun <reified Type : Any> BuildConfigClassSpec.buildConfigField(
 @BuildConfigDsl
 public inline fun <reified Type : Serializable?> BuildConfigClassSpec.buildConfigField(
     name: String,
-    value: Type?,
+    value: Type,
 ): NamedDomainObjectProvider<BuildConfigField> = buildConfigField(name) {
     it.type(typeOf<Type>())
     it.value(value)

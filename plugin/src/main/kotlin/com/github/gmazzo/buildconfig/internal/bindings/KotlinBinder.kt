@@ -87,7 +87,7 @@ internal object KotlinBinder {
                     target.compilations.all { compilation ->
                         val ss = compilation.defaultSourceSet
                         val spec = extension.sourceSets.getByName(nameOf(ss.name))
-                        val dependsOnSpecs = spec.allDependsOn.toSet()
+                        val dependsOnSpecs = spec.allDependsOn.filter { !it.isSuperseded }.toSet()
 
                         lookForExpectFields(spec, dependsOnSpecs)
                         spec.extraSpecs.all { extra ->
@@ -135,11 +135,9 @@ internal object KotlinBinder {
 
                     if (spec.buildConfigFields.names.contains(expectField.name)) continue
 
-                    spec.buildConfigFields.create(expectField.name) { field ->
-                        field.type.value(expectField.type).disallowChanges()
-                        field.value.value(expectDefault).disallowChanges()
-                        field.position.value(expectField.position).disallowChanges()
-                        field.tags.add(BuildConfigKotlinGenerator.TagActual)
+                    spec.buildConfigField(expectField).configure {
+                        it.value.value(expectDefault)
+                        it.tags.add(BuildConfigKotlinGenerator.TagActual)
                     }
                 }
             }

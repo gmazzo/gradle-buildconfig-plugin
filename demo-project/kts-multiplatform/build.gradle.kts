@@ -55,6 +55,7 @@ buildConfig {
         useKotlinOutput { topLevelConstants = true }
 
         buildConfigField("i18n_hello", "Hello")
+        buildConfigField("i18n_greetings", expect("Greetings"))
         buildConfigField("i18n_kind", expect<String>())
     }
 

@@ -74,34 +74,35 @@ public open class BuildConfigKotlinGenerator(
 
     private fun Iterable<BuildConfigField>.asPropertiesSpec() = map { field ->
         try {
-            val typeName = field.type.get().toTypeName()
-            val (expect, actual) =
-                field.tags.getOrElse(emptySet()).let { (TagExpect in it) to (TagActual in it) }
-
+            val (expect, actual) = field.tags.getOrElse(emptySet())
+                .let { tags -> (TagExpect in tags) to (TagActual in tags) }
             val value = field.value.get()
-            val nullableAwareType = if (value.value != null) typeName else typeName.copy(nullable = true)
+            val typeName = field.type.get().toTypeName()
+                .let { it.copy(nullable = it.isNullable || value.value == null) }
+            val sanitizedValue = value.value.takeUnless { it is BuildConfigValue.Expect }
+
             val modifiers = listOfNotNull(
                 kModifiers,
-                KModifier.CONST.takeIf { !expect && value.value != null && typeName in CONST_TYPES },
+                KModifier.CONST.takeIf { !expect && sanitizedValue != null && typeName in CONST_TYPES },
                 KModifier.EXPECT.takeIf { expect },
                 KModifier.ACTUAL.takeIf { actual },
             )
 
-            val prop = PropertySpec.builder(field.name, nullableAwareType, kModifiers, *modifiers.toTypedArray())
+            val prop = PropertySpec.builder(field.name, typeName, kModifiers, *modifiers.toTypedArray())
             if (!expect) {
                 when (value) {
                     is BuildConfigValue.Literal -> {
-                        val (format, count) = typeName.format(value.value)
-                        val args = value.value.asVarArg()
+                        val (format, count) = typeName.format(sanitizedValue)
+                        val args = sanitizedValue.asVarArg()
 
                         check(count == args.size) {
-                            "Invalid number of arguments for ${field.name} of type ${nullableAwareType}: " +
+                            "Invalid number of arguments for ${field.name} of type ${typeName}: " +
                                 "expected $count, got ${args.size}: ${args.joinToString()}"
                         }
                         prop.initializer(format, *args)
                     }
 
-                    is BuildConfigValue.Expression -> prop.initializer("%L", value.value)
+                    is BuildConfigValue.Expression -> prop.initializer("%L", sanitizedValue)
                     is BuildConfigValue.Expect -> error("Unexpected expect value for field ${field.name} here")
                 }
             }
