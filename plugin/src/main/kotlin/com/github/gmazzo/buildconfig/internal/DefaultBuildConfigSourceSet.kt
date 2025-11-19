@@ -9,11 +9,11 @@ import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.newInstance
 
 internal abstract class DefaultBuildConfigSourceSet(
-    classSpec: BuildConfigClassSpec,
+    private val defaultSpec: BuildConfigClassSpec,
     override val extraSpecs: NamedDomainObjectContainer<BuildConfigClassSpec>
 ) :
     BuildConfigSourceSetInternal,
-    BuildConfigClassSpec by classSpec,
+    BuildConfigClassSpec by defaultSpec,
     Iterable<TaskProvider<BuildConfigTask>>,
     GroovyNullValueWorkaround() {
 
@@ -25,9 +25,9 @@ internal abstract class DefaultBuildConfigSourceSet(
         name: String,
         objects: ObjectFactory,
     ) : this(
-        classSpec = objects.newInstance<DefaultBuildConfigClassSpec>(name),
+        defaultSpec = objects.newInstance<DefaultBuildConfigClassSpec>(name, "buildConfig source set <$name>"),
         extraSpecs = objects.domainObjectContainer(DefaultBuildConfigClassSpec::class.java) { extraName ->
-            objects.newInstance<DefaultBuildConfigClassSpec>(extraName)
+            objects.newInstance<DefaultBuildConfigClassSpec>(extraName, "buildConfig source set <$name>, class <$extraName>")
         } as NamedDomainObjectContainer<BuildConfigClassSpec>
     )
 
@@ -81,6 +81,6 @@ internal abstract class DefaultBuildConfigSourceSet(
         if (!isSuperseded) yield(generateTask)
     }
 
-    override fun toString() = "buildConfig source set <$name>"
+    override fun toString() = defaultSpec.toString()
 
 }

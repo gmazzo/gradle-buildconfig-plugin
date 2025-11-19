@@ -1,11 +1,11 @@
 public abstract interface class com/github/gmazzo/buildconfig/BuildConfigClassSpec : org/gradle/api/Named {
-	public fun buildConfigField (Lcom/github/gmazzo/buildconfig/BuildConfigField;)Lorg/gradle/api/NamedDomainObjectProvider;
-	public fun buildConfigField (Ljava/lang/Class;Ljava/lang/String;Ljava/io/Serializable;)Lorg/gradle/api/NamedDomainObjectProvider;
-	public fun buildConfigField (Ljava/lang/Class;Ljava/lang/String;Lorg/gradle/api/provider/Provider;)Lorg/gradle/api/NamedDomainObjectProvider;
-	public fun buildConfigField (Ljava/lang/String;Ljava/lang/String;Ljava/io/Serializable;)Lorg/gradle/api/NamedDomainObjectProvider;
-	public fun buildConfigField (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lorg/gradle/api/NamedDomainObjectProvider;
-	public fun buildConfigField (Ljava/lang/String;Ljava/lang/String;Lorg/gradle/api/provider/Provider;)Lorg/gradle/api/NamedDomainObjectProvider;
-	public fun buildConfigField (Ljava/lang/String;Lorg/gradle/api/Action;)Lorg/gradle/api/NamedDomainObjectProvider;
+	public fun buildConfigField (Lcom/github/gmazzo/buildconfig/BuildConfigField;)Lcom/github/gmazzo/buildconfig/BuildConfigField;
+	public fun buildConfigField (Ljava/lang/Class;Ljava/lang/String;Ljava/io/Serializable;)Lcom/github/gmazzo/buildconfig/BuildConfigField;
+	public fun buildConfigField (Ljava/lang/Class;Ljava/lang/String;Lorg/gradle/api/provider/Provider;)Lcom/github/gmazzo/buildconfig/BuildConfigField;
+	public fun buildConfigField (Ljava/lang/String;Ljava/lang/String;Ljava/io/Serializable;)Lcom/github/gmazzo/buildconfig/BuildConfigField;
+	public fun buildConfigField (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/github/gmazzo/buildconfig/BuildConfigField;
+	public fun buildConfigField (Ljava/lang/String;Ljava/lang/String;Lorg/gradle/api/provider/Provider;)Lcom/github/gmazzo/buildconfig/BuildConfigField;
+	public fun buildConfigField (Ljava/lang/String;Lorg/gradle/api/Action;)Lcom/github/gmazzo/buildconfig/BuildConfigField;
 	public fun className (Ljava/lang/String;)Lcom/github/gmazzo/buildconfig/BuildConfigClassSpec;
 	public fun expect (Lcom/github/gmazzo/buildconfig/BuildConfigValue;)Lcom/github/gmazzo/buildconfig/BuildConfigValue$Expect;
 	public fun expect (Ljava/io/Serializable;)Ljava/io/Serializable;
@@ -35,7 +35,9 @@ public abstract interface class com/github/gmazzo/buildconfig/BuildConfigExtensi
 	public fun sourceSets (Lorg/gradle/api/Action;)V
 }
 
-public abstract interface class com/github/gmazzo/buildconfig/BuildConfigField : org/gradle/api/Named {
+public abstract interface class com/github/gmazzo/buildconfig/BuildConfigField : java/lang/Comparable, org/gradle/api/Named {
+	public fun compareTo (Lcom/github/gmazzo/buildconfig/BuildConfigField;)I
+	public synthetic fun compareTo (Ljava/lang/Object;)I
 	public fun expression (Ljava/lang/String;)Lcom/github/gmazzo/buildconfig/BuildConfigField;
 	public fun expression (Lorg/gradle/api/provider/Provider;)Lcom/github/gmazzo/buildconfig/BuildConfigField;
 	public abstract fun getName ()Ljava/lang/String;
@@ -108,14 +110,13 @@ public abstract class com/github/gmazzo/buildconfig/BuildConfigValue : java/io/S
 }
 
 public final class com/github/gmazzo/buildconfig/BuildConfigValue$Expect : com/github/gmazzo/buildconfig/BuildConfigValue {
-	public fun <init> ()V
-	public fun <init> (Ljava/io/Serializable;)V
-	public synthetic fun <init> (Ljava/io/Serializable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Ljava/io/Serializable;
-	public final fun copy (Ljava/io/Serializable;)Lcom/github/gmazzo/buildconfig/BuildConfigValue$Expect;
-	public static synthetic fun copy$default (Lcom/github/gmazzo/buildconfig/BuildConfigValue$Expect;Ljava/io/Serializable;ILjava/lang/Object;)Lcom/github/gmazzo/buildconfig/BuildConfigValue$Expect;
+	public fun <init> (Lcom/github/gmazzo/buildconfig/BuildConfigValue;)V
+	public final fun component1 ()Lcom/github/gmazzo/buildconfig/BuildConfigValue;
+	public final fun copy (Lcom/github/gmazzo/buildconfig/BuildConfigValue;)Lcom/github/gmazzo/buildconfig/BuildConfigValue$Expect;
+	public static synthetic fun copy$default (Lcom/github/gmazzo/buildconfig/BuildConfigValue$Expect;Lcom/github/gmazzo/buildconfig/BuildConfigValue;ILjava/lang/Object;)Lcom/github/gmazzo/buildconfig/BuildConfigValue$Expect;
 	public fun equals (Ljava/lang/Object;)Z
-	public fun getValue ()Ljava/io/Serializable;
+	public fun getValue ()Lcom/github/gmazzo/buildconfig/BuildConfigValue;
+	public synthetic fun getValue ()Ljava/io/Serializable;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }

@@ -16,7 +16,7 @@ class BuildConfigTaskTest {
 
     private val generator: BuildConfigGenerator = mockk(relaxUnitFun = true)
 
-    private val spec: BuildConfigClassSpec = project.objects.newInstance<DefaultBuildConfigClassSpec>("spec").apply {
+    private val spec: BuildConfigClassSpec = project.objects.newInstance<DefaultBuildConfigClassSpec>("spec", "test spec").apply {
         generator.set(this@BuildConfigTaskTest.generator)
         className.set("aClassName")
         packageName.set("aPackage")
@@ -32,12 +32,12 @@ class BuildConfigTaskTest {
 
     @Test
     fun `order of fields must be honored when propagated to the generator`() {
-        val fields = sequenceOf(
+        val fields = listOf(
             spec.buildConfigField("Int", "FIRST", "1"),
             spec.buildConfigField("Int", "SECOND", "2"),
             spec.buildConfigField("Int", "THIRD", "3"),
             spec.buildConfigField("Int", "LAST", "9"),
-        ).map { it.get() }.toList()
+        )
 
         task.get().generateBuildConfigFile()
 

@@ -8,7 +8,6 @@ import org.codehaus.groovy.runtime.typehandling.DefaultTypeTransformation.castTo
 import org.gradle.api.Action
 import org.gradle.api.Named
 import org.gradle.api.NamedDomainObjectContainer
-import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
@@ -71,7 +70,7 @@ public interface BuildConfigClassSpec : Named {
         type: String,
         name: String,
         expression: String,
-    ): NamedDomainObjectProvider<BuildConfigField> = buildConfigField(name) {
+    ): BuildConfigField = buildConfigField(name) {
         it.type(type)
         it.expression(expression)
     }
@@ -80,7 +79,7 @@ public interface BuildConfigClassSpec : Named {
         type: String,
         name: String,
         value: Serializable?,
-    ): NamedDomainObjectProvider<BuildConfigField> = buildConfigField(name) {
+    ): BuildConfigField = buildConfigField(name) {
         it.type(type)
         it.value(value)
     }
@@ -89,7 +88,7 @@ public interface BuildConfigClassSpec : Named {
         type: Class<out Type>,
         name: String,
         value: Type?,
-    ): NamedDomainObjectProvider<BuildConfigField> = buildConfigField(name) {
+    ): BuildConfigField = buildConfigField(name) {
         val castedValue = when (value) {
             is BuildConfigValue -> value
             else -> castToType(value, type) as Serializable?
@@ -111,7 +110,7 @@ public interface BuildConfigClassSpec : Named {
         type: String,
         name: String,
         value: Provider<out Serializable>
-    ): NamedDomainObjectProvider<BuildConfigField> = buildConfigField(name) {
+    ): BuildConfigField = buildConfigField(name) {
         it.type(type)
         it.value
             .value(value.map { v ->
@@ -128,7 +127,7 @@ public interface BuildConfigClassSpec : Named {
         type: Class<out Type>,
         name: String,
         value: Provider<out Type>,
-    ): NamedDomainObjectProvider<BuildConfigField> = buildConfigField(name) {
+    ): BuildConfigField = buildConfigField(name) {
         it.type(type)
         it.value.value(value.map { v ->
             when (v) {
@@ -145,30 +144,25 @@ public interface BuildConfigClassSpec : Named {
 
     public fun buildConfigField(
         from: BuildConfigField,
-    ): NamedDomainObjectProvider<BuildConfigField> =
+    ): BuildConfigField =
         buildConfigField(from.name) {
-            it.type.value(from.type)
-            it.value.value(from.value)
+            it.type.convention(from.type)
+            it.value.convention(from.value)
         }
 
     public fun buildConfigField(
         name: String,
         configure: Action<BuildConfigField>,
-    ): NamedDomainObjectProvider<BuildConfigField> = buildConfigFields.size.let { position ->
-        buildConfigFields.register(name) {
-            it.position.convention(position)
-            configure.execute(it)
-        }
-    }
+    ): BuildConfigField =
+        buildConfigFields.maybeCreate(name).also(configure::execute)
 
     public fun expression(expression: String): BuildConfigValue.Expression =
         BuildConfigValue.Expression(expression)
 
     @Suppress("UNCHECKED_CAST")
-    public fun <Type : Serializable?> expect(defaultsTo: Type = (BuildConfigValue.NoDefault as Type)): Type =
-        BuildConfigValue.Expect(value = defaultsTo) as Type
+    public fun <Type : Serializable?> expect(defaultsTo: Type? = null): Type =
+        expect(BuildConfigValue.Literal(defaultsTo)) as Type
 
-    @Suppress("UNCHECKED_CAST")
     public fun expect(defaultsTo: BuildConfigValue): BuildConfigValue.Expect =
         BuildConfigValue.Expect(value = defaultsTo)
 

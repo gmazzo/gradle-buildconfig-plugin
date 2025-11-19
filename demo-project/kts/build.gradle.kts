@@ -262,7 +262,7 @@ buildConfig.forClass("BuildResources") {
     useKotlinOutput { internalVisibility = false }
     buildConfigField("A_CONSTANT", "aConstant")
 
-    sourceSets["main"].resources.asFileTree.visit {
+    files(sourceSets["main"].resources.srcDirs).asFileTree.visit {
         if (!isDirectory) {
             val name = path.uppercase().replace("\\W".toRegex(), "_")
 

@@ -93,6 +93,9 @@ internal object AndroidBinder {
         }
         supersededSpecs.addAll(flavorsSpecs)
 
+        mainSpec.supersededBy(spec)
+        spec.defaultsFrom(mainSpec)
+
         for (parentSpec in supersededSpecs) {
             parentSpec.dependsOn(mainSpec)
 
@@ -101,8 +104,6 @@ internal object AndroidBinder {
                 parentSpec.supersededBy(spec)
             }
         }
-        mainSpec.supersededBy(spec)
-        spec.defaultsFrom(mainSpec)
 
         sourcesJavaAddGeneratedSourceDirectory(spec.generateTask, BuildConfigTask::outputDir)
     }

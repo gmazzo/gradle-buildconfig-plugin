@@ -215,7 +215,7 @@ sourceSets {
 buildConfig.forClass("BuildResources") {
     buildConfigField('String', 'A_CONSTANT', '"aConstant"')
 
-    sourceSets.main.resources.asFileTree.visit {
+    files(sourceSets.main.resources.srcDirs).asFileTree.visit {
         if (!it.directory) {
             def name = it.path.toUpperCase().replaceAll("\\W", "_")
 
