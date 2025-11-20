@@ -44,8 +44,19 @@ android {
     }
 }
 
+buildConfig.sourceSets{
+    named("test") {
+        buildConfigField("TEST_CONSTANT", "aTestValue")
+    }
+    named("androidTest") {
+        buildConfigField("TEST_CONSTANT", "aAndroidTestValue")
+    }
+}
+
 dependencies {
     testImplementation(testFixtures(projects.demoProject.groovy))
+    androidTestImplementation(platform(libs.junit5.bom))
+    androidTestImplementation(libs.junit5.params)
 }
 
 // workaround of AGP issue failing to pick test sources correctly
