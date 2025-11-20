@@ -8,14 +8,7 @@ import com.github.gmazzo.buildconfig.BuildConfigValue
 import java.io.Serializable
 import kotlin.reflect.typeOf
 import org.gradle.api.Action
-import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.provider.Provider
-import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
-
-public val KotlinSourceSet.buildConfig: BuildConfigSourceSet
-    get() = (this as ExtensionAware).extensions.getByName<BuildConfigSourceSet>("buildConfig")
-
-public fun KotlinSourceSet.buildConfig(action: Action<BuildConfigSourceSet>): Unit = action.execute(buildConfig)
 
 public operator fun BuildConfigSourceSet.invoke(action: Action<BuildConfigSourceSet>): Unit =
     action.execute(this)

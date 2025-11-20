@@ -2,6 +2,8 @@ package com.github.gmazzo.buildconfig.demos.kts_android
 
 import com.github.gmazzo.buildconfig.demos.android.BuildConfig as AndroidBuildConfig
 import com.github.gmazzo.buildconfig.demos.groovy.BuildConfigBaseTest
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 
 class BuildConfigTest : BuildConfigBaseTest() {
 
@@ -19,5 +21,10 @@ class BuildConfigTest : BuildConfigBaseTest() {
         arrayOf(AndroidBuildConfig.DEBUG, BuildConfig.IS_DEBUG),
         arrayOf(AndroidBuildConfig.FLAVOR, BuildConfig.BRAND),
     )
+
+    @Test
+    fun testBuildConfigTestProperties() {
+        assertEquals("aTestValue", TestBuildConfig.TEST_CONSTANT)
+    }
 
 }
