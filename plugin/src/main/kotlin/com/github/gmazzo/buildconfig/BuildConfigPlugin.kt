@@ -25,7 +25,7 @@ import org.gradle.util.GradleVersion
 public class BuildConfigPlugin : Plugin<Project> {
 
     public companion object {
-        public const val MIN_GRADLE_VERSION: String = "7.3"
+        public const val MIN_GRADLE_VERSION: String = "8.3"
     }
 
     override fun apply(project: Project): Unit = with(project) {
