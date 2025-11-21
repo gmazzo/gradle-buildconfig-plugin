@@ -14,7 +14,7 @@ import org.junit.jupiter.params.provider.MethodSource
 
 @Execution(ExecutionMode.CONCURRENT)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-abstract class BuildConfigPluginBaseTest {
+abstract class BuildConfigPluginBaseTest(private val isKMP: Boolean = false) {
 
     private val baseDir = File(System.getenv("TEMP_DIR"), javaClass.simpleName)
     protected val gradleMin = BuildConfigPlugin.MIN_GRADLE_VERSION
@@ -23,7 +23,6 @@ abstract class BuildConfigPluginBaseTest {
     protected val kotlinCurrent = KotlinVersion.CURRENT.toString()
     protected val androidCurrent: String = ANDROID_GRADLE_PLUGIN_VERSION
 
-    protected open val kotlinPluginId = "org.jetbrains.kotlin.jvm"
     protected abstract fun Args.buildConfigFieldsContent(): String
     protected open fun Args.extraBuildContent() = ""
     protected abstract fun Args.writeTests()
@@ -70,7 +69,7 @@ abstract class BuildConfigPluginBaseTest {
      * AGP may download and install SDK components, doing this concurrently will break one of the builds
      */
     private fun <Result> Args.synchronizedIfAndroid(block: () -> Result) =
-        if (androidVersion != null) synchronized(this@BuildConfigPluginBaseTest, block) else block()
+        if (androidVersion != null) synchronized(BuildConfigPluginBaseTest, block) else block()
 
     private fun Args.writeBuildGradle() {
         projectDir.resolve("settings.gradle.kts").writeText(
@@ -90,6 +89,12 @@ abstract class BuildConfigPluginBaseTest {
             """.trimIndent()
         )
 
+        val kotlinPluginId = when {
+            isKMP -> "org.jetbrains.kotlin.multiplatform"
+            androidVersion != null -> "org.jetbrains.kotlin.android"
+            else -> "org.jetbrains.kotlin.jvm"
+        }
+
         val plugins = when (androidVersion) {
             null -> when (kotlinVersion) {
                 null -> listOf("java")
@@ -100,20 +105,20 @@ abstract class BuildConfigPluginBaseTest {
                 null -> listOf("id(\"com.android.application\") version \"$androidVersion\"")
                 else -> listOf(
                     "id(\"com.android.application\") version \"$androidVersion\"",
-                    "id(\"org.jetbrains.kotlin.android\") version \"$kotlinVersion\"",
+                    "id(\"$kotlinPluginId\") version \"$kotlinVersion\"",
                 )
             }
         }
 
         if (androidVersion != null) {
-            projectDir.resolve("src/main/AndroidManifest.xml")
+            projectDir.resolve("src/${if (isKMP) "androidMain" else "main"}/AndroidManifest.xml")
                 .apply { parentFile.mkdirs() }
                 .writeText("<manifest/>")
         }
 
         projectDir.resolve("build.gradle.kts").writeText(
-            (if (kotlinVersion != null) "import org.jetbrains.kotlin.gradle.plugin.getKotlinPluginVersion\n\n" else  "") +
-            """
+            (if (kotlinVersion != null) "import org.jetbrains.kotlin.gradle.plugin.getKotlinPluginVersion\n\n" else "") +
+                """
         plugins {
         ${plugins.joinToString(separator = "\n") { "    $it" }}
             id("com.github.gmazzo.buildconfig")
@@ -123,7 +128,9 @@ abstract class BuildConfigPluginBaseTest {
         """ else "") + """
 
         """ + (if (kotlinVersion != null) """
-        check(getKotlinPluginVersion().matches(Regex("${kotlinVersion.replace(".", "\\\\.").replace("+", "\\\\d+")}"))) {
+        check(getKotlinPluginVersion().matches(Regex("${
+                kotlinVersion.replace(".", "\\\\.").replace("+", "\\\\d+")
+            }"))) {
             "Kotlin plugin version (${'$'}{getKotlinPluginVersion()}) does not match the required version ($kotlinVersion)"
         }
 
@@ -160,7 +167,7 @@ abstract class BuildConfigPluginBaseTest {
         """) + """
 
         buildConfig {""" +
-                    (if (withPackage) """
+                (if (withPackage) """
             packageName("${'$'}{project.group}")
 
         """ else "") + """
@@ -172,10 +179,12 @@ abstract class BuildConfigPluginBaseTest {
         )
     }
 
-    private fun Args.writeGradleProperties() = File(projectDir, "gradle.properties").also { file ->
-        file.appendText("org.gradle.caching=true")
-        file.appendText("org.gradle.configuration-cache=true")
-    }
+    private fun Args.writeGradleProperties() = File(projectDir, "gradle.properties").writeText(
+        """
+        org.gradle.jvmargs=-Xmx1g
+        org.gradle.caching=true
+    """.trimIndent()
+    )
 
     inner class Args(
         val gradleVersion: String,
