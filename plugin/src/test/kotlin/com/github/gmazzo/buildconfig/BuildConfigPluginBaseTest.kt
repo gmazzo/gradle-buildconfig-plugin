@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
+import org.junit.jupiter.api.parallel.ResourceLock
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
@@ -20,6 +21,10 @@ abstract class BuildConfigPluginBaseTest(private val isKMP: Boolean = false) {
         System.getenv("TEMP_DIR"),
         javaClass.simpleName
     ).absoluteFile
+
+    private val noTests = object : Args(gradleVersion = "0") {
+        override fun toString() = "no tests"
+    }
 
     protected val gradleMin = BuildConfigPlugin.MIN_GRADLE_VERSION
     protected val gradleLatest: String = GradleVersion.current().baseVersion.version
@@ -45,9 +50,24 @@ abstract class BuildConfigPluginBaseTest(private val isKMP: Boolean = false) {
         Args(gradleVersion = gradleMin, kotlinVersion = kotlinMin),
     )
 
+    @Suppress("unused")
+    private fun androidBuilds() = testBuild().filter { it.androidVersion != null }.ifEmpty { listOf(noTests) }
+
+    @Suppress("unused")
+    private fun otherBuilds() = testBuild().filter { it.androidVersion == null }.ifEmpty { listOf(noTests) }
+
+    @ResourceLock("android") // AGP may install SDK components, doing this concurrently will break the builds
     @ParameterizedTest(name = "{0}")
-    @MethodSource
-    fun Args.testBuild() {
+    @MethodSource("androidBuilds")
+    fun Args.testAndroidBuild() = testBuild()
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("otherBuilds")
+    fun Args.testOtherBuild() = testBuild()
+
+    private fun Args.testBuild() {
+        if (this == noTests) return
+
         projectDir.deleteRecursively()
         projectDir.mkdirs()
 
@@ -55,25 +75,18 @@ abstract class BuildConfigPluginBaseTest(private val isKMP: Boolean = false) {
         writeBuildGradle()
         writeTests()
 
-        val result = synchronizedIfAndroid {
-            GradleRunner.create()
-                .forwardOutput()
-                .withPluginClasspath()
-                .withProjectDir(projectDir)
-                .withTestKitDir(projectDir.resolve(".testkit"))
-                .withGradleVersion(gradleVersion)
-                .withArguments("build", "-s", "--build-cache")
-                .build()
-        }
+        val task = if (isKMP) "allTests" else "test"
+        val result = GradleRunner.create()
+            .forwardOutput()
+            .withPluginClasspath()
+            .withProjectDir(projectDir)
+            .withTestKitDir(projectDir.resolve(".testkit"))
+            .withGradleVersion(gradleVersion)
+            .withArguments(task, "-s", "--build-cache")
+            .build()
 
-        assertEquals(TaskOutcome.SUCCESS, result.task(":build")?.outcome)
+        assertEquals(TaskOutcome.SUCCESS, result.task(":$task")?.outcome)
     }
-
-    /**
-     * AGP may download and install SDK components, doing this concurrently will break one of the builds
-     */
-    private fun <Result> Args.synchronizedIfAndroid(block: () -> Result) =
-        if (androidVersion != null) synchronized(BuildConfigPluginBaseTest, block) else block()
 
     private fun Args.writeBuildGradle() {
         val userBuildCacheDir = File(System.getProperty("user.home"))
@@ -93,7 +106,7 @@ abstract class BuildConfigPluginBaseTest(private val isKMP: Boolean = false) {
                 id("jacoco-testkit-coverage")
             }
 
-            ${ if (userBuildCacheDir != null) "buildCache.local.directory = file(\"$userBuildCacheDir\")" else "" }
+            ${if (userBuildCacheDir != null) "buildCache.local.directory = file(\"$userBuildCacheDir\")" else ""}
 
             rootProject.name = "$PROJECT_NAME"
             """.trimIndent()
@@ -196,7 +209,7 @@ abstract class BuildConfigPluginBaseTest(private val isKMP: Boolean = false) {
     """.trimIndent()
     )
 
-    inner class Args(
+    open inner class Args(
         val gradleVersion: String,
         val kotlinVersion: String? = null,
         val androidVersion: String? = null,
