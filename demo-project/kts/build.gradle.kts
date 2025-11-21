@@ -6,6 +6,7 @@ import java.util.*
 
 plugins {
     alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.ksp)
     id("com.github.gmazzo.buildconfig")
 }
 
@@ -16,6 +17,8 @@ val integrationTest by testing.suites.registering(JvmTestSuite::class) {
 }
 
 dependencies {
+    ksp(libs.autoservice.ksp)
+    compileOnly(libs.autoservice)
     testImplementation(testFixtures(projects.demoProject.groovy))
     "integrationTestImplementation"(project)
     "integrationTestImplementation"(platform(libs.junit5.bom))

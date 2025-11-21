@@ -5,6 +5,7 @@ import com.github.gmazzo.buildconfig.BuildConfigTask
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.ksp)
     id("com.github.gmazzo.buildconfig")
 }
 

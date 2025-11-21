@@ -6,8 +6,9 @@ import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.TypeSpec
 
 plugins {
-    alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.kotlin.ksp)
     id("com.github.gmazzo.buildconfig")
 }
 
@@ -39,6 +40,8 @@ android {
 }
 
 dependencies {
+    "kspJvm"(libs.autoservice.ksp)
+    "jvmMainCompileOnly"(libs.autoservice)
     commonMainImplementation(libs.uriKMP)
     commonTestImplementation(libs.kotlin.test)
 }
