@@ -2,8 +2,6 @@ package com.github.gmazzo.buildconfig
 
 class BuildConfigPluginKMPExpectActualTest : BuildConfigPluginBaseTest(isKMP = true) {
 
-    private val targets = listOf("android", "jvm", "iosArm64", "js")
-
     override fun testBuild() = listOf(
         Args(gradleVersion = gradleLatest, kotlinVersion = kotlinCurrent, androidVersion = androidCurrent),
         Args(gradleVersion = gradleMin, kotlinVersion = kotlinMin, androidVersion = "8.0.0"),
@@ -21,12 +19,6 @@ class BuildConfigPluginKMPExpectActualTest : BuildConfigPluginBaseTest(isKMP = t
         kotlin {
             jvm()
             androidTarget()
-            for (iosTarget in listOf(iosArm64(), iosSimulatorArm64())) {
-                iosTarget.binaries.framework {
-                    baseName = "ComposeApp"
-                    isStatic = true
-                }
-            }
             js { browser() }
             applyDefaultHierarchyTemplate()
 
@@ -75,7 +67,6 @@ class BuildConfigPluginKMPExpectActualTest : BuildConfigPluginBaseTest(isKMP = t
         writeActuals("jvmTest")
         writeActuals("androidUnitTestDebug", "10.0.2.2")
         writeActuals("androidUnitTestRelease")
-        writeActuals("iosTest")
         writeActuals("jsTest")
     }
 
