@@ -13,6 +13,7 @@ import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
+import org.gradle.util.GradleVersion
 
 @CacheableTask
 public abstract class BuildConfigTask : DefaultTask() {
@@ -22,6 +23,15 @@ public abstract class BuildConfigTask : DefaultTask() {
 
     @get:OutputDirectory
     public abstract val outputDir: DirectoryProperty
+
+    init {
+        if (GradleVersion.current() >= GradleVersion.version("7.6")) {
+            onlyIf("There are build config fields to generate", HasFields)
+
+        } else {
+            onlyIf(HasFields)
+        }
+    }
 
     @TaskAction
     public fun generateBuildConfigFile() {
