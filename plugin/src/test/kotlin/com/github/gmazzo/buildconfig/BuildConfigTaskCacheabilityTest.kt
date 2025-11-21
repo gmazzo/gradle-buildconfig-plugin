@@ -15,7 +15,10 @@ import org.junit.jupiter.api.parallel.ExecutionMode
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class BuildConfigTaskCacheabilityTest {
 
-    private val projectDir = File(System.getenv("TEMP_DIR"), BuildConfigTaskCacheabilityTest::class.simpleName!!)
+    private val projectDir = File(
+        System.getenv("TEMP_DIR"),
+        BuildConfigTaskCacheabilityTest::class.simpleName!!
+    ).absoluteFile
 
     private val buildScript = File(projectDir, "build.gradle.kts")
 

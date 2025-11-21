@@ -16,7 +16,11 @@ import org.junit.jupiter.params.provider.MethodSource
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 abstract class BuildConfigPluginBaseTest {
 
-    private val baseDir = File(System.getenv("TEMP_DIR"), javaClass.simpleName)
+    private val baseDir = File(
+        System.getenv("TEMP_DIR"),
+        javaClass.simpleName
+    ).absoluteFile
+
     protected val gradleMin = BuildConfigPlugin.MIN_GRADLE_VERSION
     protected val gradleLatest: String = GradleVersion.current().baseVersion.version
     protected val kotlinMin = "1.9.+"
@@ -59,7 +63,7 @@ abstract class BuildConfigPluginBaseTest {
                 .withProjectDir(projectDir)
                 .withTestKitDir(projectDir.resolve(".testkit"))
                 .withGradleVersion(gradleVersion)
-                .withArguments("build", "-s")
+                .withArguments("build", "-s", "--build-cache")
                 .build()
         }
 
@@ -73,6 +77,10 @@ abstract class BuildConfigPluginBaseTest {
         if (androidVersion != null) synchronized(this@BuildConfigPluginBaseTest, block) else block()
 
     private fun Args.writeBuildGradle() {
+        val userBuildCacheDir = File(System.getProperty("user.home"))
+            .resolve(".gradle/caches/build-cache-1")
+            .takeIf { it.isDirectory }
+
         projectDir.resolve("settings.gradle.kts").writeText(
             """
             pluginManagement {
@@ -85,6 +93,8 @@ abstract class BuildConfigPluginBaseTest {
             plugins {
                 id("jacoco-testkit-coverage")
             }
+
+            ${ if (userBuildCacheDir != null) "buildCache.local.directory = file(\"$userBuildCacheDir\")" else "" }
 
             rootProject.name = "$PROJECT_NAME"
             """.trimIndent()
@@ -184,7 +194,7 @@ abstract class BuildConfigPluginBaseTest {
         val withPackage: Boolean = true,
     ) {
 
-        val projectDir = baseDir
+        val projectDir: File = baseDir
             .resolve("gradle-$gradleVersion")
             .resolve("kotlin-${kotlinVersion ?: "none"}")
             .resolve("android-${androidVersion ?: "none"}")
