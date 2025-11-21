@@ -104,7 +104,7 @@ mavenPublishing {
 }
 
 tasks.test {
-    environment("TEMP_DIR" to temporaryDir)
+    environment("TEMP_DIR", temporaryDir.toRelativeString(projectDir))
     useJUnitPlatform()
     javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(17) } // required by AGP
     finalizedBy(tasks.jacocoTestReport)
