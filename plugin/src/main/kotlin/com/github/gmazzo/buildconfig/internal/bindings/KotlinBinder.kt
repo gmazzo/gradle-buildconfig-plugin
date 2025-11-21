@@ -100,8 +100,9 @@ internal object KotlinBinder {
                     val targetDependsOn = targetSpec.allDependsOn.filter { !it.isSuperseded }
 
                     val spec = (sequenceOf(targetSpec) + targetDependsOn)
+                        .filter { it.name != MAIN_SOURCE_SET_NAME && it.name != TEST_SOURCE_SET_NAME }
                         .find { it.buildConfigFields.isNotEmpty() }
-                        ?: return@all
+                        ?: targetSpec
 
                     val dependsOn = spec.allDependsOn
                         .filter { !it.isSuperseded }
