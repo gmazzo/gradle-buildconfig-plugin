@@ -5,10 +5,8 @@ package com.github.gmazzo.buildconfig
 import com.github.gmazzo.buildconfig.generators.BuildConfigGeneratorSpec
 import java.io.File
 import org.gradle.api.DefaultTask
-import org.gradle.api.Task
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.SetProperty
-import org.gradle.api.specs.Spec
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.OutputDirectory
@@ -22,6 +20,14 @@ public abstract class BuildConfigTask : DefaultTask() {
 
     @get:OutputDirectory
     public abstract val outputDir: DirectoryProperty
+
+    init {
+        onlyIf("There are build config fields to generate") { task ->
+            (task as BuildConfigTask).specs.get()
+                .any { fields -> fields.buildConfigFields.isNotEmpty() }
+                .also { skips -> if (skips) outputDir.get().asFile.deleteRecursively() }
+        }
+    }
 
     @TaskAction
     public fun generateBuildConfigFile() {
@@ -49,11 +55,6 @@ public abstract class BuildConfigTask : DefaultTask() {
                 )
             )
         }
-    }
-
-    private object HasFields : Spec<Task> {
-        override fun isSatisfiedBy(task: Task): Boolean =
-            (task as BuildConfigTask).specs.get().any { fields -> fields.buildConfigFields.isNotEmpty() }
     }
 
 }
