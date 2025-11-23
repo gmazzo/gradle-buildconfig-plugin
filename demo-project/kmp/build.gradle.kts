@@ -38,8 +38,14 @@ dependencies {
     commonTestImplementation(libs.kotlin.test)
 }
 
+val lazyProvidedValue = objects.property<String>()
+
+gradle.projectsEvaluated {
+    lazyProvidedValue.set("aLazyProvidedValue")
+}
+
 buildConfig {
-    buildConfigField("COMMON_VALUE",  expect("aCommonValue"))   // a constant for all platforms
+    buildConfigField("COMMON_VALUE", expect("aCommonValue"))   // a constant for all platforms
     buildConfigField("PLATFORM", expect<String>())                          // expect a platform specific value
     buildConfigField("DEBUG", expect(false))                    // expect with a default
     buildConfigField("com.eygraber.uri.Uri", "ENDPOINT",
@@ -67,6 +73,7 @@ buildConfig {
 
     sourceSets.named("test") {
         buildConfigField("TEST_VALUE", "aTestValue")
+        buildConfigField("PROVIDED_VALUE", lazyProvidedValue)
     }
 
     sourceSets.named("jvmMain") {

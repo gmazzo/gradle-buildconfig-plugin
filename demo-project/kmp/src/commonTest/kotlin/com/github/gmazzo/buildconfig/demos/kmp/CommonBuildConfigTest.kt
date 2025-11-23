@@ -32,4 +32,10 @@ abstract class CommonBuildConfigTest(
         assertEquals(expectedMobile, Single.IS_MOBILE)
     }
 
+    @Test
+    fun testTestProperties() {
+        assertEquals("aTestValue", TestBuildConfig.TEST_VALUE)
+        assertEquals("aLazyProvidedValue", TestBuildConfig.PROVIDED_VALUE)
+    }
+
 }
