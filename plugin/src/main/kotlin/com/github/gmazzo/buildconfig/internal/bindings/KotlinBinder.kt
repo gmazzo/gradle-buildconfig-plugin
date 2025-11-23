@@ -1,7 +1,7 @@
 package com.github.gmazzo.buildconfig.internal.bindings
 
 import com.github.gmazzo.buildconfig.BuildConfigClassSpec
-import com.github.gmazzo.buildconfig.BuildConfigValue
+import com.github.gmazzo.buildconfig.BuildConfigField
 import com.github.gmazzo.buildconfig.generators.BuildConfigKotlinGenerator
 import com.github.gmazzo.buildconfig.internal.BuildConfigExtensionInternal
 import com.github.gmazzo.buildconfig.internal.bindings.JavaBinder.registerExtension
@@ -142,23 +142,16 @@ internal object KotlinBinder {
             fillMissingActuals(specsOfTargets)
         }
 
-        private fun BuildConfigClassSpec.hasExpects() =
-            buildConfigFields.any { it.value.orNull is BuildConfigValue.Expect }
-
-        private fun BuildConfigClassSpec.hasActuals() =
-            buildConfigFields.any { it.tags.get().contains(BuildConfigKotlinGenerator.TagActual) }
-
         private fun lookForExpectFields(spec: BuildConfigClassSpec, dependsOnSpecs: Set<BuildConfigClassSpec>) {
             val expectSpecs = linkedSetOf<BuildConfigClassSpec>()
             for (field in spec.buildConfigFields) {
                 for (dependsOnSpec in dependsOnSpecs) {
                     val dependsOnField = dependsOnSpec.buildConfigFields.findByName(field.name) ?: continue
 
-                    check(dependsOnField.value.orNull is BuildConfigValue.Expect) {
+                    check(dependsOnField.isExpect) {
                         "Field '${dependsOnField.name}' in '$dependsOnSpec' must be `expect`, since it's defined as `actual` in '$spec'"
                     }
 
-                    dependsOnField.tags.add(BuildConfigKotlinGenerator.TagExpect)
                     field.tags.add(BuildConfigKotlinGenerator.TagActual)
                     expectSpecs.add(dependsOnSpec)
 
@@ -170,9 +163,7 @@ internal object KotlinBinder {
             // then, in case we have mixed expect and regular constants in the same spec, we promote them all to this spec
             for (expectSpec in expectSpecs) {
                 for (expectField in expectSpec.buildConfigFields) {
-                    expectField.tags.add(BuildConfigKotlinGenerator.TagExpect)
-
-                    if (expectField.value.orNull.isExpectNoDefault) continue
+                    if (expectField.isExpectNoDefault) continue
                     if (spec.buildConfigFields.names.contains(expectField.name)) continue
 
                     spec.buildConfigField(expectField).tags.add(BuildConfigKotlinGenerator.TagActual)
@@ -187,7 +178,7 @@ internal object KotlinBinder {
                 for (expectSpec in dependsOnSpecs) {
                     for (expectField in expectSpec.buildConfigFields) {
                         if (spec.buildConfigFields.names.contains(expectField.name)) continue
-                        if (expectField.value.orNull.isExpectNoDefault) continue
+                        if (expectField.isExpectNoDefault) continue
 
                         spec.buildConfigField(expectField)
                             .tags.add(BuildConfigKotlinGenerator.TagActual)
@@ -199,8 +190,20 @@ internal object KotlinBinder {
             }
         }
 
-        private val BuildConfigValue?.isExpectNoDefault: Boolean
-            get() = this is BuildConfigValue.Expect && value == null
+        private fun BuildConfigClassSpec.hasExpects() =
+            buildConfigFields.any { it.isExpect }
+
+        private fun BuildConfigClassSpec.hasActuals() =
+            buildConfigFields.any { it.isActual }
+
+        private val BuildConfigField.isExpect: Boolean
+            get() = BuildConfigKotlinGenerator.TagExpect in tags.get()
+
+        private val BuildConfigField.isExpectNoDefault: Boolean
+            get() = isExpect && value.get().value == null
+
+        private val BuildConfigField.isActual: Boolean
+            get() = BuildConfigKotlinGenerator.TagActual in tags.get()
 
     }
 
