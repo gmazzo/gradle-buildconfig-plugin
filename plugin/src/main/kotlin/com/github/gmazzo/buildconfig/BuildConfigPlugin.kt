@@ -79,7 +79,10 @@ public class BuildConfigPlugin : Plugin<Project> {
             with(KotlinBinder.Multiplatform) { configure(extension) }
         }
 
-        plugins.withId("com.android.base") {
+        plugins.withAnyId(
+            "com.android.base",
+            "com.android.kotlin.multiplatform.library"
+        ) {
             with(AndroidBinder) { configure(extension) }
         }
     }
