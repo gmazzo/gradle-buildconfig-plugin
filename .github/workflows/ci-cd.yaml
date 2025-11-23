@@ -32,15 +32,11 @@ jobs:
   build:
     name: Build (${{ matrix.project }})
     needs: compute-projects
-    runs-on: ${{ matrix.os || 'ubuntu' }}-latest
+    runs-on: ${{ contains(matrix.project, 'kmp') && 'macos' || 'ubuntu' }}-latest
     strategy:
       fail-fast: false
       matrix:
         project: ${{ fromJSON(needs.compute-projects.outputs.projects) }}
-        include:
-          - project: 'demo-project:kts-multiplatform'
-            os: 'macos'
-          - project: 'plugin'
     steps:
       - name: Checkout
         uses: actions/checkout@v5

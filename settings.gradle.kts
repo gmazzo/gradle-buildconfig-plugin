@@ -13,5 +13,6 @@ include(
     "demo-project:kts-android",
     "demo-project:kts-android-lib",
     "demo-project:kts-gen-java",
-    "demo-project:kts-multiplatform",
+    "demo-project:kmp",
+    "demo-project:kmp-android-legacy",
 )

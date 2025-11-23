@@ -20,7 +20,7 @@ import org.gradle.kotlin.dsl.closureOf
 
 internal object AndroidBinder {
     private const val ANDROID_TEST_SOURCE_SET_NAME = "androidTest"
-    private val variantNameRegex = Regex("^(test|androidTest)?(.+?)(UnitTest|AndroidTest)?$")
+    private val variantNameRegex = Regex("^(test|androidTest|android)?(.+?)(UnitTest|AndroidTest)?$")
 
     fun Project.configure(extension: BuildConfigExtensionInternal) {
         val isKMP by lazy { isKotlinMultiplatform }
@@ -38,10 +38,12 @@ internal object AndroidBinder {
         fun nameOf(name: String) =
             if (isKMP) kmpNameOf(name) else name
 
-        androidSourceSets.all {
-            val spec = extension.sourceSets.maybeCreate(nameOf(it.name))
+        if (plugins.hasPlugin("com.android.base")) {
+            androidSourceSets.all {
+                val spec = extension.sourceSets.maybeCreate(nameOf(it.name))
 
-            (it as ExtensionAware).registerExtension(spec)
+                (it as ExtensionAware).registerExtension(spec)
+            }
         }
 
         val main by lazy { extension.sourceSets.maybeCreate(nameOf(MAIN_SOURCE_SET_NAME)) }
@@ -93,8 +95,10 @@ internal object AndroidBinder {
         }
         supersededSpecs.addAll(flavorsSpecs)
 
-        mainSpec.supersededBy(spec)
-        spec.defaultsFrom(mainSpec)
+        if (mainSpec != spec) {
+            mainSpec.supersededBy(spec)
+            spec.defaultsFrom(mainSpec)
+        }
 
         for (parentSpec in supersededSpecs) {
             parentSpec.dependsOn(mainSpec)
@@ -106,6 +110,7 @@ internal object AndroidBinder {
         }
 
         sourcesJavaAddGeneratedSourceDirectory(spec.generateTask, BuildConfigTask::outputDir)
+        sourcesKotlinAddGeneratedSourceDirectory(spec.generateTask, BuildConfigTask::outputDir)
     }
 
     private val Project.androidComponents: ExtensionAware
@@ -160,14 +165,27 @@ internal object AndroidBinder {
     private val Any/*Component*/.productFlavors
         get() = javaClass.getMethod("getProductFlavors").invoke(this) as List<Pair<String, String>>
 
-    // Component.sources.java!!.addGeneratedSourceDirectory
+    // Component.sources.java?.addGeneratedSourceDirectory
     private fun <Type : Task> Any/*Component*/.sourcesJavaAddGeneratedSourceDirectory(
         task: TaskProvider<out Type>,
         wiredWith: (Type) -> DirectoryProperty,
+    ) = sourcesAddGeneratedSourceDirectory("getJava", task, wiredWith)
+
+    // Component.sources.kotlin?.addGeneratedSourceDirectory
+    private fun <Type : Task> Any/*Component*/.sourcesKotlinAddGeneratedSourceDirectory(
+        task: TaskProvider<out Type>,
+        wiredWith: (Type) -> DirectoryProperty,
+    ) = sourcesAddGeneratedSourceDirectory("getKotlin", task, wiredWith)
+
+    private fun <Type : Task> Any/*Component*/.sourcesAddGeneratedSourceDirectory(
+        into: String,
+        task: TaskProvider<out Type>,
+        wiredWith: (Type) -> DirectoryProperty,
     ) = with(javaClass.getMethod("getSources").invoke(this)) {
-        with(javaClass.getMethod("getJava").invoke(this)) {
-            javaClass.getMethod("addGeneratedSourceDirectory", TaskProvider::class.java, Function1::class.java)
-                .invoke(this, task, wiredWith)
+        with(javaClass.getMethod(into).invoke(this)) {
+            this?.javaClass
+                ?.getMethod("addGeneratedSourceDirectory", TaskProvider::class.java, Function1::class.java)
+                ?.invoke(this, task, wiredWith)
         }
     }
 
@@ -189,6 +207,7 @@ internal object AndroidBinder {
         return when {
             prefix == "test" || suffix == "UnitTest" -> return "androidUnitTest${variant.capitalized}"
             prefix == "androidTest" || suffix == "AndroidTest" -> return "androidInstrumentedTest${variant.capitalized}"
+            prefix == "android" -> name // e.g., androidMain, androidHostTest
             else -> "android${variant.capitalized}"
         }
     }
