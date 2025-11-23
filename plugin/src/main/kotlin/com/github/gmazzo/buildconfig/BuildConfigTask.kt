@@ -25,7 +25,7 @@ public abstract class BuildConfigTask : DefaultTask() {
         onlyIf("There are build config fields to generate") { task ->
             (task as BuildConfigTask).specs.get()
                 .any { fields -> fields.buildConfigFields.isNotEmpty() }
-                .also { skips -> if (skips) outputDir.get().asFile.deleteRecursively() }
+                .also { shouldRun -> if (!shouldRun) outputDir.get().asFile.deleteRecursively() }
         }
     }
 
