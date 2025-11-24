@@ -4,13 +4,13 @@ class BuildConfigPluginKMPExpectActualTest : BuildConfigPluginBaseTest(isKMP = t
 
     override fun testBuild() = listOf(
         Args(gradleVersion = gradleLatest, kotlinVersion = kotlinCurrent, androidVersion = androidCurrent),
-        Args(gradleVersion = gradleMin, kotlinVersion = kotlinMin, androidVersion = "8.0.0"),
+        Args(gradleVersion = gradleMin, kotlinVersion = kotlinMin, androidVersion = "8.2.0"),
     )
 
     override fun Args.buildConfigFieldsContent() = """
         buildConfigField("String", "API_BASE_URL", expect(expression("\"https://localhost:8080/\"")))
 
-        sourceSets.named("androidDebug") {
+        sourceSets.named("androidMain") {
             buildConfigField("String", "API_BASE_URL", "\"https://10.0.2.2:8080/\"")
         }
     """.trimIndent()
@@ -18,9 +18,10 @@ class BuildConfigPluginKMPExpectActualTest : BuildConfigPluginBaseTest(isKMP = t
     override fun Args.extraBuildContent() = """
         kotlin {
             jvm()
-            androidTarget()
+            androidLibrary {
+                withAndroidTestOnJvm { }
+            }
             js { browser() }
-            applyDefaultHierarchyTemplate()
 
             sourceSets.commonTest.dependencies {
                 implementation("org.jetbrains.kotlin:kotlin-test")
@@ -65,8 +66,7 @@ class BuildConfigPluginKMPExpectActualTest : BuildConfigPluginBaseTest(isKMP = t
         }
 
         writeActuals("jvmTest")
-        writeActuals("androidUnitTestDebug", "10.0.2.2")
-        writeActuals("androidUnitTestRelease")
+        writeActuals("androidHostTest", "10.0.2.2")
         writeActuals("jsTest")
     }
 
