@@ -13,6 +13,7 @@ import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.tasks.SourceSet.MAIN_SOURCE_SET_NAME
 import org.gradle.api.tasks.SourceSet.TEST_SOURCE_SET_NAME
 import org.gradle.kotlin.dsl.getByName
+import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet.Companion.COMMON_MAIN_SOURCE_SET_NAME
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet.Companion.COMMON_TEST_SOURCE_SET_NAME
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinMetadataTarget.Companion.METADATA_TARGET_NAME
@@ -96,7 +97,16 @@ internal object KotlinBinder {
 
                 target.compilations.all { compilation ->
                     val ss = compilation.defaultSourceSet
+
                     val targetSpec = extension.sourceSets.getByName(nameOf(ss.name))
+
+                    // adds a default `dependsOn` to either `main` or `test` source set (in case `applyDefaultHierarchyTemplate` was not used)
+                    when (compilation.name) {
+                        KotlinCompilation.MAIN_COMPILATION_NAME -> MAIN_SOURCE_SET_NAME
+                        KotlinCompilation.TEST_COMPILATION_NAME -> TEST_SOURCE_SET_NAME
+                        else -> null
+                    }?.let { targetSpec.dependsOn(extension.sourceSets.getByName(it)) }
+
                     val targetDependsOn = targetSpec.allDependsOn.filter { !it.isSuperseded }
 
                     val spec = (sequenceOf(targetSpec) + targetDependsOn)
