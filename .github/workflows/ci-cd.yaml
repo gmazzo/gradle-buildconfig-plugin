@@ -22,7 +22,7 @@ jobs:
       projects: ${{ steps.compute-projects.outputs.projects }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - id: compute-projects
         run: |
           PROJECTS=$(echo "plugin"; find "demo-project" -mindepth 1 -maxdepth 1 -type d | tr '/' ':')
@@ -39,7 +39,7 @@ jobs:
         project: ${{ fromJSON(needs.compute-projects.outputs.projects) }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Setup host
         uses: ./.github/actions/setup-host
         with:
@@ -71,7 +71,7 @@ jobs:
     if: ${{ !cancelled() && !github.event.repository.fork && !github.event.pull_request.head.repo.fork }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: Setup host
@@ -102,7 +102,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Download actionlint
         shell: bash
         run: bash <(curl https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
