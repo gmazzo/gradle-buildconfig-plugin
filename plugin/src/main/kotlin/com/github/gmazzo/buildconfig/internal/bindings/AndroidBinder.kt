@@ -6,6 +6,7 @@ import com.github.gmazzo.buildconfig.internal.BuildConfigSourceSetInternal
 import com.github.gmazzo.buildconfig.internal.bindings.JavaBinder.registerExtension
 import com.github.gmazzo.buildconfig.internal.capitalized
 import groovy.lang.Closure
+import java.lang.reflect.InvocationTargetException
 import org.gradle.api.Action
 import org.gradle.api.Named
 import org.gradle.api.NamedDomainObjectContainer
@@ -110,21 +111,44 @@ internal object AndroidBinder {
         }
 
         sourcesJavaAddGeneratedSourceDirectory(spec.generateTask, BuildConfigTask::outputDir)
-        sourcesKotlinAddGeneratedSourceDirectory(spec.generateTask, BuildConfigTask::outputDir)
+        try {
+            sourcesKotlinAddGeneratedSourceDirectory(spec.generateTask, BuildConfigTask::outputDir)
+        } catch (_: InvocationTargetException) {
+            // this may fail on older AGP versions
+        }
     }
 
     private val Project.androidComponents: ExtensionAware
         get() = extensions.getByName("androidComponents") as ExtensionAware
 
     private fun ExtensionAware/*AndroidComponentsExtension*/.onVariants(onVariant: Action<Any>) {
-        val selectorsAll = with(javaClass.getMethod("selector").invoke(this)) {
-            javaClass.getMethod("all").invoke(this)
+        val selectorsAll = try {
+            with(javaClass.getMethod("selector").invoke(this)) {
+                javaClass.getMethod("all").invoke(this)
+            }
+        } catch (_: NoSuchMethodException) {
+            null
         }
-        val selectorInterface = selectorsAll.javaClass.superclass.interfaces[0]
 
-        @Suppress("UNCHECKED_CAST")
-        javaClass.getMethod("onVariants", selectorInterface, Action::class.java)
-            .invoke(this, selectorsAll, onVariant)
+        val selectorInterface = selectorsAll?.javaClass?.superclass?.interfaces[0]
+
+        fun callMethod(name: String) {
+            @Suppress("UNCHECKED_CAST")
+            javaClass.getMethod(name, *listOfNotNull(selectorInterface, Action::class.java).toTypedArray())
+                .invoke(this, *listOfNotNull(selectorsAll, onVariant).toTypedArray())
+        }
+
+        try {
+            callMethod("onVariants")
+
+        } catch (ex: NoSuchMethodException) {
+            try {
+                callMethod("onVariant")
+
+            } catch (_: NoSuchMethodException) {
+                throw ex
+            }
+        }
     }
 
     private fun ExtensionAware/*AndroidComponentsExtension*/.finalizeDsl(callback: (Any/*AndroidBaseExtension*/) -> Unit) {

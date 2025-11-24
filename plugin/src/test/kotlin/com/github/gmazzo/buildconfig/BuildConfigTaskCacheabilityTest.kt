@@ -29,9 +29,6 @@ class BuildConfigTaskCacheabilityTest {
         .withArguments("clean", "jar")
         .forwardOutput()
 
-    // to generate unique build cache entry per run
-    private val uuid = UUID.randomUUID()
-
     @BeforeEach
     fun setup() {
         projectDir.deleteRecursively()
@@ -65,7 +62,7 @@ class BuildConfigTaskCacheabilityTest {
 
             buildConfig {
                 buildConfigField("String", "SOME_FIELD", "\"aValue\"")
-                buildConfigField("String", "UUID", "\"${uuid}\"")
+                buildConfigField("String", "UUID", "\"${UUID.randomUUID()}\"")
             }
 
         """.trimIndent()

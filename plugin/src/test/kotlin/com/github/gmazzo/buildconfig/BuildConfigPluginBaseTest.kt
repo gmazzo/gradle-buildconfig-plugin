@@ -112,24 +112,28 @@ abstract class BuildConfigPluginBaseTest(private val isKMP: Boolean = false) {
             """.trimIndent()
         )
 
-        val kotlinPluginId = when {
-            isKMP -> "org.jetbrains.kotlin.multiplatform"
-            androidVersion != null -> "org.jetbrains.kotlin.android"
-            else -> "org.jetbrains.kotlin.jvm"
-        }
-
-        val plugins = when (androidVersion) {
-            null -> when (kotlinVersion) {
-                null -> listOf("java")
-                else -> listOf("id(\"$kotlinPluginId\") version \"$kotlinVersion\"")
+        val plugins = when (isKMP) {
+            true -> when (androidVersion) {
+                null -> listOf("org.jetbrains.kotlin.multiplatform" to kotlinVersion)
+                else -> listOf(
+                    "org.jetbrains.kotlin.multiplatform" to kotlinVersion,
+                    "com.android.kotlin.multiplatform.library" to androidVersion,
+                )
             }
 
-            else -> when (kotlinVersion) {
-                null -> listOf("id(\"com.android.application\") version \"$androidVersion\"")
-                else -> listOf(
-                    "id(\"com.android.application\") version \"$androidVersion\"",
-                    "id(\"$kotlinPluginId\") version \"$kotlinVersion\"",
-                )
+            else -> when (androidVersion) {
+                null -> when (kotlinVersion) {
+                    null -> listOf("java" to null)
+                    else -> listOf("org.jetbrains.kotlin.jvm" to kotlinVersion)
+                }
+
+                else -> when (kotlinVersion) {
+                    null -> listOf("com.android.application" to androidVersion)
+                    else -> listOf(
+                        "org.jetbrains.kotlin.android" to kotlinVersion,
+                        "com.android.application" to androidVersion,
+                    )
+                }
             }
         }
 
@@ -143,7 +147,7 @@ abstract class BuildConfigPluginBaseTest(private val isKMP: Boolean = false) {
             (if (kotlinVersion != null) "import org.jetbrains.kotlin.gradle.plugin.getKotlinPluginVersion\n\n" else "") +
                 """
         plugins {
-        ${plugins.joinToString(separator = "\n") { "    $it" }}
+        ${plugins.joinToString(separator = "\n") { (id, version) -> "    id(\"$id\")" + (version?.let { " version \"$it\"" } ?: "") }}
             id("com.github.gmazzo.buildconfig")
         }
         """ + (if (withPackage) """
@@ -166,21 +170,9 @@ abstract class BuildConfigPluginBaseTest(private val isKMP: Boolean = false) {
         java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
         """ + (if (androidVersion != null) """
-        android {
-            compileSdkVersion(33)
+        ${if (isKMP) "kotlin.androidLibrary" else "android "}{
+            compileSdk = 33
             namespace = "org.test"
-
-            compileOptions {
-                sourceCompatibility = JavaVersion.VERSION_17
-                targetCompatibility = JavaVersion.VERSION_17
-            }
-
-            publishing {
-                singleVariant("release") {
-                    withSourcesJar()
-                    withJavadocJar()
-                }
-            }
         }
         """ else """
         java {
