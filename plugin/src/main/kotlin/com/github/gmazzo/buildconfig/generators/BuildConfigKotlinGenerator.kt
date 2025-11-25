@@ -72,11 +72,11 @@ public open class BuildConfigKotlinGenerator(
             .writeTo(spec.outputDir)
     }
 
-    private fun Iterable<BuildConfigField>.asPropertiesSpec() = mapNotNull { field ->
+    private fun Iterable<BuildConfigField>.asPropertiesSpec() = map { field ->
         try {
             val (expect, actual) = field.tags.getOrElse(emptySet())
                 .let { tags -> (TagExpect in tags) to (TagActual in tags) }
-            val value = field.value.get().let { (it as? BuildConfigValue.Expect)?.value ?: it }
+            val value = field.value.get().unwrap()
             val typeName = field.type.get().toTypeName()
                 .let { it.copy(nullable = it.isNullable || (!expect && value.value == null)) }
 
@@ -105,7 +105,7 @@ public open class BuildConfigKotlinGenerator(
                     is BuildConfigValue.Expect -> error("Field '${field.name}' should be have an expect value here: ${value}")
                 }
             }
-            return@mapNotNull prop.build()
+            return@map prop.build()
 
         } catch (e: Exception) {
             throw IllegalArgumentException(
@@ -114,6 +114,9 @@ public open class BuildConfigKotlinGenerator(
             )
         }
     }
+
+    private fun BuildConfigValue.unwrap() =
+        if (this is BuildConfigValue.Expect) value!! else this
 
     private fun BuildConfigType.toTypeName(): TypeName {
         val kotlinClassName = runCatching { Class.forName(className).kotlin.qualifiedName!! }.getOrDefault(className)
