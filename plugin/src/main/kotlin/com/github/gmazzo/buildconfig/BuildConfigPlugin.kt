@@ -33,19 +33,13 @@ public class BuildConfigPlugin : Plugin<Project> {
             "Gradle version must be at least $MIN_GRADLE_VERSION"
         }
 
-        val sourceSets = objects.domainObjectContainer(DefaultBuildConfigSourceSet::class)
-
-        val defaultSS = sourceSets.create(SourceSet.MAIN_SOURCE_SET_NAME)
-
         val extension = extensions.create(
             BuildConfigExtension::class.java,
             "buildConfig",
             DefaultBuildConfigExtension::class.java,
-            sourceSets,
-            defaultSS,
-        ) as BuildConfigExtensionInternal
+        ) as DefaultBuildConfigExtension
 
-        sourceSets.configureEach { configureSourceSet(it, defaultSS) }
+        extension.sourceSets.configureEach { configureSourceSet(it, extension.defaultSourceSet) }
 
         extension.generateAtSync
             .convention(
@@ -56,7 +50,7 @@ public class BuildConfigPlugin : Plugin<Project> {
             .finalizeValueOnRead()
 
         afterEvaluate {
-            sourceSets.toList() // force configuration
+            extension.sourceSets.toList() // force configuration
 
             // generate at sync
             if (extension.generateAtSync.get() && isGradleSync) {
