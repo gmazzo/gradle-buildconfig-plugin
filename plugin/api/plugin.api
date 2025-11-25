@@ -7,9 +7,9 @@ public abstract interface class com/github/gmazzo/buildconfig/BuildConfigClassSp
 	public fun buildConfigField (Ljava/lang/String;Ljava/lang/String;Lorg/gradle/api/provider/Provider;)Lcom/github/gmazzo/buildconfig/BuildConfigField;
 	public fun buildConfigField (Ljava/lang/String;Lorg/gradle/api/Action;)Lcom/github/gmazzo/buildconfig/BuildConfigField;
 	public fun className (Ljava/lang/String;)Lcom/github/gmazzo/buildconfig/BuildConfigClassSpec;
+	public fun expect ()Ljava/io/Serializable;
 	public fun expect (Lcom/github/gmazzo/buildconfig/BuildConfigValue;)Lcom/github/gmazzo/buildconfig/BuildConfigValue$Expect;
 	public fun expect (Ljava/io/Serializable;)Ljava/io/Serializable;
-	public static synthetic fun expect$default (Lcom/github/gmazzo/buildconfig/BuildConfigClassSpec;Ljava/io/Serializable;ILjava/lang/Object;)Ljava/io/Serializable;
 	public fun expression (Ljava/lang/String;)Lcom/github/gmazzo/buildconfig/BuildConfigValue$Expression;
 	public fun generator (Lcom/github/gmazzo/buildconfig/generators/BuildConfigGenerator;)Lcom/github/gmazzo/buildconfig/BuildConfigClassSpec;
 	public abstract fun getBuildConfigFields ()Lorg/gradle/api/NamedDomainObjectContainer;

@@ -160,7 +160,11 @@ public interface BuildConfigClassSpec : Named {
         BuildConfigValue.Expression(expression)
 
     @Suppress("UNCHECKED_CAST")
-    public fun <Type : Serializable?> expect(defaultsTo: Type? = null): Type =
+    public fun <Type : Serializable?> expect(): Type =
+        BuildConfigValue.Expect(value = null) as Type
+
+    @Suppress("UNCHECKED_CAST")
+    public fun <Type : Serializable?> expect(defaultsTo: Type?): Type =
         expect(BuildConfigValue.Literal(defaultsTo)) as Type
 
     public fun expect(defaultsTo: BuildConfigValue): BuildConfigValue.Expect =
