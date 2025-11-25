@@ -1,6 +1,5 @@
 package com.github.gmazzo.buildconfig
 
-import com.github.gmazzo.buildconfig.generators.BuildConfigKotlinGenerator
 import com.github.gmazzo.buildconfig.internal.nameOf
 import java.io.Serializable
 import java.lang.reflect.Type
@@ -59,9 +58,6 @@ public interface BuildConfigField : Named, Comparable<BuildConfigField> {
     public fun value(literal: Serializable?): BuildConfigField = apply {
         value.value(
             when (literal) {
-                is BuildConfigValue.Expect -> literal.also {
-                    tags.add(BuildConfigKotlinGenerator.TagExpect)
-                }
                 is BuildConfigValue -> literal
                 else -> BuildConfigValue.Literal(literal)
             }

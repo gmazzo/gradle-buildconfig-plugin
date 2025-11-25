@@ -163,7 +163,7 @@ public class BuildConfigPlugin : Plugin<Project> {
         it.type.finalizeValueOnRead()
         it.value.finalizeValueOnRead()
         it.position.finalizeValueOnRead()
-        it.tags.finalizeValueOnRead()
+        // it.tags.finalizeValueOnRead() // tags can be modified later (e.g., to add expect/actual)
     }
 
     /**
