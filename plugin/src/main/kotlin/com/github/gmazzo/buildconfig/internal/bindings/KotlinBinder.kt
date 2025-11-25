@@ -116,6 +116,7 @@ internal object KotlinBinder {
 
                     val dependsOn = spec.allDependsOn
                         .filter { !it.isSuperseded }
+                        .filter { it.hasExpects() }
                         .toSet()
 
                     if (dependsOn.isNotEmpty()) {
@@ -132,6 +133,7 @@ internal object KotlinBinder {
                             spec.extraSpecs.asSequence().map { extra ->
                                 extra to specDependsOn
                                     .mapNotNull { it.extraSpecs.findByName(extra.name) }
+                                    .filter { it.hasExpects() }
                                     .toSet()
                             }
                         }
@@ -156,7 +158,10 @@ internal object KotlinBinder {
                 for (dependsOnSpec in dependsOnSpecs) {
                     val dependsOnField = dependsOnSpec.buildConfigFields.findByName(field.name) ?: continue
 
-                    dependsOnField.tags.add(BuildConfigKotlinGenerator.TagExpect)
+                    check(dependsOnField.isExpect) {
+                        "Field '${dependsOnField.name}' in '$dependsOnSpec' must be `expect`, since it's defined as `actual` in '$spec'"
+                    }
+
                     field.tags.add(BuildConfigKotlinGenerator.TagActual)
                     expectSpecs.add(dependsOnSpec)
 
@@ -168,8 +173,7 @@ internal object KotlinBinder {
             // then, in case we have mixed expect and regular constants in the same spec, we promote them all to this spec
             for (expectSpec in expectSpecs) {
                 for (expectField in expectSpec.buildConfigFields) {
-                    expectField.tags.add(BuildConfigKotlinGenerator.TagExpect)
-
+                    if (expectField.isExpectNoDefault) continue
                     if (spec.buildConfigFields.names.contains(expectField.name)) continue
 
                     spec.buildConfigField(expectField).tags.add(BuildConfigKotlinGenerator.TagActual)
@@ -184,8 +188,8 @@ internal object KotlinBinder {
                 for (expectSpec in dependsOnSpecs) {
                     for (expectField in expectSpec.buildConfigFields) {
                         if (spec.buildConfigFields.names.contains(expectField.name)) continue
+                        if (expectField.isExpectNoDefault) continue
 
-                        expectField.tags.add(BuildConfigKotlinGenerator.TagExpect)
                         spec.buildConfigField(expectField)
                             .tags.add(BuildConfigKotlinGenerator.TagActual)
 
@@ -196,8 +200,17 @@ internal object KotlinBinder {
             }
         }
 
+        private fun BuildConfigClassSpec.hasExpects() =
+            buildConfigFields.any { it.isExpect }
+
         private fun BuildConfigClassSpec.hasActuals() =
             buildConfigFields.any { it.isActual }
+
+        private val BuildConfigField.isExpect: Boolean
+            get() = BuildConfigKotlinGenerator.TagExpect in tags.get()
+
+        private val BuildConfigField.isExpectNoDefault: Boolean
+            get() = isExpect && value.get().value == null
 
         private val BuildConfigField.isActual: Boolean
             get() = BuildConfigKotlinGenerator.TagActual in tags.get()
