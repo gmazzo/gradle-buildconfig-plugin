@@ -24,9 +24,9 @@ public sealed class BuildConfigValue : Serializable {
 
     }
 
-    public data class Expect(override val value: BuildConfigValue?) : BuildConfigValue() {
+    internal data class Expect(val defaultsTo: BuildConfigValue? = null) : Serializable {
 
-        override fun toString(): String = "<expect:defaultsTo=$value>"
+        override fun toString(): String = "<expect:defaultsTo=$defaultsTo>"
 
     }
 

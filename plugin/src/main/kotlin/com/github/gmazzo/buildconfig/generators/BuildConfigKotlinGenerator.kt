@@ -1,6 +1,8 @@
 package com.github.gmazzo.buildconfig.generators
 
 import com.github.gmazzo.buildconfig.BuildConfigField
+import com.github.gmazzo.buildconfig.BuildConfigField.IsActual
+import com.github.gmazzo.buildconfig.BuildConfigField.IsExpect
 import com.github.gmazzo.buildconfig.BuildConfigType
 import com.github.gmazzo.buildconfig.BuildConfigValue
 import com.github.gmazzo.buildconfig.internal.asVarArg
@@ -38,7 +40,6 @@ import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.asTypeName
 import java.io.File
-import java.io.Serializable
 import java.net.URI as JavaURI
 import org.gradle.api.logging.Logging
 import org.gradle.api.tasks.Input
@@ -75,8 +76,8 @@ public open class BuildConfigKotlinGenerator(
     private fun Iterable<BuildConfigField>.asPropertiesSpec() = map { field ->
         try {
             val (expect, actual) = field.tags.getOrElse(emptySet())
-                .let { tags -> (TagExpect in tags) to (TagActual in tags) }
-            val value = field.value.get().unwrap()
+                .let { tags -> (IsExpect in tags) to (IsActual in tags) }
+            val value = field.value.get()
             val typeName = field.type.get().toTypeName()
                 .let { it.copy(nullable = it.isNullable || (!expect && value.value == null)) }
 
@@ -102,7 +103,6 @@ public open class BuildConfigKotlinGenerator(
                     }
 
                     is BuildConfigValue.Expression -> prop.initializer("%L", value.value)
-                    is BuildConfigValue.Expect -> error("Field '${field.name}' should be have an expect value here: ${value}")
                 }
             }
             return@map prop.build()
@@ -114,9 +114,6 @@ public open class BuildConfigKotlinGenerator(
             )
         }
     }
-
-    private fun BuildConfigValue.unwrap() =
-        if (this is BuildConfigValue.Expect) value!! else this
 
     private fun BuildConfigType.toTypeName(): TypeName {
         val kotlinClassName = runCatching { Class.forName(className).kotlin.qualifiedName!! }.getOrDefault(className)
@@ -256,16 +253,6 @@ public open class BuildConfigKotlinGenerator(
         private val GENERIC_MAP = ClassName("", "Map")
         private val FILE = File::class.asClassName()
         private val URI = JavaURI::class.asClassName()
-    }
-
-    internal data object TagExpect : Serializable {
-        @Suppress("unused")
-        private fun readResolve(): Any = TagExpect
-    }
-
-    internal data object TagActual : Serializable {
-        @Suppress("unused")
-        private fun readResolve(): Any = TagActual
     }
 
 }
