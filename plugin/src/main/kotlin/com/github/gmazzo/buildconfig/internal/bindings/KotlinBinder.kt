@@ -1,8 +1,5 @@
 package com.github.gmazzo.buildconfig.internal.bindings
 
-import com.github.gmazzo.buildconfig.BuildConfigClassSpec
-import com.github.gmazzo.buildconfig.BuildConfigField
-import com.github.gmazzo.buildconfig.generators.BuildConfigKotlinGenerator
 import com.github.gmazzo.buildconfig.internal.BuildConfigExtensionInternal
 import com.github.gmazzo.buildconfig.internal.bindings.JavaBinder.registerExtension
 import org.gradle.api.Named
@@ -85,135 +82,27 @@ internal object KotlinBinder {
             with(KotlinBinder) { configure(extension, ::nameOf) }
 
             afterEvaluate {
-                computeExpectAndActuals(extension)
-            }
-        }
+                kotlin.targets.all { target ->
+                    if (target.name == METADATA_TARGET_NAME) return@all
 
-        private fun Project.computeExpectAndActuals(extension: BuildConfigExtensionInternal) {
-            val specsOfTargets = linkedMapOf<BuildConfigClassSpec, Set<BuildConfigClassSpec>>()
+                    target.compilations.all { compilation ->
+                        val targetSpec = extension.sourceSets.getByName(nameOf(compilation.defaultSourceSet.name))
 
-            kotlin.targets.all { target ->
-                if (target.name == METADATA_TARGET_NAME) return@all
+                        // `computeExpectsActuals` uses this to infer the effective target for actuals
+                        targetSpec.markAsKMPTarget()
 
-                target.compilations.all { compilation ->
-                    val ss = compilation.defaultSourceSet
-
-                    val targetSpec = extension.sourceSets.getByName(nameOf(ss.name))
-
-                    // adds a default `dependsOn` to either `main` or `test` source set (in case `applyDefaultHierarchyTemplate` was not used)
-                    when (compilation.name) {
-                        KotlinCompilation.MAIN_COMPILATION_NAME -> MAIN_SOURCE_SET_NAME
-                        KotlinCompilation.TEST_COMPILATION_NAME -> TEST_SOURCE_SET_NAME
-                        else -> null
-                    }?.let { targetSpec.dependsOn(extension.sourceSets.getByName(it)) }
-
-                    val targetDependsOn = targetSpec.allDependsOn.filter { !it.isSuperseded }
-
-                    val spec = (sequenceOf(targetSpec) + targetDependsOn)
-                        .filter { it.name != MAIN_SOURCE_SET_NAME && it.name != TEST_SOURCE_SET_NAME }
-                        .find { it.buildConfigFields.isNotEmpty() }
-                        ?: targetSpec
-
-                    val dependsOn = spec.allDependsOn
-                        .filter { !it.isSuperseded }
-                        .filter { it.hasExpects() }
-                        .toSet()
-
-                    if (dependsOn.isNotEmpty()) {
-                        lookForExpectFields(spec, dependsOn)
-                        specsOfTargets[spec] = dependsOn
-                    }
-
-                    // find all the extra (traversing the depends on graph) with unique names
-                    val extras = (sequenceOf(targetSpec) + targetDependsOn)
-                        .flatMap { spec ->
-                            val specDependsOn = spec.allDependsOn
-                                .filter { !it.isSuperseded }
-
-                            spec.extraSpecs.asSequence().map { extra ->
-                                extra to specDependsOn
-                                    .mapNotNull { it.extraSpecs.findByName(extra.name) }
-                                    .filter { it.hasExpects() }
-                                    .toSet()
-                            }
-                        }
-                        .distinctBy { (it, _) -> it.name }
-
-                    for ((extra, extraDependsOn) in extras) {
-                        if (extraDependsOn.isNotEmpty()) {
-                            lookForExpectFields(extra, extraDependsOn)
-                            specsOfTargets[extra] = extraDependsOn
-                        }
+                        // adds a default `dependsOn` to either `main` or `test` source set (in case `applyDefaultHierarchyTemplate` was not used)
+                        when (compilation.name) {
+                            KotlinCompilation.MAIN_COMPILATION_NAME -> MAIN_SOURCE_SET_NAME
+                            KotlinCompilation.TEST_COMPILATION_NAME -> TEST_SOURCE_SET_NAME
+                            else -> null
+                        }?.let { targetSpec.dependsOn(extension.sourceSets.getByName(it)) }
                     }
                 }
-            }
 
-            // finally, we make sure that all expects with defaults are present in a target (or any of its depends on)
-            fillMissingActuals(specsOfTargets)
-        }
-
-        private fun lookForExpectFields(spec: BuildConfigClassSpec, dependsOnSpecs: Set<BuildConfigClassSpec>) {
-            val expectSpecs = linkedSetOf<BuildConfigClassSpec>()
-            for (field in spec.buildConfigFields) {
-                for (dependsOnSpec in dependsOnSpecs) {
-                    val dependsOnField = dependsOnSpec.buildConfigFields.findByName(field.name) ?: continue
-
-                    check(dependsOnField.isExpect) {
-                        "Field '${dependsOnField.name}' in '$dependsOnSpec' must be `expect`, since it's defined as `actual` in '$spec'"
-                    }
-
-                    field.tags.add(BuildConfigKotlinGenerator.TagActual)
-                    expectSpecs.add(dependsOnSpec)
-
-                    // also makes sure that the actual class matches the expect declaration
-                    spec.defaultsFrom(dependsOnSpec)
-                }
-            }
-
-            // then, in case we have mixed expect and regular constants in the same spec, we promote them all to this spec
-            for (expectSpec in expectSpecs) {
-                for (expectField in expectSpec.buildConfigFields) {
-                    if (expectField.isExpectNoDefault) continue
-                    if (spec.buildConfigFields.names.contains(expectField.name)) continue
-
-                    spec.buildConfigField(expectField).tags.add(BuildConfigKotlinGenerator.TagActual)
-                }
+                extension.computeExpectsActuals()
             }
         }
-
-        private fun fillMissingActuals(specsOfTargets: Map<BuildConfigClassSpec, Set<BuildConfigClassSpec>>) {
-            for ((spec, dependsOnSpecs) in specsOfTargets) {
-                if (dependsOnSpecs.any { it.hasActuals() }) continue
-
-                for (expectSpec in dependsOnSpecs) {
-                    for (expectField in expectSpec.buildConfigFields) {
-                        if (spec.buildConfigFields.names.contains(expectField.name)) continue
-                        if (expectField.isExpectNoDefault) continue
-
-                        spec.buildConfigField(expectField)
-                            .tags.add(BuildConfigKotlinGenerator.TagActual)
-
-                        // also makes sure that the actual class matches the expect declaration
-                        spec.defaultsFrom(expectSpec)
-                    }
-                }
-            }
-        }
-
-        private fun BuildConfigClassSpec.hasExpects() =
-            buildConfigFields.any { it.isExpect }
-
-        private fun BuildConfigClassSpec.hasActuals() =
-            buildConfigFields.any { it.isActual }
-
-        private val BuildConfigField.isExpect: Boolean
-            get() = BuildConfigKotlinGenerator.TagExpect in tags.get()
-
-        private val BuildConfigField.isExpectNoDefault: Boolean
-            get() = isExpect && value.get().value == null
-
-        private val BuildConfigField.isActual: Boolean
-            get() = BuildConfigKotlinGenerator.TagActual in tags.get()
 
     }
 

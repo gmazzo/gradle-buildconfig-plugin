@@ -19,6 +19,8 @@ internal abstract class DefaultBuildConfigSourceSet(
 
     override var isSuperseded = false
 
+    override var isKMPTarget = false
+
     @Inject
     @Suppress("UNCHECKED_CAST")
     constructor(
@@ -39,6 +41,8 @@ internal abstract class DefaultBuildConfigSourceSet(
 
     override val dependsOn = linkedSetOf<BuildConfigSourceSetInternal>()
 
+    override val dependents = linkedSetOf<BuildConfigSourceSetInternal>()
+
     override lateinit var generateTask: TaskProvider<BuildConfigTask>
 
     override fun dependsOn(other: BuildConfigSourceSetInternal) {
@@ -46,6 +50,7 @@ internal abstract class DefaultBuildConfigSourceSet(
         check(this !in other.allDependsOn) { "Circular dependency detected: '$name' -> '${other.name}'" }
 
         dependsOn += other
+        (other as DefaultBuildConfigSourceSet).dependents += this
     }
 
     override fun supersededBy(other: BuildConfigSourceSetInternal) {
@@ -69,6 +74,10 @@ internal abstract class DefaultBuildConfigSourceSet(
                 spec.buildConfigFields.all(extraSpec::buildConfigField)
             }
         }
+    }
+
+    override fun markAsKMPTarget() {
+        isKMPTarget = true
     }
 
     override fun forClass(packageName: String?, className: String): BuildConfigClassSpec =
