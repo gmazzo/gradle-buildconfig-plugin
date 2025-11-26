@@ -3,8 +3,6 @@ package com.github.gmazzo.buildconfig.internal.bindings
 import com.github.gmazzo.buildconfig.BuildConfigClassSpec
 import com.github.gmazzo.buildconfig.BuildConfigField
 import com.github.gmazzo.buildconfig.BuildConfigTask
-import com.github.gmazzo.buildconfig.BuildConfigValue
-import com.github.gmazzo.buildconfig.generators.BuildConfigKotlinGenerator
 import com.github.gmazzo.buildconfig.internal.BuildConfigExtensionInternal
 import com.github.gmazzo.buildconfig.internal.BuildConfigSourceSetInternal
 import com.github.gmazzo.buildconfig.internal.DefaultBuildConfigExtension
@@ -380,10 +378,7 @@ internal class ComputeExpectsActualsTest {
             sourceSet("jvmMain") {
                 buildConfigField("IS_MOBILE", false).shouldBeActual()
             }
-            sourceSet("jsMain") {
-                buildConfigField("IS_MOBILE", false).shouldBeActual()
-            }
-            sourceSet("wasmJsMain") {
+            sourceSet("webMain") {
                 buildConfigField("IS_MOBILE", false).shouldBeActual()
             }
         },
@@ -450,22 +445,12 @@ internal class ComputeExpectsActualsTest {
                 buildConfigField("TIMEOUT", 30).shouldBeActual()
                 buildConfigField("FEATURE_ENABLED", false).shouldBeActual()
             }
-            sourceSet("iosArm64Main") {
+            sourceSet("nativeMain") {
                 buildConfigField("API_URL", "\"https://api.example.com\"").shouldBeActual()
                 buildConfigField("TIMEOUT", 30).shouldBeActual()
                 buildConfigField("FEATURE_ENABLED", true).shouldBeActual()
             }
-            sourceSet("iosSimulatorArm64Main") {
-                buildConfigField("API_URL", "\"https://api.example.com\"").shouldBeActual()
-                buildConfigField("TIMEOUT", 30).shouldBeActual()
-                buildConfigField("FEATURE_ENABLED", true).shouldBeActual()
-            }
-            sourceSet("jsMain") {
-                buildConfigField("API_URL", "\"https://api.example.com\"").shouldBeActual()
-                buildConfigField("TIMEOUT", 30).shouldBeActual()
-                buildConfigField("FEATURE_ENABLED", true).shouldBeActual()
-            }
-            sourceSet("wasmJsMain") {
+            sourceSet("webMain") {
                 buildConfigField("API_URL", "\"https://api.example.com\"").shouldBeActual()
                 buildConfigField("TIMEOUT", 30).shouldBeActual()
                 buildConfigField("FEATURE_ENABLED", true).shouldBeActual()
@@ -651,14 +636,14 @@ internal class ComputeExpectsActualsTest {
     private fun BuildConfigSourceSetInternal.subclass(name: String, block: BuildConfigClassSpec.() -> Unit) =
         forClass(name).apply { block() }
 
-    private fun BuildConfigField.shouldBeExpect() = apply { tags.add(BuildConfigKotlinGenerator.TagExpect) }
+    private fun BuildConfigField.shouldBeExpect() = apply { tags.add(BuildConfigField.IsExpect) }
 
-    private fun BuildConfigField.shouldBeActual() = apply { tags.add(BuildConfigKotlinGenerator.TagActual) }
+    private fun BuildConfigField.shouldBeActual() = apply { tags.add(BuildConfigField.IsActual) }
 
     private fun BuildConfigField.asMap() = mapOf(
         "name" to name,
         "type" to type.orNull,
-        "value" to value.orNull?.let { (it as? BuildConfigValue.Expect)?.value ?: it },
+        "value" to value.orNull,
         "tags" to tags.get(),
     )
 

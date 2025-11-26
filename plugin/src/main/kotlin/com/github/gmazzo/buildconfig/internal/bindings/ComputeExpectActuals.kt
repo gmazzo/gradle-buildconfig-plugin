@@ -2,11 +2,8 @@ package com.github.gmazzo.buildconfig.internal.bindings
 
 import com.github.gmazzo.buildconfig.BuildConfigClassSpec
 import com.github.gmazzo.buildconfig.BuildConfigField
-import com.github.gmazzo.buildconfig.generators.BuildConfigKotlinGenerator
 import com.github.gmazzo.buildconfig.internal.BuildConfigExtensionInternal
 import com.github.gmazzo.buildconfig.internal.BuildConfigSourceSetInternal
-import org.gradle.api.tasks.SourceSet.MAIN_SOURCE_SET_NAME
-import org.gradle.api.tasks.SourceSet.TEST_SOURCE_SET_NAME
 import org.jetbrains.annotations.VisibleForTesting
 
 /**
@@ -18,10 +15,7 @@ internal fun BuildConfigExtensionInternal.computeExpectsActuals() {
     for (targetSpec in sourceSets.filter { it.isKMPTarget }) {
         val targetDependsOn = targetSpec.allDependsOn.filter { !it.isSuperseded }
 
-        val spec = (sequenceOf(targetSpec) + targetDependsOn)
-            .filter { it.name != MAIN_SOURCE_SET_NAME && it.name != TEST_SOURCE_SET_NAME }
-            .find { it.buildConfigFields.isNotEmpty() }
-            ?: targetSpec
+        val spec = findEffectiveSpec(targetSpec)
 
         val dependsOn = spec.allDependsOn
             .filter { !it.isSuperseded }
@@ -70,7 +64,7 @@ private fun lookForExpectFields(spec: BuildConfigClassSpec, dependsOnSpecs: Set<
                 "Field '${dependsOnField.name}' in '$dependsOnSpec' must be `expect`, since it's defined as `actual` in '$spec'"
             }
 
-            field.tags.add(BuildConfigKotlinGenerator.TagActual)
+            field.tags.add(BuildConfigField.IsActual)
             expectSpecs.add(dependsOnSpec)
 
             // also makes sure that the actual class matches the expect declaration
@@ -84,7 +78,7 @@ private fun lookForExpectFields(spec: BuildConfigClassSpec, dependsOnSpecs: Set<
             if (expectField.isExpectNoDefault) continue
             if (spec.buildConfigFields.names.contains(expectField.name)) continue
 
-            spec.buildConfigField(expectField).tags.add(BuildConfigKotlinGenerator.TagActual)
+            spec.buildConfigField(expectField).tags.add(BuildConfigField.IsActual)
         }
     }
 }
@@ -99,7 +93,7 @@ private fun fillMissingActuals(specsOfTargets: Map<BuildConfigClassSpec, Set<Bui
                 if (expectField.isExpectNoDefault) continue
 
                 spec.buildConfigField(expectField)
-                    .tags.add(BuildConfigKotlinGenerator.TagActual)
+                    .tags.add(BuildConfigField.IsActual)
 
                 // also makes sure that the actual class matches the expect declaration
                 spec.defaultsFrom(expectSpec)
@@ -145,10 +139,10 @@ private fun BuildConfigClassSpec.hasActuals() =
     buildConfigFields.any { it.isActual }
 
 private val BuildConfigField.isExpect: Boolean
-    get() = BuildConfigKotlinGenerator.TagExpect in tags.get()
+    get() = BuildConfigField.IsExpect in tags.get()
 
 private val BuildConfigField.isExpectNoDefault: Boolean
-    get() = isExpect && value.get().value == null
+    get() = isExpect && value.orNull == null
 
 private val BuildConfigField.isActual: Boolean
-    get() = BuildConfigKotlinGenerator.TagActual in tags.get()
+    get() = BuildConfigField.IsActual in tags.get()

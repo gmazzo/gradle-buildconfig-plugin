@@ -1,6 +1,5 @@
 package com.github.gmazzo.buildconfig
 
-import com.github.gmazzo.buildconfig.generators.BuildConfigKotlinGenerator
 import com.github.gmazzo.buildconfig.internal.nameOf
 import java.io.Serializable
 import java.lang.reflect.Type
@@ -59,9 +58,7 @@ public interface BuildConfigField : Named, Comparable<BuildConfigField> {
     public fun value(literal: Serializable?): BuildConfigField = apply {
         value.value(
             when (literal) {
-                is BuildConfigValue.Expect -> literal.also {
-                    tags.add(BuildConfigKotlinGenerator.TagExpect)
-                }
+                is BuildConfigValue.Expect -> literal.defaultsTo.also { tags.add(IsExpect) }
                 is BuildConfigValue -> literal
                 else -> BuildConfigValue.Literal(literal)
             }
@@ -80,10 +77,36 @@ public interface BuildConfigField : Named, Comparable<BuildConfigField> {
         value.value(expression.map(BuildConfigValue::Expression)).disallowChanges()
     }
 
+    public fun expect(): BuildConfigField = apply {
+        expect(null)
+    }
+
+    public fun expect(defaultsTo: Serializable?): BuildConfigField = apply {
+        expect(BuildConfigValue.Literal(defaultsTo))
+    }
+
+    public fun expect(defaultsTo: BuildConfigValue?): BuildConfigField = apply {
+        value(BuildConfigValue.Expect(defaultsTo))
+    }
+
     override fun compareTo(other: BuildConfigField): Int =
         when (val cmp = position.getOrElse(0).compareTo(other.position.getOrElse(0))) {
             0 -> name.compareTo(other.name)
             else -> cmp
         }
+
+    public data object IsExpect : Serializable {
+
+        @Suppress("unused")
+        private fun readResolve(): Any = IsExpect
+
+    }
+
+    public data object IsActual : Serializable {
+
+        @Suppress("unused")
+        private fun readResolve(): Any = IsActual
+
+    }
 
 }
