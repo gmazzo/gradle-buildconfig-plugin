@@ -258,12 +258,12 @@ public open class BuildConfigKotlinGenerator(
         private val URI = JavaURI::class.asClassName()
     }
 
-    internal object TagExpect : Serializable {
+    internal data object TagExpect : Serializable {
         @Suppress("unused")
         private fun readResolve(): Any = TagExpect
     }
 
-    internal object TagActual : Serializable {
+    internal data object TagActual : Serializable {
         @Suppress("unused")
         private fun readResolve(): Any = TagActual
     }

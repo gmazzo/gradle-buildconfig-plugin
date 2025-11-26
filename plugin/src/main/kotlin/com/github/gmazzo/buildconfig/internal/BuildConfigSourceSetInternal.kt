@@ -12,15 +12,24 @@ internal interface BuildConfigSourceSetInternal : BuildConfigSourceSet {
 
     val dependsOn: Set<BuildConfigSourceSetInternal>
 
+    val dependents: Set<BuildConfigSourceSetInternal>
+
     val allDependsOn: Sequence<BuildConfigSourceSetInternal>
         get() = dependsOn.asSequence() + dependsOn.asSequence().flatMap { it.allDependsOn }
 
+    val allDependents: Sequence<BuildConfigSourceSetInternal>
+        get() = dependents.asSequence() + dependents.asSequence().flatMap { it.allDependents }
+
     val isSuperseded: Boolean
+
+    val isKMPTarget: Boolean
 
     override var generateTask: TaskProvider<BuildConfigTask>
 
     fun dependsOn(other: BuildConfigSourceSetInternal)
 
     fun supersededBy(other: BuildConfigSourceSetInternal)
+
+    fun markAsKMPTarget()
 
 }
