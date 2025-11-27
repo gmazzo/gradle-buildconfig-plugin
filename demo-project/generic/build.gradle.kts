@@ -17,7 +17,6 @@ plugins {
 buildConfig {
     buildConfigField("String", "APP_NAME", "\"${project.name}\"")
     buildConfigField("String", "APP_SECRET", "\"Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu\"")
-    buildConfigField("long", "BUILD_TIME", "${TimeUnit.DAYS.toMillis(2)}")
     buildConfigField("boolean", "FEATURE_ENABLED", "${true}")
 
     forClass("BuildResources") {
@@ -47,8 +46,6 @@ val generateBuildConfigTest by tasks.registering(AssertGeneratedFile::class) {
           public static final String APP_NAME = "generic";
 
           public static final String APP_SECRET = "Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu";
-
-          public static final long BUILD_TIME = 172800000;
 
           public static final boolean FEATURE_ENABLED = true;
 

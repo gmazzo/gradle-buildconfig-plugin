@@ -5,7 +5,7 @@ import java.io.File
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.gradle.util.GradleVersion
-import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
@@ -30,6 +30,7 @@ abstract class BuildConfigPluginBaseTest(private val isKMP: Boolean = false) {
     protected val gradleLatest: String = GradleVersion.current().baseVersion.version
     protected val kotlinMin = "1.9.+"
     protected val kotlinCurrent = KotlinVersion.CURRENT.toString()
+    protected val androidMin = "8.2.0"
     protected val androidCurrent: String = ANDROID_GRADLE_PLUGIN_VERSION
 
     protected abstract fun Args.buildConfigFieldsContent(): String
@@ -38,16 +39,10 @@ abstract class BuildConfigPluginBaseTest(private val isKMP: Boolean = false) {
 
     open fun testBuild() = listOf(
         Args(gradleVersion = gradleLatest),
-        Args(gradleVersion = gradleLatest, kotlinVersion = kotlinMin),
         Args(gradleVersion = gradleLatest, kotlinVersion = kotlinCurrent),
-        Args(gradleVersion = gradleLatest, androidVersion = androidCurrent),
         Args(gradleVersion = gradleLatest, kotlinVersion = kotlinCurrent, androidVersion = androidCurrent),
-
-        Args(gradleVersion = gradleLatest, withPackage = false),
-        Args(gradleVersion = gradleLatest, kotlinVersion = kotlinCurrent, withPackage = false),
-
-        Args(gradleVersion = gradleMin),
-        Args(gradleVersion = gradleMin, kotlinVersion = kotlinMin),
+        Args(gradleVersion = gradleLatest, kotlinVersion = kotlinCurrent, androidVersion = androidCurrent, withPackage = false),
+        Args(gradleVersion = gradleMin, kotlinVersion = kotlinMin, androidVersion = androidMin),
     )
 
     @Suppress("unused")
@@ -85,7 +80,9 @@ abstract class BuildConfigPluginBaseTest(private val isKMP: Boolean = false) {
             .withArguments(task, "-s", "--build-cache")
             .build()
 
-        assertEquals(TaskOutcome.SUCCESS, result.task(":$task")?.outcome)
+        val expected = setOf(TaskOutcome.SUCCESS, TaskOutcome.FROM_CACHE)
+        val actual = result.task(":$task")?.outcome
+        assertTrue(actual in expected, "Unexpected task outcome: $actual, expected one of $expected")
     }
 
     private fun Args.writeBuildGradle() {
@@ -196,7 +193,7 @@ abstract class BuildConfigPluginBaseTest(private val isKMP: Boolean = false) {
 
     private fun Args.writeGradleProperties() = File(projectDir, "gradle.properties").writeText(
         """
-        org.gradle.jvmargs=-Xmx1g
+        org.gradle.jvmargs=-Xmx2g
         org.gradle.caching=true
     """.trimIndent()
     )

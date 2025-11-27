@@ -11,7 +11,6 @@ class BuildConfigTest : BuildConfigBaseTest() {
 
         arrayOf("kts-android-lib", BuildConfig.APP_NAME),
         arrayOf("Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu", BuildConfig.APP_SECRET),
-        arrayOf(true, System.currentTimeMillis() >= BuildConfig.BUILD_TIME),
         arrayOf(true, BuildConfig.FEATURE_ENABLED),
         arrayOf(listOf(1, 2, 3, 4), BuildConfig.MAGIC_NUMBERS.toList()),
 

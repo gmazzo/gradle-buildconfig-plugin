@@ -4,7 +4,7 @@ class BuildConfigPluginKMPExpectActualTest : BuildConfigPluginBaseTest(isKMP = t
 
     override fun testBuild() = listOf(
         Args(gradleVersion = gradleLatest, kotlinVersion = kotlinCurrent, androidVersion = androidCurrent),
-        Args(gradleVersion = gradleMin, kotlinVersion = kotlinMin, androidVersion = "8.2.0"),
+        Args(gradleVersion = gradleMin, kotlinVersion = kotlinMin, androidVersion = androidMin),
     )
 
     override fun Args.buildConfigFieldsContent() = """

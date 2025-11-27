@@ -27,7 +27,6 @@ buildConfig {
     buildConfigField("APP_VERSION", provider { "\"${project.version}\"" })
     buildConfigField("APP_SECRET", "Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu")
     buildConfigField<String>("OPTIONAL", null)
-    buildConfigField("BUILD_TIME", System.currentTimeMillis())
     buildConfigField("FEATURE_ENABLED", true)
     buildConfigField("MAGIC_NUMBERS", intArrayOf(1, 2, 3, 4))
     buildConfigField("STRING_LIST", arrayOf("a", "b", "c"))
@@ -47,7 +46,6 @@ internal object BuildConfig {
     internal const val APP_VERSION: String = "\"0.1.0-demo\""
     internal const val APP_SECRET: String = "Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu"
     internal val OPTIONAL: String? = null
-    internal const val BUILD_TIME: Long = 1_702_559_872_137L
     internal const val FEATURE_ENABLED: Boolean = true
     internal val MAGIC_NUMBERS: IntArray = intArrayOf(1, 2, 3)
     internal val STRING_LIST: Array<String> = arrayOf("a", "b", "c")
@@ -81,7 +79,6 @@ buildConfig {
     buildConfigField(String, "APP_VERSION", provider { project.version })
     buildConfigField(String, 'APP_SECRET', "Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu")
     buildConfigField(String, 'OPTIONAL', null)
-    buildConfigField(long, 'BUILD_TIME', System.currentTimeMillis())
     buildConfigField(boolean, 'FEATURE_ENABLED', true)
     buildConfigField(int[], "MAGIC_NUMBERS", [1, 2, 3])
     buildConfigField('List<String>', "STRING_LIST", ["a", "b", "c"])
@@ -100,7 +97,6 @@ final class BuildConfig {
     public static final String APP_VERSION = "0.1.0-demo";
     public static final String APP_SECRET = "Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu";
     public static final String OPTIONAL = null;
-    public static final long BUILD_TIME = 1702559872111L;
     public static final boolean FEATURE_ENABLED = true;
     public static final int[] MAGIC_NUMBERS = {1, 2, 3};
     public static final String[] STRING_LIST = {"a", "b", "c"};

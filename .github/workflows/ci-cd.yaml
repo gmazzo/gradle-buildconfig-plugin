@@ -14,29 +14,18 @@ permissions:
   checks: write
   pull-requests: write
 
-jobs:
-  compute-projects:
-    name: Compute projects
-    runs-on: ubuntu-latest
-    outputs:
-      projects: ${{ steps.compute-projects.outputs.projects }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-      - id: compute-projects
-        run: |
-          PROJECTS=$(echo "plugin"; find "demo-project" -mindepth 1 -maxdepth 1 -type d | tr '/' ':')
-          PROJECTS_JSON=$(echo "$PROJECTS" | jq -R . | sort | jq -sc .)
-          echo "projects=$PROJECTS_JSON" >> "$GITHUB_OUTPUT"
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
+jobs:
   build:
-    name: Build (${{ matrix.project }})
-    needs: compute-projects
-    runs-on: ${{ contains(matrix.project, 'kmp') && 'macos' || 'ubuntu' }}-latest
+    name: Build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}-latest
     strategy:
       fail-fast: false
       matrix:
-        project: ${{ fromJSON(needs.compute-projects.outputs.projects) }}
+        os: [ ubuntu, macos ]
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -45,47 +34,20 @@ jobs:
         with:
           gradle-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
       - name: Test & Build
-        run: ./gradlew ${{ matrix.project }}:build
+        run: ./gradlew build ${{ matrix.os == 'macos' && '-PkmpOnly=true' || '' }}
       - name: Publish Test Report
         if: ${{ !cancelled() }}
         uses: gmazzo/publish-report-annotations@v1
         with:
-          checkName: Test Results (${{ matrix.project }})
-
-  build-passed:
-    name: Build passed
-    runs-on: ubuntu-latest
-    needs: build
-    if: ${{ !cancelled() }}
-    steps:
-      - name: Build has passed
-        if: ${{ needs.build.result != 'success' }}
-        run: |
-          echo "Build was not successful!"
-          exit 1
-
-  publish:
-    name: Publish
-    runs-on: ubuntu-latest
-    needs: build
-    if: ${{ !cancelled() && !github.event.repository.fork && !github.event.pull_request.head.repo.fork }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-      - name: Setup host
-        uses: ./.github/actions/setup-host
-        with:
-          gradle-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
-      - name: Build
-        run: ./gradlew build
+          checkName: Test Results (${{ matrix.os }})
       - name: Coverage report
+        if: ${{ matrix.os == 'ubuntu' }}
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: '**/build/reports/jacoco/**/*.xml'
       - name: Publish
+        if: ${{ matrix.os == 'ubuntu' }}
         env:
           ORG_GRADLE_PROJECT_RELEASE_SIGNING_ENABLED: true
           ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.SIGNING_KEY }}
