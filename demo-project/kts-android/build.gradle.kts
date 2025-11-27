@@ -35,7 +35,6 @@ android {
 
             buildConfigField("APP_NAME", project.name)
             buildConfigField("APP_SECRET", "Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu")
-            buildConfigField("BUILD_TIME", System.currentTimeMillis())
             buildConfigField("FEATURE_ENABLED", true)
             buildConfigField("MAGIC_NUMBERS", intArrayOf(1, 2, 3, 4))
 

@@ -65,7 +65,6 @@ public abstract class BuildConfigBaseTest {
         {"0.1.0-demo", BuildConfig.APP_VERSION},
         {"Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu", BuildConfig.APP_SECRET},
         {null, BuildConfig.OPTIONAL},
-        {true, System.currentTimeMillis() >= BuildConfig.BUILD_TIME},
         {true, BuildConfig.FEATURE_ENABLED},
         {Arrays.asList(1, 2, 3), BuildConfig.MAGIC_NUMBERS},
 

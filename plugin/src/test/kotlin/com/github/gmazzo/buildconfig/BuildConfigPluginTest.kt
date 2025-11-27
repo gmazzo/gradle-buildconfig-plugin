@@ -8,7 +8,6 @@ class BuildConfigPluginTest : BuildConfigPluginBaseTest() {
 
         buildConfigField("String", "APP_NAME", "\"${'$'}{project.name}\"")
         buildConfigField("String", "APP_SECRET", "\"Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu\"")
-        buildConfigField("long", "BUILD_TIME", "${'$'}{System.currentTimeMillis()}L")
         buildConfigField("boolean", "FEATURE_ENABLED", "${'$'}{true}")
 
         forClass("BuildResources") {
@@ -57,7 +56,6 @@ class BuildConfigPluginTest : BuildConfigPluginBaseTest() {
                 public void testBuildConfigProperties() {
                     assertEquals("$PROJECT_NAME", BuildConfig.APP_NAME);
                     assertEquals("Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu", BuildConfig.APP_SECRET);
-                    assertTrue(System.currentTimeMillis() >= BuildConfig.BUILD_TIME);
                     assertTrue(BuildConfig.FEATURE_ENABLED);
                 }
 
