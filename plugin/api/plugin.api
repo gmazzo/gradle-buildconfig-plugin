@@ -1,5 +1,4 @@
 public abstract interface class com/github/gmazzo/buildconfig/BuildConfigClassSpec : org/gradle/api/Named {
-	public fun buildConfigField (Lcom/github/gmazzo/buildconfig/BuildConfigField;)Lcom/github/gmazzo/buildconfig/BuildConfigField;
 	public fun buildConfigField (Ljava/lang/Class;Ljava/lang/String;Ljava/io/Serializable;)Lcom/github/gmazzo/buildconfig/BuildConfigField;
 	public fun buildConfigField (Ljava/lang/Class;Ljava/lang/String;Lorg/gradle/api/provider/Provider;)Lcom/github/gmazzo/buildconfig/BuildConfigField;
 	public fun buildConfigField (Ljava/lang/String;Ljava/lang/String;Ljava/io/Serializable;)Lcom/github/gmazzo/buildconfig/BuildConfigField;

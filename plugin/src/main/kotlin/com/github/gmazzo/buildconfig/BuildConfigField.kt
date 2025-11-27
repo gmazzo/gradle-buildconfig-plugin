@@ -90,7 +90,7 @@ public interface BuildConfigField : Named, Comparable<BuildConfigField> {
     }
 
     override fun compareTo(other: BuildConfigField): Int =
-        when (val cmp = position.getOrElse(0).compareTo(other.position.getOrElse(0))) {
+        when (val cmp = position.getOrElse(Int.MAX_VALUE).compareTo(other.position.getOrElse(Int.MAX_VALUE))) {
             0 -> name.compareTo(other.name)
             else -> cmp
         }

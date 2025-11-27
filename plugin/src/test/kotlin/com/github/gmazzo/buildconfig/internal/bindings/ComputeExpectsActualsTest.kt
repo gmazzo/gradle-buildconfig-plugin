@@ -370,7 +370,7 @@ internal class ComputeExpectsActualsTest {
         )
 
         private fun singleMobileField(kmpAndroidLegacy: Boolean) = dynamicContainer(
-             "kmpAndroid${ if (kmpAndroidLegacy) "Legacy" else "Modern" }",
+            "kmpAndroid${if (kmpAndroidLegacy) "Legacy" else "Modern"}",
             computeExpectsActualsCase(layout(kmpAndroidLegacy) {
                 buildConfigField("IS_MOBILE", expect(false))
 
@@ -409,7 +409,8 @@ internal class ComputeExpectsActualsTest {
                         "androidFooProdDebug",
                         "androidFooProdRelease",
                         "androidFooStageDebug",
-                        "androidFooStageRelease")) {
+                        "androidFooStageRelease"
+                    )) {
                         sourceSet(androidSpec) {
                             className("BuildConfig") // should match the root one
 
@@ -441,86 +442,137 @@ internal class ComputeExpectsActualsTest {
 
         // complex scenarios
         @TestFactory
-        fun complex() = computeExpectsActualsCase(layout(kmpAndroidLegacy = false) {
-            buildConfigField("API_URL", expect("\"https://api.example.com\""))
-            buildConfigField("TIMEOUT", expect(30))
-            buildConfigField("FEATURE_ENABLED", expect(true))
+        fun complex() = listOf(
+            complex(false),
+            complex(true),
+        )
 
-            subclass("Extra1") {
-                buildConfigField("EXTRA_FIELD", "aValue")
-                buildConfigField("PROVIDED", project.provider { "computedValue" })
-            }
+        private fun complex(kmpAndroidLegacy: Boolean) = dynamicContainer(
+            "kmpAndroid${if (kmpAndroidLegacy) "Legacy" else "Modern"}",
+            computeExpectsActualsCase(layout(kmpAndroidLegacy) {
+                buildConfigField("API_URL", expect("\"https://api.example.com\""))
+                buildConfigField("TIMEOUT", expect(30))
+                buildConfigField("FEATURE_ENABLED", expect(true))
 
-            subclass("Extra2") {
-                buildConfigField("EXTRA_FIELD", expect(42))
-            }
-
-            sourceSet("jvmMain") {
-                buildConfigField("TIMEOUT", 60)
+                subclass("Extra1") {
+                    buildConfigField("EXTRA_FIELD", "aValue")
+                    buildConfigField("PROVIDED", project.provider { "computedValue" })
+                }
 
                 subclass("Extra2") {
-                    buildConfigField("EXTRA_FIELD", -100)
+                    buildConfigField("EXTRA_FIELD", expect(42))
                 }
 
-                subclass("Extra3") {
-                    buildConfigField("EXTRA_FIELD", "anotherValue")
+                sourceSet("jvmMain") {
+                    buildConfigField("TIMEOUT", 60)
+
+                    subclass("Extra2") {
+                        buildConfigField("EXTRA_FIELD", -100)
+                    }
+
+                    subclass("Extra3") {
+                        buildConfigField("EXTRA_FIELD", "anotherValue")
+                    }
                 }
-            }
-            sourceSet("androidMain") {
-                buildConfigField("FEATURE_ENABLED", false)
-            }
+                sourceSet("androidMain") {
+                    buildConfigField("FEATURE_ENABLED", false)
+                    if (kmpAndroidLegacy) buildConfigField("DEBUG", false)
+                }
+                if (kmpAndroidLegacy) {
+                    sourceSet("androidDebug") {
+                        buildConfigField("DEBUG", true)
+                    }
+                }
 
-        }) {
-            buildConfigField("API_URL", "\"https://api.example.com\"").shouldBeExpect()
-            buildConfigField("TIMEOUT", 30).shouldBeExpect()
-            buildConfigField("FEATURE_ENABLED", true).shouldBeExpect()
+            }) {
+                buildConfigField("API_URL", "\"https://api.example.com\"").shouldBeExpect()
+                buildConfigField("TIMEOUT", 30).shouldBeExpect()
+                buildConfigField("FEATURE_ENABLED", true).shouldBeExpect()
 
-            subclass("Extra1") {
-                buildConfigField("EXTRA_FIELD", "aValue")
-                buildConfigField("PROVIDED", project.provider { "computedValue" })
-            }
-
-            subclass("Extra2") {
-                buildConfigField("EXTRA_FIELD", expect(42)).shouldBeExpect()
-            }
-
-            sourceSet("jvmMain") {
-                className("BuildConfig") // should match the root one
-
-                buildConfigField("API_URL", "\"https://api.example.com\"").shouldBeActual()
-                buildConfigField("TIMEOUT", 60).shouldBeActual()
-                buildConfigField("FEATURE_ENABLED", true).shouldBeActual()
+                subclass("Extra1") {
+                    buildConfigField("EXTRA_FIELD", "aValue")
+                    buildConfigField("PROVIDED", project.provider { "computedValue" })
+                }
 
                 subclass("Extra2") {
-                    buildConfigField("EXTRA_FIELD", -100).shouldBeActual()
+                    buildConfigField("EXTRA_FIELD", expect(42)).shouldBeExpect()
                 }
 
-                subclass("Extra3") {
-                    buildConfigField("EXTRA_FIELD", "anotherValue")
+                sourceSet("jvmMain") {
+                    className("BuildConfig") // should match the root one
+
+                    buildConfigField("API_URL", "\"https://api.example.com\"").shouldBeActual()
+                    buildConfigField("TIMEOUT", 60).shouldBeActual()
+                    buildConfigField("FEATURE_ENABLED", true).shouldBeActual()
+
+                    subclass("Extra2") {
+                        buildConfigField("EXTRA_FIELD", -100).shouldBeActual()
+                    }
+
+                    subclass("Extra3") {
+                        buildConfigField("EXTRA_FIELD", "anotherValue")
+                    }
                 }
-            }
-            sourceSet("androidMain") {
-                className("BuildConfig") // should match the root one
+                if (!kmpAndroidLegacy) {
+                    sourceSet("androidMain") {
+                        className("BuildConfig") // should match the root one
 
-                buildConfigField("API_URL", "\"https://api.example.com\"").shouldBeActual()
-                buildConfigField("TIMEOUT", 30).shouldBeActual()
-                buildConfigField("FEATURE_ENABLED", false).shouldBeActual()
-            }
-            sourceSet("nativeMain") {
-                className("BuildConfig") // should match the root one
+                        buildConfigField("API_URL", "\"https://api.example.com\"").shouldBeActual()
+                        buildConfigField("TIMEOUT", 30).shouldBeActual()
+                        buildConfigField("FEATURE_ENABLED", false).shouldBeActual()
 
-                buildConfigField("API_URL", "\"https://api.example.com\"").shouldBeActual()
-                buildConfigField("TIMEOUT", 30).shouldBeActual()
-                buildConfigField("FEATURE_ENABLED", true).shouldBeActual()
-            }
-            sourceSet("webMain") {
-                className("BuildConfig") // should match the root one
+                        subclass("Extra2") {
+                            buildConfigField("EXTRA_FIELD", 42).shouldBeActual()
+                        }
+                    }
+                } else {
+                    for (androidSpec in listOf(
+                        "androidBarProdDebug",
+                        "androidBarProdRelease",
+                        "androidBarStageDebug",
+                        "androidBarStageRelease",
+                        "androidFooProdDebug",
+                        "androidFooProdRelease",
+                        "androidFooStageDebug",
+                        "androidFooStageRelease"
+                    )) {
+                        sourceSet(androidSpec) {
+                            className("BuildConfig") // should match the root one
 
-                buildConfigField("API_URL", "\"https://api.example.com\"").shouldBeActual()
-                buildConfigField("TIMEOUT", 30).shouldBeActual()
-                buildConfigField("FEATURE_ENABLED", true).shouldBeActual()
-            }
-        }
+                            buildConfigField("API_URL", "\"https://api.example.com\"").shouldBeActual()
+                            buildConfigField("TIMEOUT", 30).shouldBeActual()
+                            buildConfigField("FEATURE_ENABLED", false).shouldBeActual()
+                            buildConfigField("DEBUG", androidSpec.endsWith("Debug"))
+
+                            subclass("Extra2") {
+                                buildConfigField("EXTRA_FIELD", 42).shouldBeActual()
+                            }
+                        }
+                    }
+                }
+                sourceSet("nativeMain") {
+                    className("BuildConfig") // should match the root one
+
+                    buildConfigField("API_URL", "\"https://api.example.com\"").shouldBeActual()
+                    buildConfigField("TIMEOUT", 30).shouldBeActual()
+                    buildConfigField("FEATURE_ENABLED", true).shouldBeActual()
+
+                    subclass("Extra2") {
+                        buildConfigField("EXTRA_FIELD", 42).shouldBeActual()
+                    }
+                }
+                sourceSet("webMain") {
+                    className("BuildConfig") // should match the root one
+
+                    buildConfigField("API_URL", "\"https://api.example.com\"").shouldBeActual()
+                    buildConfigField("TIMEOUT", 30).shouldBeActual()
+                    buildConfigField("FEATURE_ENABLED", true).shouldBeActual()
+
+                    subclass("Extra2") {
+                        buildConfigField("EXTRA_FIELD", 42).shouldBeActual()
+                    }
+                }
+            })
 
         private fun computeExpectsActualsCase(
             input: BuildConfigExtensionInternal,
@@ -623,36 +675,36 @@ internal class ComputeExpectsActualsTest {
                 dependsOn(androidProd); androidProd.supersededBy(this)
             }
             val androidFooStageDebug by sourceSets.creating {
-                dependsOn(androidFooStage); androidFooStage.supersededBy(this); markAsKMPTarget()
                 dependsOn(androidDebug); androidDebug.supersededBy(this); markAsKMPTarget()
+                dependsOn(androidFooStage); androidFooStage.supersededBy(this); markAsKMPTarget()
             }
             val androidFooStageRelease by sourceSets.creating {
-                dependsOn(androidFooStage); androidFooStage.supersededBy(this); markAsKMPTarget()
                 dependsOn(androidRelease); androidRelease.supersededBy(this); markAsKMPTarget()
+                dependsOn(androidFooStage); androidFooStage.supersededBy(this); markAsKMPTarget()
             }
             val androidFooProdDebug by sourceSets.creating {
-                dependsOn(androidFooProd); androidFooProd.supersededBy(this); markAsKMPTarget()
                 dependsOn(androidDebug); androidDebug.supersededBy(this); markAsKMPTarget()
+                dependsOn(androidFooProd); androidFooProd.supersededBy(this); markAsKMPTarget()
             }
             val androidFooProdRelease by sourceSets.creating {
-                dependsOn(androidFooProd); androidFooProd.supersededBy(this); markAsKMPTarget()
                 dependsOn(androidRelease); androidRelease.supersededBy(this); markAsKMPTarget()
+                dependsOn(androidFooProd); androidFooProd.supersededBy(this); markAsKMPTarget()
             }
             val androidBarStageDebug by sourceSets.creating {
-                dependsOn(androidBarStage); androidBarStage.supersededBy(this); markAsKMPTarget()
                 dependsOn(androidDebug); androidDebug.supersededBy(this); markAsKMPTarget()
+                dependsOn(androidBarStage); androidBarStage.supersededBy(this); markAsKMPTarget()
             }
             val androidBarStageRelease by sourceSets.creating {
-                dependsOn(androidBarStage); androidBarStage.supersededBy(this); markAsKMPTarget()
                 dependsOn(androidRelease); androidRelease.supersededBy(this); markAsKMPTarget()
+                dependsOn(androidBarStage); androidBarStage.supersededBy(this); markAsKMPTarget()
             }
             val androidBarProdDebug by sourceSets.creating {
-                dependsOn(androidBarProd); androidBarProd.supersededBy(this); markAsKMPTarget()
                 dependsOn(androidDebug); androidDebug.supersededBy(this); markAsKMPTarget()
+                dependsOn(androidBarProd); androidBarProd.supersededBy(this); markAsKMPTarget()
             }
             val androidBarProdRelease by sourceSets.creating {
-                dependsOn(androidBarProd); androidBarProd.supersededBy(this); markAsKMPTarget()
                 dependsOn(androidRelease); androidRelease.supersededBy(this); markAsKMPTarget()
+                dependsOn(androidBarProd); androidBarProd.supersededBy(this); markAsKMPTarget()
             }
             val androidUnitTest by sourceSets.creating { dependsOn(test) }
             val androidUnitTestDebug by sourceSets.creating { dependsOn(androidUnitTest); markAsKMPTarget() }

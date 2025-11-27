@@ -6,98 +6,83 @@ import com.github.gmazzo.buildconfig.internal.BuildConfigExtensionInternal
 import com.github.gmazzo.buildconfig.internal.BuildConfigSourceSetInternal
 import org.jetbrains.annotations.VisibleForTesting
 
+private typealias Selector = (BuildConfigSourceSetInternal) -> BuildConfigClassSpec?
+
 /**
  * Helper method to extract the complexity out of [KotlinBinder.Multiplatform] for handling expect/actual fields.
  */
 internal fun BuildConfigExtensionInternal.computeExpectsActuals() {
-    val specsOfTargets = linkedMapOf<BuildConfigClassSpec, Set<BuildConfigClassSpec>>()
+    val seenSpecs = linkedSetOf<BuildConfigClassSpec>()
+    val expectSpecs = linkedSetOf<Pair<BuildConfigSourceSetInternal, String?>>()
+    val propagationCandidates = mutableMapOf<BuildConfigSourceSetInternal, MutableSet<BuildConfigSourceSetInternal>>()
 
-    for (targetSpec in sourceSets.filter { it.isKMPTarget }) {
-        val targetDependsOn = targetSpec.allDependsOn.filter { !it.isSuperseded }
+    // first we infer all the expect/actuals based on matching names in dependsOns
+    for (spec in sourceSets.filter { it.isKMPTarget }) {
+        computeExpectsActuals(seenSpecs, expectSpecs, propagationCandidates, spec)
 
-        val spec = findEffectiveSpec(targetSpec)
-
-        val dependsOn = spec.allDependsOn
-            .filter { !it.isSuperseded }
-            .filter { it.hasExpects() }
-            .toSet()
-
-        if (dependsOn.isNotEmpty()) {
-            lookForExpectFields(spec, dependsOn)
-            specsOfTargets[spec] = dependsOn
-        }
-
-        // find all the extra (traversing the depends on graph) with unique names
-        val extras = (sequenceOf(targetSpec) + targetDependsOn)
-            .flatMap { spec ->
-                val specDependsOn = spec.allDependsOn
-                    .filter { !it.isSuperseded }
-
-                spec.extraSpecs.asSequence().map { extra ->
-                    extra to specDependsOn
-                        .mapNotNull { it.extraSpecs.findByName(extra.name) }
-                        .filter { it.hasExpects() }
-                        .toSet()
-                }
-            }
-            .distinctBy { (it, _) -> it.name }
-
-        for ((extra, extraDependsOn) in extras) {
-            if (extraDependsOn.isNotEmpty()) {
-                lookForExpectFields(extra, extraDependsOn)
-                specsOfTargets[extra] = extraDependsOn
-            }
+        for (extra in spec.extraSpecs) {
+            computeExpectsActuals(seenSpecs, expectSpecs, propagationCandidates, spec, extra.name)
         }
     }
 
-    // finally, we make sure that all expects with defaults are present in a target (or any of its depends on)
-    fillMissingActuals(specsOfTargets)
-}
-
-private fun lookForExpectFields(spec: BuildConfigClassSpec, dependsOnSpecs: Set<BuildConfigClassSpec>) {
-    val expectSpecs = linkedSetOf<BuildConfigClassSpec>()
-    for (field in spec.buildConfigFields) {
-        for (dependsOnSpec in dependsOnSpecs) {
-            val dependsOnField = dependsOnSpec.buildConfigFields.findByName(field.name) ?: continue
-
-            check(dependsOnField.isExpect) {
-                "Field '${dependsOnField.name}' in '$dependsOnSpec' must be `expect`, since it's defined as `actual` in '$spec'"
-            }
-
-            field.tags.add(BuildConfigField.IsActual)
-            expectSpecs.add(dependsOnSpec)
-
-            // also makes sure that the actual class matches the expect declaration
-            spec.defaultsFrom(dependsOnSpec)
+    // finally, we propagate any missing expect with default into its target actuals
+    for ((expectSpec, extraName) in expectSpecs) {
+        val selector: Selector = when (extraName) {
+            null -> { it -> it }
+            else -> { it -> it.extraSpecs.maybeCreate(extraName) }
         }
-    }
+        val selectedExpectSpec = selector(expectSpec)
 
-    // then, in case we have mixed expect and regular constants in the same spec, we promote them all to this spec
-    for (expectSpec in expectSpecs) {
-        for (expectField in expectSpec.buildConfigFields) {
-            if (expectField.isExpectNoDefault) continue
-            if (spec.buildConfigFields.names.contains(expectField.name)) continue
+        for (expectField in selectedExpectSpec!!.buildConfigFields) {
+            expectField.tags.add(BuildConfigField.IsExpect)
 
-            spec.buildConfigField(expectField).tags.add(BuildConfigField.IsActual)
-        }
-    }
-}
+            for (actualSpec in propagationCandidates[expectSpec]!!) {
+                val selectedActualSpec = selector(actualSpec)!!
 
-private fun fillMissingActuals(specsOfTargets: Map<BuildConfigClassSpec, Set<BuildConfigClassSpec>>) {
-    for ((spec, dependsOnSpecs) in specsOfTargets) {
-        if (dependsOnSpecs.any { it.hasActuals() }) continue
+                val actualField =
+                    selectedActualSpec.buildConfigFields.findByName(expectField.name) ?:
+                    selectedActualSpec.buildConfigFields.create(expectField.name) {
+                        it.type.convention(expectField.type)
+                        it.value.convention(expectField.value)
+                    }
 
-        for (expectSpec in dependsOnSpecs) {
-            for (expectField in expectSpec.buildConfigFields) {
-                if (spec.buildConfigFields.names.contains(expectField.name)) continue
-                if (expectField.isExpectNoDefault) continue
-
-                spec.buildConfigField(expectField)
-                    .tags.add(BuildConfigField.IsActual)
+                actualField.tags.add(BuildConfigField.IsActual)
 
                 // also makes sure that the actual class matches the expect declaration
-                spec.defaultsFrom(expectSpec)
+                selectedActualSpec.defaultsFrom(selectedExpectSpec)
             }
+        }
+    }
+}
+
+private fun computeExpectsActuals(
+    seenSpecs: MutableSet<BuildConfigClassSpec>,
+    expectSpecs: MutableSet<Pair<BuildConfigSourceSetInternal, String?>>,
+    propagationCandidates: MutableMap<BuildConfigSourceSetInternal, MutableSet<BuildConfigSourceSetInternal>>,
+    targetSpec: BuildConfigSourceSetInternal,
+    extraName: String? = null,
+) {
+    val selector: Selector = when (extraName) {
+        null -> { it -> it }
+        else -> { it -> it.extraSpecs.findByName(extraName) }
+    }
+    val spec = findEffectiveSpec(targetSpec, selector)
+    val selectedSpec = selector(spec)!!
+
+    if (!seenSpecs.add(selectedSpec)) return
+
+    for (dependsOn in spec.allDependsOn.filter { !it.isSuperseded }) {
+        propagationCandidates.getOrPut(dependsOn, ::linkedSetOf).add(spec)
+
+        val selectedDependsOn = selector(dependsOn) ?: continue
+        for (field in selectedSpec.buildConfigFields) {
+            if (field.name !in selectedDependsOn.buildConfigFields.names) continue
+
+            expectSpecs.add(dependsOn to extraName)
+            field.tags.add(BuildConfigField.IsActual)
+
+            // also makes sure that the actual class matches the expect declaration
+            selectedSpec.defaultsFrom(selectedDependsOn)
         }
     }
 }
@@ -114,13 +99,13 @@ private fun fillMissingActuals(specsOfTargets: Map<BuildConfigClassSpec, Set<Bui
 @VisibleForTesting
 internal fun findEffectiveSpec(
     spec: BuildConfigSourceSetInternal,
-    selector: (BuildConfigSourceSetInternal) -> BuildConfigClassSpec = { it },
+    selector: Selector = { it },
 ): BuildConfigSourceSetInternal {
-    if (selector(spec).hasFields) return spec
+    if (selector(spec)?.hasFields == true) return spec
 
     var candidate = spec
     for (dep in spec.allDependsOn.filter { !it.isSuperseded && !it.isRoot }) {
-        if (dep.allDependents.any { d -> selector(d).hasFields }) return candidate
+        if (dep.allDependents.any { d -> selector(d)?.hasFields == true }) return candidate
         candidate = dep
     }
     return candidate
@@ -131,18 +116,3 @@ private val BuildConfigSourceSetInternal.isRoot: Boolean
 
 private val BuildConfigClassSpec.hasFields: Boolean
     get() = buildConfigFields.isNotEmpty()
-
-private fun BuildConfigClassSpec.hasExpects() =
-    buildConfigFields.any { it.isExpect }
-
-private fun BuildConfigClassSpec.hasActuals() =
-    buildConfigFields.any { it.isActual }
-
-private val BuildConfigField.isExpect: Boolean
-    get() = BuildConfigField.IsExpect in tags.get()
-
-private val BuildConfigField.isExpectNoDefault: Boolean
-    get() = isExpect && value.orNull == null
-
-private val BuildConfigField.isActual: Boolean
-    get() = BuildConfigField.IsActual in tags.get()

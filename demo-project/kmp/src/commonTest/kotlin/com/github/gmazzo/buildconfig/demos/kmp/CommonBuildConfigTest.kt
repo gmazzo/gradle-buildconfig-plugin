@@ -19,6 +19,7 @@ abstract class CommonBuildConfigTest(
         assertEquals(expectedDebug, BuildConfig.DEBUG)
         assertEquals(expectedUri, BuildConfig.ENDPOINT)
         assertEquals(expectedProduct, BuildConfig.PRODUCT_VALUE)
+        assertEquals("aLazyProvidedValue", BuildConfig.PROVIDED_VALUE)
     }
 
     @Test

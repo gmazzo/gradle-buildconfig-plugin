@@ -45,9 +45,10 @@ gradle.projectsEvaluated {
 }
 
 buildConfig {
-    buildConfigField("COMMON_VALUE", expect("aCommonValue"))   // a constant for all platforms
-    buildConfigField("PLATFORM", expect<String>())                          // expect a platform specific value
-    buildConfigField("DEBUG", expect(false))                    // expect with a default
+    buildConfigField("COMMON_VALUE", "aCommonValue") // a constant for all platforms
+    buildConfigField("PROVIDED_VALUE", lazyProvidedValue) // a provided constant for all platforms
+    buildConfigField("PLATFORM", expect<String>()) // expect a platform specific value
+    buildConfigField("DEBUG", expect(false)) // expect with a default
     buildConfigField("com.eygraber.uri.Uri", "ENDPOINT",
         expect(expression("Uri.parse(\"https://api.example.com\")")))
     buildConfigField("PRODUCT_VALUE", expect<String?>(null))
@@ -80,7 +81,6 @@ buildConfig {
         buildConfigField("PLATFORM", "jvm")
         buildConfigField("JVM_VALUE", "aJvmValue")
         forClass("i18n").buildConfigField("i18n_kind", "jvm")
-        forClass("Single") // will inherit all defaults from `commonMain`
     }
 
     sourceSets.named("iosMain") {

@@ -46,13 +46,13 @@ val generateBuildConfigTest by tasks.registering(AssertGeneratedFile::class) {
         public final class BuildConfig {
           public static final String APP_NAME = "generic";
 
-          public static final String PROVIDED = "byAddLater";
-
           public static final String APP_SECRET = "Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu";
 
           public static final long BUILD_TIME = 172800000;
 
           public static final boolean FEATURE_ENABLED = true;
+
+          public static final String PROVIDED = "byAddLater";
 
           private BuildConfig() {
           }

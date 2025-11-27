@@ -5,12 +5,14 @@ import com.github.gmazzo.buildconfig.BuildConfigTask
 import javax.inject.Inject
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.newInstance
 
 internal abstract class DefaultBuildConfigSourceSet(
     private val defaultSpec: BuildConfigClassSpec,
-    override val extraSpecs: NamedDomainObjectContainer<BuildConfigClassSpec>
+    override val extraSpecs: NamedDomainObjectContainer<BuildConfigClassSpec>,
+    private val providerFactory: ProviderFactory,
 ) :
     BuildConfigSourceSetInternal,
     BuildConfigClassSpec by defaultSpec,
@@ -26,11 +28,16 @@ internal abstract class DefaultBuildConfigSourceSet(
     constructor(
         name: String,
         objects: ObjectFactory,
+        providerFactory: ProviderFactory,
     ) : this(
         defaultSpec = objects.newInstance<DefaultBuildConfigClassSpec>(name, "buildConfig source set <$name>"),
         extraSpecs = objects.domainObjectContainer(DefaultBuildConfigClassSpec::class.java) { extraName ->
-            objects.newInstance<DefaultBuildConfigClassSpec>(extraName, "buildConfig source set <$name>, class <$extraName>")
-        } as NamedDomainObjectContainer<BuildConfigClassSpec>
+            objects.newInstance<DefaultBuildConfigClassSpec>(
+                extraName,
+                "buildConfig source set <$name>, class <$extraName>"
+            )
+        } as NamedDomainObjectContainer<BuildConfigClassSpec>,
+        providerFactory = providerFactory,
     )
 
     init {
@@ -64,16 +71,22 @@ internal abstract class DefaultBuildConfigSourceSet(
         }
 
         // copies all fields and settings to the new source set
-        buildConfigFields.all(other::buildConfigField)
+        other.addMissing(this)
         extraSpecs.all { spec ->
             other.extraSpecs.register(spec.name) { extraSpec ->
                 extraSpec.generator.convention(spec.generator)
                 extraSpec.className.convention(spec.className)
                 extraSpec.packageName.convention(spec.packageName)
                 extraSpec.documentation.convention(spec.documentation)
-                spec.buildConfigFields.all(extraSpec::buildConfigField)
+                extraSpec.addMissing(spec)
             }
         }
+    }
+
+    private fun BuildConfigClassSpec.addMissing(from: BuildConfigClassSpec) {
+        buildConfigFields.addAllLater(this@DefaultBuildConfigSourceSet.providerFactory.provider {
+            from.buildConfigFields.filter { it.name !in buildConfigFields.names }
+        })
     }
 
     override fun markAsKMPTarget() {
