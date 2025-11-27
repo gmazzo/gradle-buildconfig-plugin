@@ -370,15 +370,23 @@ internal class ComputeExpectsActualsTest {
             buildConfigField("IS_MOBILE", false).shouldBeExpect()
 
             sourceSet("androidMain") {
+                className("BuildConfig") // should match the root one
+
                 buildConfigField("IS_MOBILE", true).shouldBeActual()
             }
             sourceSet("iosMain") {
+                className("BuildConfig") // should match the root one
+
                 buildConfigField("IS_MOBILE", true).shouldBeActual()
             }
             sourceSet("jvmMain") {
+                className("BuildConfig") // should match the root one
+
                 buildConfigField("IS_MOBILE", false).shouldBeActual()
             }
             sourceSet("webMain") {
+                className("BuildConfig") // should match the root one
+
                 buildConfigField("IS_MOBILE", false).shouldBeActual()
             }
         },
@@ -428,6 +436,8 @@ internal class ComputeExpectsActualsTest {
             }
 
             sourceSet("jvmMain") {
+                className("BuildConfig") // should match the root one
+
                 buildConfigField("API_URL", "\"https://api.example.com\"").shouldBeActual()
                 buildConfigField("TIMEOUT", 60).shouldBeActual()
                 buildConfigField("FEATURE_ENABLED", true).shouldBeActual()
@@ -441,16 +451,22 @@ internal class ComputeExpectsActualsTest {
                 }
             }
             sourceSet("androidMain") {
+                className("BuildConfig") // should match the root one
+
                 buildConfigField("API_URL", "\"https://api.example.com\"").shouldBeActual()
                 buildConfigField("TIMEOUT", 30).shouldBeActual()
                 buildConfigField("FEATURE_ENABLED", false).shouldBeActual()
             }
             sourceSet("nativeMain") {
+                className("BuildConfig") // should match the root one
+
                 buildConfigField("API_URL", "\"https://api.example.com\"").shouldBeActual()
                 buildConfigField("TIMEOUT", 30).shouldBeActual()
                 buildConfigField("FEATURE_ENABLED", true).shouldBeActual()
             }
             sourceSet("webMain") {
+                className("BuildConfig") // should match the root one
+
                 buildConfigField("API_URL", "\"https://api.example.com\"").shouldBeActual()
                 buildConfigField("TIMEOUT", 30).shouldBeActual()
                 buildConfigField("FEATURE_ENABLED", true).shouldBeActual()
@@ -467,14 +483,20 @@ internal class ComputeExpectsActualsTest {
         val actual by lazy { input.computeExpectsActuals(); input }
 
         fun BuildConfigClassSpec.classCases(actual: Lazy<BuildConfigClassSpec?>): List<DynamicTest> =
-            buildConfigFields.map { field ->
-                dynamicTest("field: ${field.name}") {
-                    val actualField = actual.value?.buildConfigFields?.findByName(field.name)
+            listOf(dynamicTest("class name match") {
+                val expectedNames = fullClassName
+                val actualNames = actual.value?.fullClassName
 
-                    assertEquals(field.asMap(), actualField?.asMap())
-                }
+                assertEquals(expectedNames, actualNames)
+            }) +
+                buildConfigFields.map { field ->
+                    dynamicTest("field: ${field.name}") {
+                        val actualField = actual.value?.buildConfigFields?.findByName(field.name)
 
-            } + dynamicTest("field names match") {
+                        assertEquals(field.asMap(), actualField?.asMap())
+                    }
+
+                } + dynamicTest("field names match") {
                 val expectedNames = buildConfigFields.names
                 val actualNames = actual.value?.buildConfigFields?.names
 
@@ -620,8 +642,14 @@ internal class ComputeExpectsActualsTest {
     private fun create(block: BuildConfigExtensionInternal.() -> Unit) =
         project.objects.newInstance<DefaultBuildConfigExtension>().also {
             it.sourceSets.configureEach { spec ->
-                val taskName = "generate${spec.name.capitalized}BuildConfig"
+                val prefix = when (val name = spec.name) {
+                    "main" -> ""
+                    else -> name.capitalized
+                }
+                val taskName = "generate${prefix}BuildConfig"
 
+                spec.packageName.convention("org.test")
+                spec.className.convention("${prefix}BuildConfig")
                 spec.generateTask =
                     if (project.tasks.names.contains(taskName)) project.tasks.named<BuildConfigTask>(taskName)
                     else project.tasks.register<BuildConfigTask>(taskName)
@@ -646,5 +674,11 @@ internal class ComputeExpectsActualsTest {
         "value" to value.orNull,
         "tags" to tags.get(),
     )
+
+    private val BuildConfigClassSpec.fullClassName
+        get() = when (val packageName = packageName.orNull) {
+            null -> className.get()
+            else -> "$packageName.${className.get()}"
+        }
 
 }
