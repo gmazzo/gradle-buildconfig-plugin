@@ -82,6 +82,7 @@ internal object AndroidBinder {
         val flavorsSpecs = productFlavors
             .map { (_, flavor) -> extension.sourceSets.maybeCreate(variantNamer(flavor)) }
             .also { it.forEach(spec::dependsOn) }
+            .reversed()
 
         buildType?.let {
             val btSpec = extension.sourceSets.maybeCreate(variantNamer(it))
@@ -92,14 +93,10 @@ internal object AndroidBinder {
         flavorName.takeUnless { it.isNullOrBlank() }?.let {
             val allFlavorsSpec = extension.sourceSets.maybeCreate(variantNamer(it))
 
+            supersededSpecs.add(allFlavorsSpec)
             (flavorsSpecs - allFlavorsSpec).forEach(allFlavorsSpec::dependsOn)
         }
         supersededSpecs.addAll(flavorsSpecs)
-
-        if (mainSpec != spec) {
-            mainSpec.supersededBy(spec)
-            spec.defaultsFrom(mainSpec)
-        }
 
         for (parentSpec in supersededSpecs) {
             parentSpec.dependsOn(mainSpec)
@@ -108,6 +105,11 @@ internal object AndroidBinder {
                 spec.dependsOn(parentSpec)
                 parentSpec.supersededBy(spec)
             }
+        }
+
+        if (mainSpec != spec) {
+            mainSpec.supersededBy(spec)
+            spec.defaultsFrom(mainSpec)
         }
 
         sourcesJavaAddGeneratedSourceDirectory(spec.generateTask, BuildConfigTask::outputDir)

@@ -18,10 +18,12 @@ internal abstract class DefaultBuildConfigClassSpec @Inject constructor(
     BuildConfigClassSpec,
     GroovyNullValueWorkaround() {
 
+    private var lastPosition = 0
+
     override val buildConfigFields: NamedDomainObjectContainer<BuildConfigField> =
         objects.domainObjectContainer(BuildConfigField::class) { name ->
             objects.newInstance<BuildConfigField>(name).apply {
-                position.convention(buildConfigFields.size)
+                position.convention(++lastPosition)
             }
         }
 

@@ -120,7 +120,7 @@ public interface BuildConfigClassSpec : Named {
                     else -> BuildConfigValue.Literal(v)
                 }
             })
-
+            .disallowChanges()
     }
 
     public fun <Type : Serializable> buildConfigField(
@@ -143,18 +143,10 @@ public interface BuildConfigClassSpec : Named {
     }
 
     public fun buildConfigField(
-        from: BuildConfigField,
-    ): BuildConfigField =
-        buildConfigField(from.name) {
-            it.type.convention(from.type)
-            it.value.convention(from.value)
-        }
-
-    public fun buildConfigField(
         name: String,
         configure: Action<BuildConfigField>,
     ): BuildConfigField =
-        buildConfigFields.maybeCreate(name).also(configure::execute)
+        buildConfigFields.create(name, configure)
 
     public fun expression(expression: String): BuildConfigValue.Expression =
         BuildConfigValue.Expression(expression)
