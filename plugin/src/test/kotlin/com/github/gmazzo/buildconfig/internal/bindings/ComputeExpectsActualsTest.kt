@@ -16,11 +16,11 @@ import org.gradle.kotlin.dsl.newInstance
 import org.gradle.kotlin.dsl.register
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.DynamicContainer
 import org.junit.jupiter.api.DynamicContainer.dynamicContainer
 import org.junit.jupiter.api.DynamicNode
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.DynamicTest.dynamicTest
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.TestFactory
 import org.junit.jupiter.api.TestInstance
 
@@ -29,12 +29,12 @@ internal class ComputeExpectsActualsTest {
 
     private val project = ProjectBuilder.builder().build()
 
-    @TestFactory
-    fun findEffectiveSpec() = listOf(
+    @Nested
+    inner class FindEffectiveSpec {
 
-        // rare case, all are empty
-        findEffectiveSpecCase(
-            "all empty", layout(kmpAndroidLegacy = true), mapOf(
+        @TestFactory
+        fun allEmpty() = findEffectiveSpecCase(
+            layout(kmpAndroidLegacy = true), mapOf(
                 "androidBarProdDebug" to "androidBarProdDebug",
                 "androidBarProdRelease" to "androidBarProdRelease",
                 "androidBarStageDebug" to "androidBarStageDebug",
@@ -60,11 +60,12 @@ internal class ComputeExpectsActualsTest {
                 "wasmJsMain" to "webMain",
                 "wasmJsTest" to "webTest",
             )
-        ),
+        )
 
         // typical case, only main has fields
-        findEffectiveSpecCase(
-            "single field", layout(kmpAndroidLegacy = true) {
+        @TestFactory
+        fun singleField() = findEffectiveSpecCase(
+            layout(kmpAndroidLegacy = true) {
                 buildConfigField("COMMON", "aCommonValue")
 
             }, mapOf(
@@ -93,11 +94,12 @@ internal class ComputeExpectsActualsTest {
                 "wasmJsMain" to "webMain",
                 "wasmJsTest" to "webTest",
             )
-        ),
+        )
 
         // mobile flag case
-        findEffectiveSpecCase(
-            "mobile flag field", layout(kmpAndroidLegacy = true) {
+        @TestFactory
+        fun mobileFlagField() = findEffectiveSpecCase(
+            layout(kmpAndroidLegacy = true) {
                 buildConfigField("IS_MOBILE", false)
 
                 sourceSet("androidMain") {
@@ -133,11 +135,12 @@ internal class ComputeExpectsActualsTest {
                 "wasmJsMain" to "webMain",
                 "wasmJsTest" to "webTest",
             )
-        ),
+        )
 
         // kmp typical case, platform field
-        findEffectiveSpecCase(
-            "platform field", layout(kmpAndroidLegacy = true) {
+        @TestFactory
+        fun platformField() = findEffectiveSpecCase(
+            layout(kmpAndroidLegacy = true) {
                 buildConfigField("COMMON", "aCommonValue")
                 buildConfigField("PLATFORM", expect<String>())
 
@@ -180,11 +183,12 @@ internal class ComputeExpectsActualsTest {
                 "wasmJsMain" to "webMain",
                 "wasmJsTest" to "webTest",
             )
-        ),
+        )
 
         // complex case, fields at different flavors
-        findEffectiveSpecCase(
-            "complex", layout(kmpAndroidLegacy = true) {
+        @TestFactory
+        fun complex() = findEffectiveSpecCase(
+            layout(kmpAndroidLegacy = true) {
                 buildConfigField("COMMON", "aCommonValue")
                 buildConfigField("PLATFORM", expect<String>())
 
@@ -239,12 +243,13 @@ internal class ComputeExpectsActualsTest {
                 "wasmJsMain" to "wasmJsMain",
                 "wasmJsTest" to "webTest",
             )
-        ),
+        )
 
         // simple with classes case
         // TODO does sub classes may have different effective specs? it's not covered with tests now
-        findEffectiveSpecCase(
-            "simple with classes", layout(kmpAndroidLegacy = true) {
+        @TestFactory
+        fun simpleWithClasses() = findEffectiveSpecCase(
+            layout(kmpAndroidLegacy = true) {
                 buildConfigField("API_URL", expect("\"https://api.example.com\""))
                 buildConfigField("TIMEOUT", 30)
                 buildConfigField("FEATURE_ENABLED", expect(true))
@@ -285,114 +290,158 @@ internal class ComputeExpectsActualsTest {
                 "wasmJsMain" to "webMain",
                 "wasmJsTest" to "webTest",
             )
-        ),
-    )
+        )
 
-    private fun findEffectiveSpecCase(
-        name: String,
-        layout: BuildConfigExtensionInternal,
-        entries: Map<String, String>,
-    ) = dynamicContainer(
-        name, entries
+        private fun findEffectiveSpecCase(
+            layout: BuildConfigExtensionInternal,
+            entries: Map<String, String>,
+        ) = entries
             .map { findEffectiveSpecCase(layout, it.key, it.value) } +
             layout.extraSpecs.names.map { className ->
                 dynamicContainer(
                     className, entries
                         .map { findEffectiveSpecCase(layout, it.key, it.value) { ss -> ss.forClass(className) } })
-            })
+            }
 
-    private fun findEffectiveSpecCase(
-        layout: BuildConfigExtensionInternal,
-        targetSourceSet: String,
-        expectedSourceSet: String,
-        selector: (BuildConfigSourceSetInternal) -> BuildConfigClassSpec = { it }
-    ) = dynamicTest("$targetSourceSet -> $expectedSourceSet") {
-        val actual = findEffectiveSpec(layout.sourceSets.getByName(targetSourceSet), selector).name
+        private fun findEffectiveSpecCase(
+            layout: BuildConfigExtensionInternal,
+            targetSourceSet: String,
+            expectedSourceSet: String,
+            selector: (BuildConfigSourceSetInternal) -> BuildConfigClassSpec = { it }
+        ) = dynamicTest("$targetSourceSet -> $expectedSourceSet") {
+            val actual = findEffectiveSpec(layout.sourceSets.getByName(targetSourceSet), selector).name
 
-        assertEquals(expectedSourceSet, actual)
+            assertEquals(expectedSourceSet, actual)
+        }
+
     }
 
-    @TestFactory
-    fun computeExpectsActuals() = listOf(
+    @Nested
+    inner class ComputeExpectsActuals {
 
         // Simple case: actual matches expected
-        computeExpectsActualsCase("single", layout(kmpAndroidLegacy = false) {
+        @TestFactory
+        fun single() = computeExpectsActualsCase(layout(kmpAndroidLegacy = false) {
             buildConfigField("COMMON", "aCommonValue")
 
         }) {
             buildConfigField("COMMON", "aCommonValue")
-        },
+        }
 
         // Legacy case: complex setup without expect/actual
-        computeExpectsActualsCase("complex setup without expect/actual", layout(kmpAndroidLegacy = false) {
-            buildConfigField("API_URL", "\"https://api.example.com\"")
-            buildConfigField("TIMEOUT", 30)
-            buildConfigField("FEATURE_ENABLED", true)
-            buildConfigField("PROVIDED", project.provider { "computedValue" })
+        @TestFactory
+        fun complexSetupWithoutExpectActual() =
+            computeExpectsActualsCase(layout(kmpAndroidLegacy = false) {
+                buildConfigField("API_URL", "\"https://api.example.com\"")
+                buildConfigField("TIMEOUT", 30)
+                buildConfigField("FEATURE_ENABLED", true)
+                buildConfigField("PROVIDED", project.provider { "computedValue" })
 
-            subclass("Extra1") {
-                buildConfigField("EXTRA_FIELD", "aValue")
+                subclass("Extra1") {
+                    buildConfigField("EXTRA_FIELD", "aValue")
+                }
+
+                subclass("Extra2") {
+                    buildConfigField("EXTRA_FIELD", 42)
+                }
+
+            }) {
+                val providedValue = project.provider { "computedValue" }
+
+                buildConfigField("API_URL", "\"https://api.example.com\"")
+                buildConfigField("TIMEOUT", 30)
+                buildConfigField("FEATURE_ENABLED", true)
+                buildConfigField("PROVIDED", providedValue)
+
+                subclass("Extra1") {
+                    buildConfigField("EXTRA_FIELD", "aValue")
+                }
+
+                subclass("Extra2") {
+                    buildConfigField("EXTRA_FIELD", 42)
+                }
             }
-
-            subclass("Extra2") {
-                buildConfigField("EXTRA_FIELD", 42)
-            }
-
-        }) {
-            val providedValue = project.provider { "computedValue" }
-
-            buildConfigField("API_URL", "\"https://api.example.com\"")
-            buildConfigField("TIMEOUT", 30)
-            buildConfigField("FEATURE_ENABLED", true)
-            buildConfigField("PROVIDED", providedValue)
-
-            subclass("Extra1") {
-                buildConfigField("EXTRA_FIELD", "aValue")
-            }
-
-            subclass("Extra2") {
-                buildConfigField("EXTRA_FIELD", 42)
-            }
-        },
 
         // single mobile field with explicit expect
-        computeExpectsActualsCase("single mobile field", layout(kmpAndroidLegacy = false) {
-            buildConfigField("IS_MOBILE", expect(false))
+        @TestFactory
+        fun singleMobileField() = listOf(
+            singleMobileField(false),
+            singleMobileField(true),
+        )
 
-            sourceSet("androidMain") {
-                buildConfigField("IS_MOBILE", true)
-            }
-            sourceSet("iosMain") {
-                buildConfigField("IS_MOBILE", true)
-            }
+        private fun singleMobileField(kmpAndroidLegacy: Boolean) = dynamicContainer(
+             "kmpAndroid${ if (kmpAndroidLegacy) "Legacy" else "Modern" }",
+            computeExpectsActualsCase(layout(kmpAndroidLegacy) {
+                buildConfigField("IS_MOBILE", expect(false))
 
-        }) {
-            buildConfigField("IS_MOBILE", false).shouldBeExpect()
+                sourceSet("androidMain") {
+                    buildConfigField("IS_MOBILE", true)
+                }
+                if (kmpAndroidLegacy) {
+                    buildConfigField("DEBUG", expect(false))
 
-            sourceSet("androidMain") {
-                className("BuildConfig") // should match the root one
+                    sourceSet("androidDebug") {
+                        buildConfigField("DEBUG", true)
+                    }
+                }
+                sourceSet("iosMain") {
+                    buildConfigField("IS_MOBILE", true)
+                }
 
-                buildConfigField("IS_MOBILE", true).shouldBeActual()
-            }
-            sourceSet("iosMain") {
-                className("BuildConfig") // should match the root one
+            }) {
+                buildConfigField("IS_MOBILE", false).shouldBeExpect()
 
-                buildConfigField("IS_MOBILE", true).shouldBeActual()
-            }
-            sourceSet("jvmMain") {
-                className("BuildConfig") // should match the root one
+                if (!kmpAndroidLegacy) {
+                    sourceSet("androidMain") {
+                        className("BuildConfig") // should match the root one
 
-                buildConfigField("IS_MOBILE", false).shouldBeActual()
-            }
-            sourceSet("webMain") {
-                className("BuildConfig") // should match the root one
+                        buildConfigField("IS_MOBILE", true).shouldBeActual()
+                    }
 
-                buildConfigField("IS_MOBILE", false).shouldBeActual()
-            }
-        },
+                } else {
+                    buildConfigField("DEBUG", expect(false)).shouldBeExpect()
+
+                    for (androidSpec in listOf(
+                        "androidBarProdDebug",
+                        "androidBarProdRelease",
+                        "androidBarStageDebug",
+                        "androidBarStageRelease",
+                        "androidFooProdDebug",
+                        "androidFooProdRelease",
+                        "androidFooStageDebug",
+                        "androidFooStageRelease")) {
+                        sourceSet(androidSpec) {
+                            className("BuildConfig") // should match the root one
+
+                            buildConfigField("IS_MOBILE", true).shouldBeActual()
+                            buildConfigField("DEBUG", androidSpec.endsWith("Debug")).shouldBeActual()
+                        }
+                    }
+                }
+
+                sourceSet("iosMain") {
+                    className("BuildConfig") // should match the root one
+
+                    buildConfigField("IS_MOBILE", true).shouldBeActual()
+                    if (kmpAndroidLegacy) buildConfigField("DEBUG", false).shouldBeActual()
+                }
+                sourceSet("jvmMain") {
+                    className("BuildConfig") // should match the root one
+
+                    buildConfigField("IS_MOBILE", false).shouldBeActual()
+                    if (kmpAndroidLegacy) buildConfigField("DEBUG", false).shouldBeActual()
+                }
+                sourceSet("webMain") {
+                    className("BuildConfig") // should match the root one
+
+                    buildConfigField("IS_MOBILE", false).shouldBeActual()
+                    if (kmpAndroidLegacy) buildConfigField("DEBUG", false).shouldBeActual()
+                }
+            })
 
         // complex scenarios
-        computeExpectsActualsCase("complex", layout(kmpAndroidLegacy = false) {
+        @TestFactory
+        fun complex() = computeExpectsActualsCase(layout(kmpAndroidLegacy = false) {
             buildConfigField("API_URL", expect("\"https://api.example.com\""))
             buildConfigField("TIMEOUT", expect(30))
             buildConfigField("FEATURE_ENABLED", expect(true))
@@ -472,78 +521,77 @@ internal class ComputeExpectsActualsTest {
                 buildConfigField("FEATURE_ENABLED", true).shouldBeActual()
             }
         }
-    )
 
-    private fun computeExpectsActualsCase(
-        name: String,
-        input: BuildConfigExtensionInternal,
-        expectsBlock: BuildConfigExtensionInternal.() -> Unit
-    ): DynamicContainer {
-        val expects = create(expectsBlock)
-        val actual by lazy { input.computeExpectsActuals(); input }
+        private fun computeExpectsActualsCase(
+            input: BuildConfigExtensionInternal,
+            expectsBlock: BuildConfigExtensionInternal.() -> Unit
+        ): List<DynamicNode> {
+            val expects = create(expectsBlock)
+            val actual by lazy { input.computeExpectsActuals(); input }
 
-        fun BuildConfigClassSpec.classCases(actual: Lazy<BuildConfigClassSpec?>): List<DynamicTest> =
-            listOf(dynamicTest("class name match") {
-                val expectedNames = fullClassName
-                val actualNames = actual.value?.fullClassName
+            fun BuildConfigClassSpec.classCases(actual: Lazy<BuildConfigClassSpec?>): List<DynamicTest> =
+                listOf(dynamicTest("class name match") {
+                    val expectedNames = fullClassName
+                    val actualNames = actual.value?.fullClassName
 
-                assertEquals(expectedNames, actualNames)
-            }) +
-                buildConfigFields.map { field ->
-                    dynamicTest("field: ${field.name}") {
-                        val actualField = actual.value?.buildConfigFields?.findByName(field.name)
+                    assertEquals(expectedNames, actualNames)
+                }) +
+                    buildConfigFields.map { field ->
+                        dynamicTest("field: ${field.name}") {
+                            val actualField = actual.value?.buildConfigFields?.findByName(field.name)
 
-                        assertEquals(field.asMap(), actualField?.asMap())
-                    }
+                            assertEquals(field.asMap(), actualField?.asMap())
+                        }
 
-                } + dynamicTest("field names match") {
-                val expectedNames = buildConfigFields.names
-                val actualNames = actual.value?.buildConfigFields?.names
-
-                assertEquals(expectedNames, actualNames)
-            }
-
-        fun BuildConfigSourceSetInternal.sourceSetCases(): List<DynamicNode> {
-            val actualSourceSet = lazy { actual.sourceSets.findByName(this@sourceSetCases.name) }
-
-            return classCases(actualSourceSet) +
-                extraSpecs.map {
-                    dynamicContainer(
-                        "class: ${it.name}",
-                        it.classCases(lazy { actualSourceSet.value?.extraSpecs?.findByName(it.name) })
-                    )
-                } +
-                dynamicTest("extra names match") {
-                    val expectedNames = extraSpecs.names
-                    val actualNames = actualSourceSet.value.extraSpecs.names
+                    } + dynamicTest("field names match") {
+                    val expectedNames = buildConfigFields.names
+                    val actualNames = actual.value?.buildConfigFields?.names
 
                     assertEquals(expectedNames, actualNames)
                 }
-        }
+
+            fun BuildConfigSourceSetInternal.sourceSetCases(): List<DynamicNode> {
+                val actualSourceSet = lazy { actual.sourceSets.findByName(this@sourceSetCases.name) }
+
+                return classCases(actualSourceSet) +
+                    extraSpecs.map {
+                        dynamicContainer(
+                            "class: ${it.name}",
+                            it.classCases(lazy { actualSourceSet.value?.extraSpecs?.findByName(it.name) })
+                        )
+                    } +
+                    dynamicTest("extra names match") {
+                        val expectedNames = extraSpecs.names
+                        val actualNames = actualSourceSet.value.extraSpecs.names
+
+                        assertEquals(expectedNames, actualNames)
+                    }
+            }
 
 
-        val otherSourceSetsMatch = expects.sourceSets
-            .filter { it.name != "main" }
-            .map { it.name to it.sourceSetCases() }
-            .filter { (_, it) -> it.isNotEmpty() }
-            .map { dynamicContainer("sourceSet: ${it.first}", it.second) }
+            val otherSourceSetsMatch = expects.sourceSets
+                .filter { it.name != "main" }
+                .map { it.name to it.sourceSetCases() }
+                .filter { (_, it) -> it.isNotEmpty() }
+                .map { dynamicContainer("sourceSet: ${it.first}", it.second) }
 
-        return dynamicContainer(
-            name,
-            expects.sourceSetCases() +
+            return expects.sourceSetCases() +
                 otherSourceSetsMatch +
                 dynamicTest("source set names match") {
                     val expectedNames = expects.sourceNamesWithContent
                     val actualNames = actual.sourceNamesWithContent
 
                     assertEquals(expectedNames, actualNames)
-                })
-    }
+                }
+        }
 
-    private val BuildConfigExtensionInternal.sourceNamesWithContent
-        get() = sourceSets.asSequence()
-            .filter { it.buildConfigFields.isNotEmpty() || it.extraSpecs.isNotEmpty() }
-            .mapTo(sortedSetOf()) { it.name }
+        private val BuildConfigExtensionInternal.sourceNamesWithContent
+            get() = sourceSets.asSequence()
+                .filter { !it.isSuperseded }
+                .filter { it.buildConfigFields.isNotEmpty() || it.extraSpecs.any { extra -> extra.buildConfigFields.isNotEmpty() } }
+                .mapTo(sortedSetOf()) { it.name }
+
+    }
 
     @Suppress("unused", "UnusedVariable")
     private fun layout(kmpAndroidLegacy: Boolean, block: BuildConfigExtensionInternal.() -> Unit = {}) = create {
@@ -658,7 +706,10 @@ internal class ComputeExpectsActualsTest {
             it.block()
         }
 
-    private fun BuildConfigExtensionInternal.sourceSet(name: String, block: BuildConfigSourceSetInternal.() -> Unit) =
+    private fun BuildConfigExtensionInternal.sourceSet(
+        name: String,
+        block: BuildConfigSourceSetInternal.() -> Unit
+    ) =
         sourceSets.maybeCreate(name).apply { block() }
 
     private fun BuildConfigSourceSetInternal.subclass(name: String, block: BuildConfigClassSpec.() -> Unit) =
