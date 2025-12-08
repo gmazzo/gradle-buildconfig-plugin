@@ -14,7 +14,7 @@ junit5-engine = { module = "org.junit.jupiter:junit-jupiter-engine" }
 junit5-platformLauncher = { module = "org.junit.platform:junit-platform-launcher" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlinpoet = { module = "com.squareup:kotlinpoet", version = "2.2.0" }
-mockk = { module = "io.mockk:mockk", version = "1.14.6" }
+mockk = { module = "io.mockk:mockk", version = "1.14.7" }
 uriKMP = { module = "com.eygraber:uri-kmp", version = "0.0.21" }
 
 [plugins]
