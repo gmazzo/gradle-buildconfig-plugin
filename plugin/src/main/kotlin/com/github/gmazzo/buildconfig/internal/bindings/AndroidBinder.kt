@@ -25,6 +25,7 @@ internal object AndroidBinder {
 
     fun Project.configure(extension: BuildConfigExtensionInternal) {
         val isKMP by lazy { isKotlinMultiplatform }
+        val isKMPNew by lazy { isNewKotlinMultiplatform }
 
         afterEvaluate {
             check(isKMP == isKotlinMultiplatform) {
@@ -52,11 +53,11 @@ internal object AndroidBinder {
         val androidTest by lazy { extension.sourceSets.maybeCreate(nameOf(ANDROID_TEST_SOURCE_SET_NAME)) }
 
         androidComponents.onVariants { variant ->
-            variant.bindToSourceSet(extension, main, ::nameOf)
-            variant.unitTest?.bindToSourceSet(extension, test, ::nameOf) {
+            variant.bindToSourceSet(isKMPNew, extension, main, ::nameOf)
+            variant.unitTest?.bindToSourceSet(isKMPNew, extension, test, ::nameOf) {
                 nameOf("test${it.capitalized}")
             }
-            variant.androidTest?.bindToSourceSet(extension, androidTest, ::nameOf) {
+            variant.androidTest?.bindToSourceSet(isKMPNew, extension, androidTest, ::nameOf) {
                 nameOf("androidTest${it.capitalized}")
             }
         }
@@ -71,6 +72,7 @@ internal object AndroidBinder {
     }
 
     private fun Any/*Component*/.bindToSourceSet(
+        isKMPNew: Boolean,
         extension: BuildConfigExtensionInternal,
         mainSpec: BuildConfigSourceSetInternal,
         namer: (String) -> String,
@@ -112,11 +114,16 @@ internal object AndroidBinder {
             spec.defaultsFrom(mainSpec)
         }
 
-        sourcesJavaAddGeneratedSourceDirectory(spec.generateTask, BuildConfigTask::outputDir)
-        try {
-            sourcesKotlinAddGeneratedSourceDirectory(spec.generateTask, BuildConfigTask::outputDir)
-        } catch (_: InvocationTargetException) {
-            // this may fail on older AGP versions
+        if (isKMPNew) {
+            try {
+                sourcesKotlinAddGeneratedSourceDirectory(spec.generateTask, BuildConfigTask::outputDir)
+
+            } catch (_: InvocationTargetException) {
+                // this may fail on older AGP versions
+            }
+
+        } else {
+            sourcesJavaAddGeneratedSourceDirectory(spec.generateTask, BuildConfigTask::outputDir)
         }
     }
 
@@ -177,6 +184,9 @@ internal object AndroidBinder {
 
     private val Project.isKotlinMultiplatform
         get() = plugins.hasPlugin("org.jetbrains.kotlin.multiplatform")
+
+    private val Project.isNewKotlinMultiplatform
+        get() = plugins.hasPlugin("com.android.kotlin.multiplatform.library")
 
     private val Any/*Component*/.name
         get() = javaClass.getMethod("getName").invoke(this) as String

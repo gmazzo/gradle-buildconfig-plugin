@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     id("com.github.gmazzo.buildconfig")
+    `maven-publish`
 }
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(libs.versions.java.get())
@@ -35,6 +36,13 @@ android {
             buildConfigField<String>("BRAND", this@variant.flavorName)
         }
     }
+
+    publishing {
+        multipleVariants {
+            allVariants()
+            withSourcesJar()
+        }
+    }
 }
 
 dependencies {
@@ -47,4 +55,10 @@ tasks.withType<AndroidLintAnalysisTask>().configureEach {
 }
 tasks.withType<LintModelWriterTask>().configureEach {
     mustRunAfter(tasks.withType<BuildConfigTask>())
+}
+
+afterEvaluate {
+    publishing.publications.create<MavenPublication>("maven") {
+        from(components["default"])
+    }
 }
