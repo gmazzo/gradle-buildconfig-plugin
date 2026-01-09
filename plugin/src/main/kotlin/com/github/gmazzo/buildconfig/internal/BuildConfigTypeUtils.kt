@@ -4,6 +4,7 @@ import com.github.gmazzo.buildconfig.BuildConfigType
 import java.lang.reflect.GenericArrayType
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
+import java.lang.reflect.WildcardType
 import kotlin.reflect.KType
 import kotlin.reflect.jvm.javaType
 import org.jetbrains.annotations.VisibleForTesting
@@ -49,7 +50,7 @@ private val Type.genericName: String
         else -> error("Unsupported type: $this")
     }
 
-private val Type.isArray
+private val Type.isNativeOrGenericArray
     get() = when (this) {
         is Class<*> -> isArray
         is GenericArrayType -> true
@@ -65,7 +66,7 @@ internal fun nameOf(type: Type): BuildConfigType = when (type) {
             })
         },
         nullable = false,
-        array = type.isArray,
+        array = type.isNativeOrGenericArray,
         arrayNullable = false,
     )
 
@@ -87,17 +88,19 @@ internal fun nameOf(type: Type): BuildConfigType = when (type) {
         arrayNullable = false,
     )
 
+    is WildcardType -> BuildConfigType("*")
+
     else -> error("Unsupported type: $type")
 }
 
 internal fun nameOf(type: KType): BuildConfigType {
-    val isArray = type.javaType.isArray
-    val targetType = type.takeIf { isArray }?.arguments?.singleOrNull()?.type ?: type
+    val isArray = type.javaType.isNativeOrGenericArray
+    val arrayItemType = type.takeIf { isArray }?.arguments?.singleOrNull()?.type
 
     return BuildConfigType(
         className = type.javaType.genericName,
-        typeArguments = targetType.arguments.map { it.type?.let(::nameOf) ?: nameOf("*") },
-        nullable = targetType.isMarkedNullable,
+        typeArguments = (arrayItemType ?: type).arguments.map { it.type?.let(::nameOf) ?: nameOf("*") },
+        nullable = if (isArray) arrayItemType?.isMarkedNullable == true else type.isMarkedNullable,
         array = isArray,
         arrayNullable = isArray && type.isMarkedNullable,
     )
