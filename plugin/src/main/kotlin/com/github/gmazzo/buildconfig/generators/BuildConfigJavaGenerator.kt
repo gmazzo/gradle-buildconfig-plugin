@@ -48,7 +48,7 @@ public open class BuildConfigJavaGenerator(
             "string" -> STRING
             "list" -> LIST
             "set" -> SET
-            "*", "?" -> WildcardTypeName.get(Object::class.java)
+            "*", "?" -> WildcardTypeName.get(Any::class.java)
             else -> ClassName.bestGuess(className)
         }
         if (typeArguments.isNotEmpty()) type = ParameterizedTypeName.get(

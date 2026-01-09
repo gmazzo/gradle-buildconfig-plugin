@@ -49,6 +49,7 @@ class BuildConfigTypeUtilsTests {
         arrayOf(int.copy(nullable = true), typeOf<Int?>()),
         arrayOf(int.copy(array = true), typeOf<Array<Int>>()),
         arrayOf(int.copy(array = true), typeOf<IntArray>()),
+        arrayOf(int.copy(array = true, arrayNullable = true), typeOf<IntArray?>()),
         arrayOf(int.copy(nullable = true, array = true), typeOf<Array<Int?>>()),
         arrayOf(int.copy(array = true, arrayNullable = true), typeOf<Array<Int>?>()),
         arrayOf(int.copy(nullable = true, array = true, arrayNullable = true), typeOf<Array<Int?>?>()),
