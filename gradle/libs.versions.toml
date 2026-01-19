@@ -1,7 +1,7 @@
 [versions]
 java = "17"
 kotlin = "2.3.0"
-android = "8.13.2"
+android = "9.0.0"
 
 [libraries]
 autoservice = { module = "com.google.auto.service:auto-service", version = "1.1.1" }
