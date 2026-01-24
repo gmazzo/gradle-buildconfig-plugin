@@ -126,8 +126,8 @@ abstract class BuildConfigPluginBaseTest(private val isKMP: Boolean = false) {
 
                 else -> when (kotlinVersion) {
                     null -> listOf("com.android.application" to androidVersion)
-                    else -> listOf(
-                        "org.jetbrains.kotlin.android" to kotlinVersion,
+                    else -> listOfNotNull(
+                        ("org.jetbrains.kotlin.android" to kotlinVersion).takeIf { androidVersion.major < 9 },
                         "com.android.application" to androidVersion,
                     )
                 }
@@ -151,7 +151,7 @@ abstract class BuildConfigPluginBaseTest(private val isKMP: Boolean = false) {
         group = "gs.test"
         """ else "") + """
 
-        """ + (if (kotlinVersion != null) """
+        """ + (if (kotlinVersion != null && androidVersion.major < 9) """
         check(getKotlinPluginVersion().matches(Regex("${
                 kotlinVersion.replace(".", "\\\\.").replace("+", "\\\\d+")
             }"))) {
@@ -219,6 +219,9 @@ abstract class BuildConfigPluginBaseTest(private val isKMP: Boolean = false) {
         }
 
     }
+
+    private val String?.major
+        get() = this?.substringBefore('.')?.toInt() ?: 0
 
     companion object {
         const val PROJECT_NAME = "test-project"

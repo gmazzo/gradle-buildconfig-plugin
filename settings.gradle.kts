@@ -18,5 +18,4 @@ if (kmpOnly == null) include(
 )
 include(
     "demo-project:kmp",
-    "demo-project:kmp-android-legacy",
 )

@@ -15,7 +15,7 @@ class BuildConfigTest : BuildConfigBaseTest() {
         arrayOf(listOf(1, 2, 3, 4), BuildConfig.MAGIC_NUMBERS.toList()),
 
         // variant cases
-        arrayOf(AndroidBuildConfig.DEBUG, BuildConfig.IS_DEBUG),
+        arrayOf(AndroidBuildConfig.BUILD_TYPE, BuildConfig.BUILD_TYPE),
     )
 
 }

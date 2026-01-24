@@ -191,15 +191,23 @@ internal object AndroidBinder {
     private val Any/*Component*/.name
         get() = javaClass.getMethod("getName").invoke(this) as String
 
-    private val Any/*Component*/.buildType
-        get() = javaClass.getMethod("getBuildType").invoke(this) as String?
+    private val Any/*Component*/.buildType: String?
+        get() = tryInvoke("getBuildType", null)
 
-    private val Any/*Component*/.flavorName
-        get() = javaClass.getMethod("getFlavorName").invoke(this) as String?
+    private val Any/*Component*/.flavorName: String?
+        get() = tryInvoke("getFlavorName", null)
 
     @Suppress("UNCHECKED_CAST")
-    private val Any/*Component*/.productFlavors
-        get() = javaClass.getMethod("getProductFlavors").invoke(this) as List<Pair<String, String>>
+    private val Any/*Component*/.productFlavors: List<Pair<String, String>>
+        get() = tryInvoke("getProductFlavors", emptyList())!!
+
+    @Suppress("UNCHECKED_CAST")
+    private fun <Result> Any.tryInvoke(method: String, ifMissing: Result?) = try {
+        javaClass.getMethod(method).invoke(this) as Result
+    } catch (_ : NoSuchMethodException) {
+        // new KMP Android does not support variants at all
+        ifMissing
+    }
 
     // Component.sources.java?.addGeneratedSourceDirectory
     private fun <Type : Task> Any/*Component*/.sourcesJavaAddGeneratedSourceDirectory(
@@ -217,12 +225,15 @@ internal object AndroidBinder {
         into: String,
         task: TaskProvider<out Type>,
         wiredWith: (Type) -> DirectoryProperty,
-    ) = with(javaClass.getMethod("getSources").invoke(this)) {
-        with(javaClass.getMethod(into).invoke(this)) {
-            this?.javaClass
-                ?.getMethod("addGeneratedSourceDirectory", TaskProvider::class.java, Function1::class.java)
-                ?.invoke(this, task, wiredWith)
+    ) {
+        tryInvoke<Any>("getSources", null)?.apply {
+            with(javaClass.getMethod(into).invoke(this)) {
+                this?.javaClass
+                    ?.getMethod("addGeneratedSourceDirectory", TaskProvider::class.java, Function1::class.java)
+                    ?.invoke(this, task, wiredWith)
+            }
         }
+
     }
 
     // project.android.sourceSets

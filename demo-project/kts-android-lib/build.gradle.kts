@@ -4,7 +4,6 @@ import com.github.gmazzo.buildconfig.BuildConfigTask
 
 plugins {
     alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
     id("com.github.gmazzo.buildconfig")
     `maven-publish`
 }
@@ -22,27 +21,28 @@ android {
         sourceCompatibility(java.sourceCompatibility)
     }
 
-    // mimics the variant-aware buildConfigField behavior from Android, by declaring fields on the final variant sourceSet
-    libraryVariants.all variant@{
-        buildConfig.sourceSets.named(this@variant.name) {
-            className.set("BuildConfig")
-
-            buildConfigField("APP_NAME", project.name)
-            buildConfigField("APP_SECRET", "Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu")
-            buildConfigField("FEATURE_ENABLED", true)
-            buildConfigField("MAGIC_NUMBERS", intArrayOf(1, 2, 3, 4))
-
-            buildConfigField<Boolean>("IS_DEBUG", this@variant.buildType.isDebuggable)
-            buildConfigField<String>("BRAND", this@variant.flavorName)
-        }
-    }
-
     publishing {
         multipleVariants {
             allVariants()
             withSourcesJar()
         }
     }
+}
+
+androidComponents.onVariants {
+
+    // mimics the variant-aware buildConfigField behavior from Android, by declaring fields on the final variant sourceSet
+    buildConfig.sourceSets.named(it.name) {
+        className.set("BuildConfig")
+
+        buildConfigField("APP_NAME", project.name)
+        buildConfigField("APP_SECRET", "Z3JhZGxlLWphdmEtYnVpbGRjb25maWctcGx1Z2lu")
+        buildConfigField("FEATURE_ENABLED", true)
+        buildConfigField("MAGIC_NUMBERS", intArrayOf(1, 2, 3, 4))
+
+        buildConfigField("BUILD_TYPE", it.buildType)
+    }
+
 }
 
 dependencies {

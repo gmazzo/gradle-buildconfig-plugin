@@ -1,7 +1,7 @@
 [versions]
 java = "17"
 kotlin = "2.3.0"
-android = "8.13.2"
+android = "9.0.0"
 
 [libraries]
 autoservice = { module = "com.google.auto.service:auto-service", version = "1.1.1" }
@@ -25,7 +25,6 @@ dokka = { id = "org.jetbrains.dokka-javadoc", version = "2.1.0" }
 gitVersion = { id = "io.github.gmazzo.gitversion", version = "1.5.1" }
 gradle-pluginPublish = { id = "com.gradle.plugin-publish", version = "2.0.0" }
 jacoco-testkit = { id = "io.github.gmazzo.gradle.testkit.jacoco", version = "1.0.5" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-ksp = { id = "com.google.devtools.ksp", version = "2.3.4" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }

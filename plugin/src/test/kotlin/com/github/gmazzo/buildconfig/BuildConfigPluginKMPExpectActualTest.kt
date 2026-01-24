@@ -19,7 +19,7 @@ class BuildConfigPluginKMPExpectActualTest : BuildConfigPluginBaseTest(isKMP = t
         kotlin {
             jvm()
             androidLibrary {
-                withAndroidTestOnJvm { }
+                ${ if (androidVersion.major < 9) "withAndroidTestOnJvm" else "withHostTest" } { }
             }
             js { browser() }
 
@@ -69,5 +69,8 @@ class BuildConfigPluginKMPExpectActualTest : BuildConfigPluginBaseTest(isKMP = t
         writeActuals("androidHostTest", "10.0.2.2")
         writeActuals("jsTest")
     }
+
+    private val String?.major
+        get() = this?.substringBefore('.')?.toInt() ?: 0
 
 }
