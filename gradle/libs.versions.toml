@@ -23,7 +23,7 @@ android-library = { id = "com.android.library", version.ref = "android" }
 android-multiplatform = { id = "com.android.kotlin.multiplatform.library", version.ref = "android" }
 dokka = { id = "org.jetbrains.dokka-javadoc", version = "2.1.0" }
 gitVersion = { id = "io.github.gmazzo.gitversion", version = "1.5.1" }
-gradle-pluginPublish = { id = "com.gradle.plugin-publish", version = "2.0.0" }
+gradle-pluginPublish = { id = "com.gradle.plugin-publish", version = "2.1.0" }
 jacoco-testkit = { id = "io.github.gmazzo.gradle.testkit.jacoco", version = "1.0.5" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-ksp = { id = "com.google.devtools.ksp", version = "2.3.6" }
