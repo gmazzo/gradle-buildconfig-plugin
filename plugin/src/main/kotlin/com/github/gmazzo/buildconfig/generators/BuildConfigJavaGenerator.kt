@@ -4,15 +4,7 @@ import com.github.gmazzo.buildconfig.BuildConfigType
 import com.github.gmazzo.buildconfig.BuildConfigValue
 import com.github.gmazzo.buildconfig.internal.asVarArg
 import com.github.gmazzo.buildconfig.internal.elements
-import com.squareup.javapoet.ArrayTypeName
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.FieldSpec
-import com.squareup.javapoet.JavaFile
-import com.squareup.javapoet.MethodSpec
-import com.squareup.javapoet.ParameterizedTypeName
-import com.squareup.javapoet.TypeName
-import com.squareup.javapoet.TypeSpec
-import com.squareup.javapoet.WildcardTypeName
+import com.squareup.javapoet.*
 import java.io.File
 import java.net.URI as JavaURI
 import javax.lang.model.element.Modifier
@@ -181,7 +173,7 @@ public open class BuildConfigJavaGenerator(
 
         return when (this) {
             TypeName.LONG, ClassName.get(String::class.java) -> singleFormat()
-            is ArrayTypeName -> elements.format("{", "}", componentType)
+            is ArrayTypeName -> elements.format("{", "}", null)
             LIST, GENERIC_LIST -> listFormat(null)
             SET, GENERIC_SET -> setFormat(null)
             MAP, GENERIC_MAP -> mapFormat(null, null)

@@ -7,38 +7,8 @@ import com.github.gmazzo.buildconfig.BuildConfigType
 import com.github.gmazzo.buildconfig.BuildConfigValue
 import com.github.gmazzo.buildconfig.internal.asVarArg
 import com.github.gmazzo.buildconfig.internal.elements
-import com.squareup.kotlinpoet.ARRAY
-import com.squareup.kotlinpoet.BOOLEAN
-import com.squareup.kotlinpoet.BOOLEAN_ARRAY
-import com.squareup.kotlinpoet.BYTE
-import com.squareup.kotlinpoet.BYTE_ARRAY
-import com.squareup.kotlinpoet.CHAR
-import com.squareup.kotlinpoet.CHAR_ARRAY
-import com.squareup.kotlinpoet.ClassName
-import com.squareup.kotlinpoet.DOUBLE
-import com.squareup.kotlinpoet.DOUBLE_ARRAY
-import com.squareup.kotlinpoet.FLOAT
-import com.squareup.kotlinpoet.FLOAT_ARRAY
-import com.squareup.kotlinpoet.FileSpec
-import com.squareup.kotlinpoet.INT
-import com.squareup.kotlinpoet.INT_ARRAY
-import com.squareup.kotlinpoet.KModifier
-import com.squareup.kotlinpoet.LIST
-import com.squareup.kotlinpoet.LONG
-import com.squareup.kotlinpoet.LONG_ARRAY
-import com.squareup.kotlinpoet.MAP
-import com.squareup.kotlinpoet.ParameterizedTypeName
+import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
-import com.squareup.kotlinpoet.PropertySpec
-import com.squareup.kotlinpoet.SET
-import com.squareup.kotlinpoet.SHORT
-import com.squareup.kotlinpoet.SHORT_ARRAY
-import com.squareup.kotlinpoet.STAR
-import com.squareup.kotlinpoet.STRING
-import com.squareup.kotlinpoet.TypeName
-import com.squareup.kotlinpoet.TypeSpec
-import com.squareup.kotlinpoet.asClassName
-import com.squareup.kotlinpoet.asTypeName
 import java.io.File
 import java.net.URI as JavaURI
 import org.gradle.api.logging.Logging
@@ -229,7 +199,7 @@ public open class BuildConfigKotlinGenerator(
             SET, GENERIC_SET -> setFormat(null)
             MAP, GENERIC_MAP -> mapFormat(null, null)
             is ParameterizedTypeName -> when (nonNullable.rawType) {
-                ARRAY -> arrayFormat(nonNullable.typeArguments[0])
+                ARRAY -> arrayFormat(null)
                 LIST, GENERIC_LIST -> listFormat(nonNullable.typeArguments[0])
                 SET, GENERIC_SET -> setFormat(nonNullable.typeArguments[0])
                 MAP, GENERIC_MAP -> mapFormat(nonNullable.typeArguments[0], nonNullable.typeArguments[1])
