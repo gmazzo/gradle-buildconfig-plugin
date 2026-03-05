@@ -66,7 +66,7 @@ internal abstract class DefaultBuildConfigSourceSet(
         if (!isSuperseded) {
             isSuperseded = true
             generateTask.configure {
-                it.doFirst { error("'${this@DefaultBuildConfigSourceSet.name}' was superseded by '${other.name}' source set") }
+                supersededBy(other)
             }
         }
 

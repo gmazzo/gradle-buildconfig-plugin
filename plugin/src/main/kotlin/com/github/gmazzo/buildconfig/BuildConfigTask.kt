@@ -21,6 +21,8 @@ public abstract class BuildConfigTask : DefaultTask() {
     @get:OutputDirectory
     public abstract val outputDir: DirectoryProperty
 
+    private var supersededBy: String? = null
+
     init {
         onlyIf("There are build config fields to generate") { task ->
             (task as BuildConfigTask).specs.get()
@@ -31,6 +33,8 @@ public abstract class BuildConfigTask : DefaultTask() {
 
     @TaskAction
     public fun generateBuildConfigFile() {
+        check(supersededBy == null) { "This has been superseeded by $supersededBy" }
+
         val dir = outputDir.get().asFile
         dir.deleteRecursively()
 
@@ -55,6 +59,10 @@ public abstract class BuildConfigTask : DefaultTask() {
                 )
             )
         }
+    }
+
+    internal fun supersededBy(other: BuildConfigClassSpec) {
+        this.supersededBy = other.name
     }
 
 }

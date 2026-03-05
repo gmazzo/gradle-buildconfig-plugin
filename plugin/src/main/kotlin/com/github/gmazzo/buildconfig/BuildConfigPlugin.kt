@@ -2,10 +2,8 @@ package com.github.gmazzo.buildconfig
 
 import com.github.gmazzo.buildconfig.generators.BuildConfigJavaGenerator
 import com.github.gmazzo.buildconfig.generators.BuildConfigKotlinGenerator
-import com.github.gmazzo.buildconfig.internal.BuildConfigExtensionInternal
 import com.github.gmazzo.buildconfig.internal.BuildConfigSourceSetInternal
 import com.github.gmazzo.buildconfig.internal.DefaultBuildConfigExtension
-import com.github.gmazzo.buildconfig.internal.DefaultBuildConfigSourceSet
 import com.github.gmazzo.buildconfig.internal.bindings.AndroidBinder
 import com.github.gmazzo.buildconfig.internal.bindings.JavaBinder
 import com.github.gmazzo.buildconfig.internal.bindings.KotlinBinder
@@ -16,8 +14,6 @@ import org.gradle.api.DomainObjectCollection
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.PluginContainer
-import org.gradle.api.tasks.SourceSet
-import org.gradle.kotlin.dsl.domainObjectContainer
 import org.gradle.kotlin.dsl.newInstance
 import org.gradle.kotlin.dsl.register
 import org.gradle.util.GradleVersion
