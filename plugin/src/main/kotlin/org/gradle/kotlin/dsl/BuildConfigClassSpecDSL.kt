@@ -1,10 +1,6 @@
 package org.gradle.kotlin.dsl
 
-import com.github.gmazzo.buildconfig.BuildConfigClassSpec
-import com.github.gmazzo.buildconfig.BuildConfigDsl
-import com.github.gmazzo.buildconfig.BuildConfigField
-import com.github.gmazzo.buildconfig.BuildConfigSourceSet
-import com.github.gmazzo.buildconfig.BuildConfigValue
+import com.github.gmazzo.buildconfig.*
 import java.io.Serializable
 import kotlin.reflect.typeOf
 import org.gradle.api.Action
@@ -42,7 +38,7 @@ public inline fun <reified Type : Serializable> BuildConfigClassSpec.buildConfig
 
 @BuildConfigDsl
 @JvmName("buildConfigFieldExpression")
-public inline fun <reified Type : Any?> BuildConfigClassSpec.buildConfigField(
+public inline fun <reified Type> BuildConfigClassSpec.buildConfigField(
     name: String,
     expression: BuildConfigValue.Expression,
 ): BuildConfigField = buildConfigField(name) {
@@ -52,7 +48,7 @@ public inline fun <reified Type : Any?> BuildConfigClassSpec.buildConfigField(
 
 @BuildConfigDsl
 @JvmName("buildConfigFieldExpression")
-public inline fun <reified Type : Any?> BuildConfigClassSpec.buildConfigField(
+public inline fun <reified Type> BuildConfigClassSpec.buildConfigField(
     name: String,
     expression: Provider<BuildConfigValue.Expression>,
 ): BuildConfigField = buildConfigField(name) {
