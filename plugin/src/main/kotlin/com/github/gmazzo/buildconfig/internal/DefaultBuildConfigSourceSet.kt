@@ -64,9 +64,11 @@ internal abstract class DefaultBuildConfigSourceSet(
         check(other != this) { "A source set cannot supersede itself: '$name'" }
 
         if (!isSuperseded) {
+            val message = "'${this@DefaultBuildConfigSourceSet.name}' was superseded by '${other.name}' source set"
+
             isSuperseded = true
-            generateTask.configure { t ->
-                t.supersededBy(other)
+            generateTask.configure {
+                it.doFirst { error(message) }
             }
         }
 
