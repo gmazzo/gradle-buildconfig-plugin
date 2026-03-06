@@ -65,8 +65,8 @@ internal abstract class DefaultBuildConfigSourceSet(
 
         if (!isSuperseded) {
             isSuperseded = true
-            generateTask.configure {
-                supersededBy(other)
+            generateTask.configure { t ->
+                t.supersededBy(other)
             }
         }
 
