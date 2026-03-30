@@ -42,7 +42,7 @@ jobs:
           checkName: Test Results (${{ matrix.os }})
       - name: Coverage report
         if: ${{ matrix.os == 'ubuntu' }}
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: '**/build/reports/jacoco/**/*.xml'
