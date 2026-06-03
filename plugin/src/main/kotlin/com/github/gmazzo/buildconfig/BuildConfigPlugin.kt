@@ -153,7 +153,7 @@ public class BuildConfigPlugin : Plugin<Project> {
         it.type.finalizeValueOnRead()
         it.value.finalizeValueOnRead()
         it.position.finalizeValueOnRead()
-        it.tags.finalizeValueOnRead()
+        // it.tags.finalizeValueOnRead(), this is intentional for later computation
     }
 
     /**

@@ -75,14 +75,23 @@ private fun computeExpectsActuals(
         propagationCandidates.getOrPut(dependsOn, ::linkedSetOf).add(spec)
 
         val selectedDependsOn = selector(dependsOn) ?: continue
-        for (field in selectedSpec.buildConfigFields) {
-            if (field.name !in selectedDependsOn.buildConfigFields.names) continue
 
+        fun bindExpectSpec() {
             expectSpecs.add(dependsOn to extraName)
-            field.tags.add(BuildConfigField.IsActual)
 
             // also makes sure that the actual class matches the expect declaration
             selectedSpec.defaultsFrom(selectedDependsOn)
+        }
+
+        for (field in selectedSpec.buildConfigFields) {
+            if (field.name !in selectedDependsOn.buildConfigFields.names) continue
+
+            bindExpectSpec()
+            field.tags.add(BuildConfigField.IsActual)
+        }
+
+        if (dependsOn.buildConfigFields.any { BuildConfigField.IsExpect in it.tags.get() }) {
+            bindExpectSpec()
         }
     }
 }
