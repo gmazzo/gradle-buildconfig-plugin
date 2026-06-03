@@ -1,6 +1,6 @@
 [versions]
 java = "17"
-kotlin = "2.3.10"
+kotlin = "2.4.0"
 android = "9.1.0"
 
 [libraries]
