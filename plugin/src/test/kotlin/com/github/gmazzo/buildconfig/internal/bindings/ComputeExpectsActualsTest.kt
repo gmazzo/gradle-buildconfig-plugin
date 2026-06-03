@@ -574,6 +574,40 @@ internal class ComputeExpectsActualsTest {
                 }
             })
 
+        // single expect with default
+        @TestFactory
+        fun singleExpectWithDefault() = computeExpectsActualsCase(layout {
+            buildConfigField("EMAIL", expect("anEmail"))
+
+            sourceSet("webMain") {
+                buildConfigField("WEBSITE_URL", "anURL")
+            }
+        }) {
+            buildConfigField("EMAIL", "anEmail").shouldBeExpect()
+
+            sourceSet("jvmMain") {
+                className("BuildConfig") // should match the root one
+
+                buildConfigField("EMAIL", "anEmail").shouldBeActual()
+            }
+            sourceSet("androidMain") {
+                className("BuildConfig") // should match the root one
+
+                buildConfigField("EMAIL", "anEmail").shouldBeActual()
+            }
+            sourceSet("nativeMain") {
+                className("BuildConfig") // should match the root one
+
+                buildConfigField("EMAIL", "anEmail").shouldBeActual()
+            }
+            sourceSet("webMain") {
+                className("BuildConfig") // should match the root one
+
+                buildConfigField("EMAIL", "anEmail").shouldBeActual()
+                buildConfigField("WEBSITE_URL", "anURL")
+            }
+        }
+
         private fun computeExpectsActualsCase(
             input: BuildConfigExtensionInternal,
             expectsBlock: BuildConfigExtensionInternal.() -> Unit
@@ -646,98 +680,99 @@ internal class ComputeExpectsActualsTest {
     }
 
     @Suppress("unused", "UnusedVariable")
-    private fun layout(kmpAndroidLegacy: Boolean, block: BuildConfigExtensionInternal.() -> Unit = {}) = create {
-        val main by sourceSets.getting
-        val test by sourceSets.creating
-        val androidMain by sourceSets.creating { dependsOn(main) }
+    private fun layout(kmpAndroidLegacy: Boolean = false, block: BuildConfigExtensionInternal.() -> Unit = {}) =
+        create {
+            val main by sourceSets.getting
+            val test by sourceSets.creating
+            val androidMain by sourceSets.creating { dependsOn(main) }
 
-        if (kmpAndroidLegacy) {
-            val androidDebug by sourceSets.creating { dependsOn(androidMain); androidMain.supersededBy(this) }
-            val androidRelease by sourceSets.creating { dependsOn(androidMain); androidMain.supersededBy(this) }
-            val androidFoo by sourceSets.creating { dependsOn(androidMain); androidMain.supersededBy(this) }
-            val androidBar by sourceSets.creating { dependsOn(androidMain); androidMain.supersededBy(this) }
-            val androidStage by sourceSets.creating { dependsOn(androidMain); androidMain.supersededBy(this) }
-            val androidProd by sourceSets.creating { dependsOn(androidMain); androidMain.supersededBy(this) }
-            val androidFooStage by sourceSets.creating {
-                dependsOn(androidFoo); androidFoo.supersededBy(this)
-                dependsOn(androidStage); androidStage.supersededBy(this)
-            }
-            val androidBarStage by sourceSets.creating {
-                dependsOn(androidBar); androidBar.supersededBy(this)
-                dependsOn(androidStage); androidStage.supersededBy(this)
-            }
-            val androidFooProd by sourceSets.creating {
-                dependsOn(androidFoo); androidFoo.supersededBy(this)
-                dependsOn(androidProd); androidProd.supersededBy(this)
-            }
-            val androidBarProd by sourceSets.creating {
-                dependsOn(androidBar); androidBar.supersededBy(this)
-                dependsOn(androidProd); androidProd.supersededBy(this)
-            }
-            val androidFooStageDebug by sourceSets.creating {
-                dependsOn(androidDebug); androidDebug.supersededBy(this); markAsKMPTarget()
-                dependsOn(androidFooStage); androidFooStage.supersededBy(this); markAsKMPTarget()
-            }
-            val androidFooStageRelease by sourceSets.creating {
-                dependsOn(androidRelease); androidRelease.supersededBy(this); markAsKMPTarget()
-                dependsOn(androidFooStage); androidFooStage.supersededBy(this); markAsKMPTarget()
-            }
-            val androidFooProdDebug by sourceSets.creating {
-                dependsOn(androidDebug); androidDebug.supersededBy(this); markAsKMPTarget()
-                dependsOn(androidFooProd); androidFooProd.supersededBy(this); markAsKMPTarget()
-            }
-            val androidFooProdRelease by sourceSets.creating {
-                dependsOn(androidRelease); androidRelease.supersededBy(this); markAsKMPTarget()
-                dependsOn(androidFooProd); androidFooProd.supersededBy(this); markAsKMPTarget()
-            }
-            val androidBarStageDebug by sourceSets.creating {
-                dependsOn(androidDebug); androidDebug.supersededBy(this); markAsKMPTarget()
-                dependsOn(androidBarStage); androidBarStage.supersededBy(this); markAsKMPTarget()
-            }
-            val androidBarStageRelease by sourceSets.creating {
-                dependsOn(androidRelease); androidRelease.supersededBy(this); markAsKMPTarget()
-                dependsOn(androidBarStage); androidBarStage.supersededBy(this); markAsKMPTarget()
-            }
-            val androidBarProdDebug by sourceSets.creating {
-                dependsOn(androidDebug); androidDebug.supersededBy(this); markAsKMPTarget()
-                dependsOn(androidBarProd); androidBarProd.supersededBy(this); markAsKMPTarget()
-            }
-            val androidBarProdRelease by sourceSets.creating {
-                dependsOn(androidRelease); androidRelease.supersededBy(this); markAsKMPTarget()
-                dependsOn(androidBarProd); androidBarProd.supersededBy(this); markAsKMPTarget()
-            }
-            val androidUnitTest by sourceSets.creating { dependsOn(test) }
-            val androidUnitTestDebug by sourceSets.creating { dependsOn(androidUnitTest); markAsKMPTarget() }
-            val androidUnitTestRelease by sourceSets.creating { dependsOn(androidUnitTest); markAsKMPTarget() }
-            val androidInstrumentationTest by sourceSets.creating
-            val androidInstrumentationTestDebug by sourceSets.creating { dependsOn(androidInstrumentationTest); markAsKMPTarget() }
-            val androidInstrumentationTestRelease by sourceSets.creating { dependsOn(androidInstrumentationTest); markAsKMPTarget() }
+            if (kmpAndroidLegacy) {
+                val androidDebug by sourceSets.creating { dependsOn(androidMain); androidMain.supersededBy(this) }
+                val androidRelease by sourceSets.creating { dependsOn(androidMain); androidMain.supersededBy(this) }
+                val androidFoo by sourceSets.creating { dependsOn(androidMain); androidMain.supersededBy(this) }
+                val androidBar by sourceSets.creating { dependsOn(androidMain); androidMain.supersededBy(this) }
+                val androidStage by sourceSets.creating { dependsOn(androidMain); androidMain.supersededBy(this) }
+                val androidProd by sourceSets.creating { dependsOn(androidMain); androidMain.supersededBy(this) }
+                val androidFooStage by sourceSets.creating {
+                    dependsOn(androidFoo); androidFoo.supersededBy(this)
+                    dependsOn(androidStage); androidStage.supersededBy(this)
+                }
+                val androidBarStage by sourceSets.creating {
+                    dependsOn(androidBar); androidBar.supersededBy(this)
+                    dependsOn(androidStage); androidStage.supersededBy(this)
+                }
+                val androidFooProd by sourceSets.creating {
+                    dependsOn(androidFoo); androidFoo.supersededBy(this)
+                    dependsOn(androidProd); androidProd.supersededBy(this)
+                }
+                val androidBarProd by sourceSets.creating {
+                    dependsOn(androidBar); androidBar.supersededBy(this)
+                    dependsOn(androidProd); androidProd.supersededBy(this)
+                }
+                val androidFooStageDebug by sourceSets.creating {
+                    dependsOn(androidDebug); androidDebug.supersededBy(this); markAsKMPTarget()
+                    dependsOn(androidFooStage); androidFooStage.supersededBy(this); markAsKMPTarget()
+                }
+                val androidFooStageRelease by sourceSets.creating {
+                    dependsOn(androidRelease); androidRelease.supersededBy(this); markAsKMPTarget()
+                    dependsOn(androidFooStage); androidFooStage.supersededBy(this); markAsKMPTarget()
+                }
+                val androidFooProdDebug by sourceSets.creating {
+                    dependsOn(androidDebug); androidDebug.supersededBy(this); markAsKMPTarget()
+                    dependsOn(androidFooProd); androidFooProd.supersededBy(this); markAsKMPTarget()
+                }
+                val androidFooProdRelease by sourceSets.creating {
+                    dependsOn(androidRelease); androidRelease.supersededBy(this); markAsKMPTarget()
+                    dependsOn(androidFooProd); androidFooProd.supersededBy(this); markAsKMPTarget()
+                }
+                val androidBarStageDebug by sourceSets.creating {
+                    dependsOn(androidDebug); androidDebug.supersededBy(this); markAsKMPTarget()
+                    dependsOn(androidBarStage); androidBarStage.supersededBy(this); markAsKMPTarget()
+                }
+                val androidBarStageRelease by sourceSets.creating {
+                    dependsOn(androidRelease); androidRelease.supersededBy(this); markAsKMPTarget()
+                    dependsOn(androidBarStage); androidBarStage.supersededBy(this); markAsKMPTarget()
+                }
+                val androidBarProdDebug by sourceSets.creating {
+                    dependsOn(androidDebug); androidDebug.supersededBy(this); markAsKMPTarget()
+                    dependsOn(androidBarProd); androidBarProd.supersededBy(this); markAsKMPTarget()
+                }
+                val androidBarProdRelease by sourceSets.creating {
+                    dependsOn(androidRelease); androidRelease.supersededBy(this); markAsKMPTarget()
+                    dependsOn(androidBarProd); androidBarProd.supersededBy(this); markAsKMPTarget()
+                }
+                val androidUnitTest by sourceSets.creating { dependsOn(test) }
+                val androidUnitTestDebug by sourceSets.creating { dependsOn(androidUnitTest); markAsKMPTarget() }
+                val androidUnitTestRelease by sourceSets.creating { dependsOn(androidUnitTest); markAsKMPTarget() }
+                val androidInstrumentationTest by sourceSets.creating
+                val androidInstrumentationTestDebug by sourceSets.creating { dependsOn(androidInstrumentationTest); markAsKMPTarget() }
+                val androidInstrumentationTestRelease by sourceSets.creating { dependsOn(androidInstrumentationTest); markAsKMPTarget() }
 
-        } else {
-            androidMain.markAsKMPTarget()
-            val androidHostTest by sourceSets.creating { dependsOn(test); markAsKMPTarget() }
-            val androidDeviceTest by sourceSets.creating { dependsOn(test); markAsKMPTarget() }
+            } else {
+                androidMain.markAsKMPTarget()
+                val androidHostTest by sourceSets.creating { dependsOn(test); markAsKMPTarget() }
+                val androidDeviceTest by sourceSets.creating { dependsOn(test); markAsKMPTarget() }
+            }
+
+            val nativeMain by sourceSets.creating { dependsOn(main) }
+            val nativeTest by sourceSets.creating { dependsOn(test) }
+            val iosMain by sourceSets.creating { dependsOn(nativeMain) }
+            val iosTest by sourceSets.creating { dependsOn(nativeTest) }
+            val iosArm64Main by sourceSets.creating { dependsOn(iosMain); markAsKMPTarget() }
+            val iosArm64Test by sourceSets.creating { dependsOn(iosTest); markAsKMPTarget() }
+            val iosSimulatorArm64Main by sourceSets.creating { dependsOn(iosMain); markAsKMPTarget() }
+            val iosSimulatorArm64Test by sourceSets.creating { dependsOn(iosTest); markAsKMPTarget() }
+            val jvmMain by sourceSets.creating { dependsOn(main); markAsKMPTarget() }
+            val jvmTest by sourceSets.creating { dependsOn(test); markAsKMPTarget() }
+            val webMain by sourceSets.creating { dependsOn(main) }
+            val webTest by sourceSets.creating { dependsOn(test) }
+            val jsMain by sourceSets.creating { dependsOn(webMain); markAsKMPTarget() }
+            val jsTest by sourceSets.creating { dependsOn(webTest); markAsKMPTarget() }
+            val wasmJsMain by sourceSets.creating { dependsOn(webMain); markAsKMPTarget() }
+            val wasmJsTest by sourceSets.creating { dependsOn(webTest); markAsKMPTarget() }
+
+            block()
         }
-
-        val nativeMain by sourceSets.creating { dependsOn(main) }
-        val nativeTest by sourceSets.creating { dependsOn(test) }
-        val iosMain by sourceSets.creating { dependsOn(nativeMain) }
-        val iosTest by sourceSets.creating { dependsOn(nativeTest) }
-        val iosArm64Main by sourceSets.creating { dependsOn(iosMain); markAsKMPTarget() }
-        val iosArm64Test by sourceSets.creating { dependsOn(iosTest); markAsKMPTarget() }
-        val iosSimulatorArm64Main by sourceSets.creating { dependsOn(iosMain); markAsKMPTarget() }
-        val iosSimulatorArm64Test by sourceSets.creating { dependsOn(iosTest); markAsKMPTarget() }
-        val jvmMain by sourceSets.creating { dependsOn(main); markAsKMPTarget() }
-        val jvmTest by sourceSets.creating { dependsOn(test); markAsKMPTarget() }
-        val webMain by sourceSets.creating { dependsOn(main) }
-        val webTest by sourceSets.creating { dependsOn(test) }
-        val jsMain by sourceSets.creating { dependsOn(webMain); markAsKMPTarget() }
-        val jsTest by sourceSets.creating { dependsOn(webTest); markAsKMPTarget() }
-        val wasmJsMain by sourceSets.creating { dependsOn(webMain); markAsKMPTarget() }
-        val wasmJsTest by sourceSets.creating { dependsOn(webTest); markAsKMPTarget() }
-
-        block()
-    }
 
     private fun create(block: BuildConfigExtensionInternal.() -> Unit) =
         project.objects.newInstance<DefaultBuildConfigExtension>().also {
