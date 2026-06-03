@@ -22,7 +22,7 @@ description =
 java.toolchain.languageVersion = JavaLanguageVersion.of(libs.versions.java.get())
 
 kotlin {
-    abiValidation.enabled = true
+    abiValidation()
     compilerOptions {
         // https://docs.gradle.org/current/userguide/compatibility.html#kotlin
         apiVersion = KotlinVersion.KOTLIN_2_0
@@ -135,8 +135,4 @@ tasks.publish {
 
 tasks.validatePlugins {
     enableStricterValidation = true
-}
-
-tasks.check {
-    dependsOn(tasks.checkLegacyAbi)
 }
