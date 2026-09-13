@@ -158,6 +158,8 @@ internal val Any?.elements: List<Any?>
         is BooleanArray -> toList()
         is Collection<*> -> toList()
         is Map<*, *> -> entries.toList()
+        is Pair<*, *> -> listOf(first, second)
+        is Triple<*, *, *> -> listOf(first, second, third)
         else -> listOf(this)
     }
 
@@ -175,6 +177,8 @@ internal fun Any?.asVarArg(): Array<*> = when (this) {
     is List<*> -> toTypedArray()
     is Iterable<*> -> toList().toTypedArray()
     is Map<*, *> -> entries.asSequence().flatMap { (k, v) -> sequenceOf(k, v) }.toList().toTypedArray()
+    is Pair<*, *> -> arrayOf(first, second)
+    is Triple<*, *, *> -> arrayOf(first, second, third)
     else -> arrayOf(this)
 }
 

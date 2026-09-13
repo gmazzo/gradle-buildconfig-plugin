@@ -20,6 +20,8 @@ buildConfig {
     buildConfigField<String?>("OPTIONAL", null)
     buildConfigField("FEATURE_ENABLED", true)
     buildConfigField("MAGIC_NUMBERS", listOf(1, 2, 3))
+    buildConfigField("PAIR", "a" to 1)
+    buildConfigField("TRIPLE", Triple("a", 1, true))
 
     // all possible kinds for String
     buildConfigField("STRING", "aString")
