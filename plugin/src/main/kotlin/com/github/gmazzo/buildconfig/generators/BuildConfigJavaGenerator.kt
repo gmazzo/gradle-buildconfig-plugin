@@ -104,8 +104,6 @@ public open class BuildConfigJavaGenerator(
             }
         }
 
-        java.util.Map.entry(1, "")
-
         JavaFile
             .builder(
                 spec.packageName, typeSpec
@@ -155,7 +153,11 @@ public open class BuildConfigJavaGenerator(
             elements.format("java.util.Arrays.asList(", ")", elementType)
 
         fun setFormat(elementType: TypeName?) =
-            elements.format("new java.util.LinkedHashSet<>(java.util.Arrays.asList(", "))", elementType)
+            elements.format(
+                "new java.util.LinkedHashSet<>(java.util.Arrays.asList(",
+                "))",
+                elementType
+            )
 
         fun mapFormat(keyType: TypeName?, valueType: TypeName?) =
             elements.joinToString(
@@ -165,11 +167,25 @@ public open class BuildConfigJavaGenerator(
                 transform = {
                     val (key, value) = (it as Map.Entry<Any?, Any?>)
                     val keyFormat = (keyType ?: key?.let { TypeName.get(key::class.java) }).format()
-                    val valueFormat = (valueType ?: value?.let { TypeName.get(value::class.java) }).format()
+                    val valueFormat =
+                        (valueType ?: value?.let { TypeName.get(value::class.java) }).format()
 
                     "java.util.Map.entry($keyFormat, $valueFormat)"
                 }
             ) to elements.size * 2
+
+        fun pairFormat(firstType: TypeName?, secondType: TypeName?) =
+            "new kotlin.Pair<>(" +
+                (firstType ?: elements[0]?.let { TypeName.get(it::class.java) }).format() + ", " +
+                (secondType ?: elements[1]?.let { TypeName.get(it::class.java) }).format() +
+                ")" to 2
+
+        fun tripleFormat(firstType: TypeName?, secondType: TypeName?, thirdType: TypeName?) =
+            "new kotlin.Triple<>(" +
+                (firstType ?: elements[0]?.let { TypeName.get(it::class.java) }).format() + ", " +
+                (secondType ?: elements[1]?.let { TypeName.get(it::class.java) }).format() + ", " +
+                (thirdType ?: elements[2]?.let { TypeName.get(it::class.java) }).format() +
+                ")" to 3
 
         return when (this) {
             TypeName.LONG, ClassName.get(String::class.java) -> singleFormat()
@@ -177,12 +193,21 @@ public open class BuildConfigJavaGenerator(
             LIST, GENERIC_LIST -> listFormat(null)
             SET, GENERIC_SET -> setFormat(null)
             MAP, GENERIC_MAP -> mapFormat(null, null)
+            PAIR -> elements.format("new kotlin.Pair(", ")", null)
+            TRIPLE -> elements.format("new kotlin.Triple(", ")", null)
             is ParameterizedTypeName -> when (rawType) {
                 LIST, GENERIC_LIST -> listFormat(typeArguments[0].takeIf { it.isBoxedPrimitive })
                 SET, GENERIC_SET -> setFormat(typeArguments[0].takeIf { it.isBoxedPrimitive })
                 MAP, GENERIC_MAP -> mapFormat(
                     typeArguments[0].takeIf { it.isBoxedPrimitive },
                     typeArguments[1].takeIf { it.isBoxedPrimitive })
+                PAIR -> pairFormat(
+                    typeArguments[0].takeIf { it.isBoxedPrimitive },
+                    typeArguments[1].takeIf { it.isBoxedPrimitive })
+                TRIPLE -> tripleFormat(
+                    typeArguments[0].takeIf { it.isBoxedPrimitive },
+                    typeArguments[1].takeIf { it.isBoxedPrimitive },
+                    typeArguments[2].takeIf { it.isBoxedPrimitive })
 
                 else -> singleFormat()
             }
@@ -196,6 +221,8 @@ public open class BuildConfigJavaGenerator(
         private val LIST = ClassName.get(List::class.java)
         private val SET = ClassName.get(Set::class.java)
         private val MAP = ClassName.get(Map::class.java)
+        private val PAIR = ClassName.get(Pair::class.java)
+        private val TRIPLE = ClassName.get(Triple::class.java)
         private val FILE = ClassName.get(File::class.java)
         private val URI = ClassName.get(JavaURI::class.java)
         private val GENERIC_LIST = ClassName.get("", "List")

@@ -184,6 +184,19 @@ public open class BuildConfigKotlinGenerator(
                 }
             ) to elements.size * 2
 
+        fun pairFormat(firstType: TypeName?, secondType: TypeName?) =
+            "kotlin.Pair(" +
+                (firstType ?: elements[0]?.let { it::class.asTypeName() }).format() + ", " +
+                (secondType ?: elements[1]?.let { it::class.asTypeName() }).format() +
+                ")" to 2
+
+        fun tripleFormat(firstType: TypeName?, secondType: TypeName?, thirdType: TypeName?) =
+            "kotlin.Triple(" +
+                (firstType ?: elements[0]?.let { it::class.asTypeName() }).format() + ", " +
+                (secondType ?: elements[1]?.let { it::class.asTypeName() }).format() + ", " +
+                (thirdType ?: elements[2]?.let { it::class.asTypeName() }).format() +
+                ")" to 3
+
         return when (val nonNullable = copy(nullable = false)) {
             LONG, STRING -> singleFormat()
             ARRAY -> arrayFormat(null)
@@ -198,11 +211,15 @@ public open class BuildConfigKotlinGenerator(
             LIST, GENERIC_LIST -> listFormat(null)
             SET, GENERIC_SET -> setFormat(null)
             MAP, GENERIC_MAP -> mapFormat(null, null)
+            PAIR -> pairFormat(null, null)
+            TRIPLE -> tripleFormat(null, null, null)
             is ParameterizedTypeName -> when (nonNullable.rawType) {
                 ARRAY -> arrayFormat(null)
                 LIST, GENERIC_LIST -> listFormat(nonNullable.typeArguments[0])
                 SET, GENERIC_SET -> setFormat(nonNullable.typeArguments[0])
                 MAP, GENERIC_MAP -> mapFormat(nonNullable.typeArguments[0], nonNullable.typeArguments[1])
+                PAIR -> pairFormat(nonNullable.typeArguments[0], nonNullable.typeArguments[1])
+                TRIPLE -> tripleFormat(nonNullable.typeArguments[0], nonNullable.typeArguments[1], nonNullable.typeArguments[2])
                 else -> singleFormat()
             }
 
@@ -217,10 +234,13 @@ public open class BuildConfigKotlinGenerator(
         }
 
     private companion object {
-        private val CONST_TYPES = setOf(STRING, BOOLEAN, BYTE, SHORT, INT, LONG, CHAR, FLOAT, DOUBLE)
+        private val CONST_TYPES =
+            setOf(STRING, BOOLEAN, BYTE, SHORT, INT, LONG, CHAR, FLOAT, DOUBLE)
         private val GENERIC_LIST = ClassName("", "List")
         private val GENERIC_SET = ClassName("", "Set")
         private val GENERIC_MAP = ClassName("", "Map")
+        private val PAIR = Pair::class.asClassName()
+        private val TRIPLE = Triple::class.asClassName()
         private val FILE = File::class.asClassName()
         private val URI = JavaURI::class.asClassName()
     }
