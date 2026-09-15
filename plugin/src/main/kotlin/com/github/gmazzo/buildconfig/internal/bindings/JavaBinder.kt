@@ -12,7 +12,7 @@ import org.gradle.kotlin.dsl.provideDelegate
 internal object JavaBinder {
 
     fun Project.configure(extension: BuildConfigExtension) {
-        val sourceSets: SourceSetContainer by extensions
+        val sourceSets: SourceSetContainer = extensions.getByType(SourceSetContainer::class.java)
 
         sourceSets.configureEach { sourceSet ->
             val spec = extension.sourceSets.maybeCreate(sourceSet.name)
