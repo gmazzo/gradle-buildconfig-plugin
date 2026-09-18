@@ -12,7 +12,7 @@ plugins {
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(libs.versions.java.get())
 
-val integrationTest by testing.suites.registering(JvmTestSuite::class) {
+val integrationTest = testing.suites.register<JvmTestSuite>("integrationTest") {
     useJUnit()
 }
 

@@ -8,10 +8,10 @@ apply(from = "gradle/shared.settings.gradle.kts")
 
 rootProject.name = "gradle-buildconfig-plugin"
 
-val kmpOnly: String? by settings
+val kmpOnly = providers.gradleProperty("kmpOnly").map(String::toBoolean).getOrElse(false)
 
 includeBuild("plugin")
-if (kmpOnly == null) include(
+if (!kmpOnly) include(
     "demo-project:generic",
     "demo-project:groovy",
     "demo-project:groovy-gen-kotlin",

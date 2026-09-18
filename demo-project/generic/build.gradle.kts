@@ -33,7 +33,7 @@ buildConfig {
 
 // everything below here are just helper code to allow testing the plugin as we can't rely on any framework like JUnit
 
-val generateBuildConfigTest by tasks.registering(AssertGeneratedFile::class) {
+val generateBuildConfigTest = tasks.register<AssertGeneratedFile>("generateBuildConfigTest") {
     generatedDir.set(tasks.generateBuildConfigClasses.flatMap { it.outputDir })
     filePath.set("com/github/gmazzo/buildconfig/demos/generic/BuildConfig.java")
     expectedContent.set(
@@ -58,11 +58,12 @@ val generateBuildConfigTest by tasks.registering(AssertGeneratedFile::class) {
     )
 }
 
-val generateBuildResourcesBuildConfigTest by tasks.registering(AssertGeneratedFile::class) {
-    generatedDir.set(tasks.generateBuildConfigClasses.flatMap { it.outputDir })
-    filePath.set("com/github/gmazzo/buildconfig/demos/generic/BuildResources.java")
-    expectedContent.set(
-        """
+val generateBuildResourcesBuildConfigTest =
+    tasks.register<AssertGeneratedFile>("generateBuildResourcesBuildConfigTest") {
+        generatedDir.set(tasks.generateBuildConfigClasses.flatMap { it.outputDir })
+        filePath.set("com/github/gmazzo/buildconfig/demos/generic/BuildResources.java")
+        expectedContent.set(
+            """
         package com.github.gmazzo.buildconfig.demos.generic;
 
         import java.lang.String;
@@ -74,19 +75,15 @@ val generateBuildResourcesBuildConfigTest by tasks.registering(AssertGeneratedFi
           }
         }
         """
-    )
+        )
+    }
+
+val test = tasks.register("test") {
+    dependsOn(generateBuildConfigTest, generateBuildResourcesBuildConfigTest)
 }
 
-tasks {
-
-    val test by registering {
-        dependsOn(generateBuildConfigTest, generateBuildResourcesBuildConfigTest)
-    }
-
-    check {
-        dependsOn(test)
-    }
-
+tasks.check {
+    dependsOn(test)
 }
 
 abstract class AssertGeneratedFile : DefaultTask() {

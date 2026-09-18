@@ -15,7 +15,7 @@ plugins {
 java.toolchain.languageVersion = JavaLanguageVersion.of(libs.versions.java.get())
 
 kotlin {
-    androidLibrary { // new AGP KMP plugin does not supports variants nor app
+    android { // new AGP KMP plugin does not support variants nor app
         compileSdk = 36
         namespace = "com.github.gmazzo.buildconfig.demos.android"
         minSdk = 21
@@ -26,7 +26,7 @@ kotlin {
     jvm()
     iosArm64()
     iosSimulatorArm64()
-    js(IR) { nodejs() }
+    js { nodejs() }
     wasmJs { nodejs() }
     applyDefaultHierarchyTemplate()
 }
