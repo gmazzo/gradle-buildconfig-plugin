@@ -17,14 +17,14 @@ dependencies {
     jacocoAggregation("com.github.gmazzo.buildconfig:plugin")
 }
 
-val kmpOnly: String? by project
+val kmpOnly = providers.gradleProperty("kmpOnly").map(String::toBoolean).getOrElse(false)
 val pluginBuild = gradle.includedBuild("plugin")
 
-val jacocoTestReport by reporting.reports.creating(JacocoCoverageReport::class) {
+val jacocoTestReport = reporting.reports.create<JacocoCoverageReport>("jacocoTestReport") {
     testSuiteName = pluginBuild.task(":test").name
 }
 
-if (kmpOnly == null) {
+if (!kmpOnly) {
     tasks.build {
         dependsOn(pluginBuild.task(":$name"))
     }
