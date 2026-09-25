@@ -34,6 +34,8 @@ class BuildConfigPluginTest : BuildConfigPluginBaseTest() {
         """
 
     override fun Args.writeTests() {
+        projectDir.resolve("gradle.properties").appendText("org.gradle.isolated-projects=true")
+
         projectDir.resolve("src/test/java/gs/test/BuildConfigTest.java").apply {
             parentFile.mkdirs()
             writeText(
