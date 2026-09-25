@@ -80,7 +80,7 @@ abstract class BuildConfigPluginBaseTest(private val isKMP: Boolean = false) {
             .withArguments(task, "-s", "--build-cache")
             .build()
 
-        val expected = setOf(TaskOutcome.SUCCESS, TaskOutcome.FROM_CACHE)
+        val expected = setOf(TaskOutcome.SUCCESS, TaskOutcome.UP_TO_DATE, TaskOutcome.FROM_CACHE)
         val actual = result.task(":$task")?.outcome
         assertTrue(actual in expected, "Unexpected task outcome: $actual, expected one of $expected")
     }

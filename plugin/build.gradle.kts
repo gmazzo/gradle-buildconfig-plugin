@@ -4,6 +4,7 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmDefaultMode
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.dsl.abi.ExperimentalAbiValidation
+import org.gradle.plugin.compatibility.compatibility
 
 plugins {
     alias(libs.plugins.kotlin.jvm)
@@ -11,6 +12,7 @@ plugins {
     alias(libs.plugins.mavenPublish)
     alias(libs.plugins.gitVersion)
     alias(libs.plugins.gradle.pluginPublish)
+    alias(libs.plugins.gradle.pluginCompatibility)
     alias(libs.plugins.publicationsReport)
     alias(libs.plugins.jacoco.testkit)
 }
@@ -67,6 +69,12 @@ gradlePlugin {
             displayName = name
             implementationClass = "com.github.gmazzo.buildconfig.BuildConfigPlugin"
             description = project.description
+            compatibility {
+                features {
+                    configurationCache = true
+                    isolatedProjects = true
+                }
+            }
             tags.addAll("buildconfig", "java", "kotlin", "kotlin-multiplatform")
         }
     }
